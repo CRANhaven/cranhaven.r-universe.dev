@@ -1,0 +1,188 @@
+---
+title: "binaryMM: Fitting Flexible Marginalized Models for Binary Correlated Outcomes"
+output: 
+  rmarkdown::html_vignette:
+    toc: yes
+    toc_depth: 3
+bibliography: reference.bib
+link-citations: yes
+vignette: >
+  %\VignetteIndexEntry{binaryMM: Fitting Flexible Marginalized Models for Binary Correlated Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The `binaryMM` package allows users to fit marginalized transition and latent variables (mTLV) models for binary longitudinal data. The aim of this vignette is to provide an overview of the models together with example code and analyses. 
+
+# The Marginalized Transition and Latent Variables Model
+
+Let $N$ be the total number of subjects, $\boldsymbol{Y}_{i}$ be the $n_i-$vector of binary responses for subject $i$, $\boldsymbol{X}_i$ be the $n_i \times p$ matrix of covariates and $U_i \sim N(0, 1)$. The marginalized transition and latent variable (mTLV) model described in @schildcrout2007mtlv can be defined by two equations:
+
+$$logit\left(\mu_{ij}^m\right) = \boldsymbol{\beta}^T\boldsymbol{X}_i$$
+$$logit\left(\mu_{ij}^c\right) = \Delta_{ij}(\boldsymbol{X}_i) + \gamma(\boldsymbol{X}_i)Y_{i(j-1)} + \sigma(\boldsymbol{X}_i) U_i$$
+
+where $\mu_{ij}^m = E[Y_{ij} | \boldsymbol{X}_i]$ and $\mu_{ij}^c = E[Y_{ij} | \boldsymbol{X}_i, Y_{i(j-1)}, U_i]$.
+
+The first equation describes the marginal mean model and the relationship between the outcome $\boldsymbol{Y}_{i}$ and the covariates $\boldsymbol{X}_i$. The second equation describes the conditional mean model (also named the dependence model) and the relationship between the outcome $\boldsymbol{Y}_{i}$ measured over time for each subject $i$. In particular, the conditional model includes a short-term transition component $\gamma(\boldsymbol{X}_i)Y_{i(j-1)}$, and a random intercept term, $\sigma(\boldsymbol{X}_i) U_i$, describing long-term non-diminishing dependence. 
+
+$\Delta_{ij}(\boldsymbol{X}_i)$ is a function of the marginal mean, $\mu_{ij}^m$, and the conditional mean, $\mu_{ij}^c$, such that the two model above are cohesive. In particular, $\Delta_{ij}(\boldsymbol{X}_i)$ is the value that satisfies the convolution equation:
+
+$$\mu_{ij}^m = E_{U_i, Y_{i(j-1)}}(\mu_{ij}^c) = E_{Z_i}[E_{Y_{i(j-1)}}[logit^{-1}(\Delta_{ij}(\boldsymbol{X}_i) + \gamma(\boldsymbol{X}_i)Y_{i(j-1)} + \sigma(\boldsymbol{X}_i) U_i)]]$$
+$\Delta_{ij}(\boldsymbol{X}_i)$ in mTLV is analytically intractable and its value is computed iteratively with a Newton-Raphson method.
+
+Detailed information on marginalized models with transition and/or latent terms can be found in @heagerty2002mt, @heagerty1999mlv and @schildcrout2007mtlv.
+
+# Basic Examples
+
+The next two sections explain how different specifications of mTLV models can be fitted using the `binaryMM` package. The data used are part of the package.
+
+```{r setup, warning=FALSE, message=FALSE}
+library(binaryMM)
+```
+
+
+## The Madras Longitudinal Schizophrenia Study 
+
+`madras` contains a subset of the data from the Madras Longitudinal Schizophrenia Study @diggle2002, which collected monthly symptom data on 86 schizophrenia patients after their initial hospitalization. The dataframe has 922 observations on 86 patients and includes the variables:
+
+- `though`. An indicator for thought disorders
+
+- `age`. An indicator for age-at-onset $\geq$ 20 years
+
+- `gender`. An indicator for female gender
+
+- `month`. Months since hospitalization
+
+- `id`. A unique patient identifiers
+
+The primary question of interest is whether subjects with an older age-at-onset tend to recover more or less quickly, and whether female patients recover more or less quickly. Recovery is measured by a reduction in the presentation of symptoms.
+
+```{r}
+data(madras)
+str(madras)
+```
+
+The marginal mean model is defined as: 
+
+$$logit(\mu_{ij}^m) = \beta_0 + \beta_1month_{ij} + \beta_2age_i + \beta_3gender_i + \beta_4 age_i \times month_{ij} + \beta_5 gender_i \times month_{ij}$$
+
+Multiple dependence models are explored to demonstrate how the `mm` function can be used. The different dependence models are declared by changing the `t.formula` and `lv.formula` arguments. Note that by default formula both are initially assigned `NULL` and if neither association models are specified, then an error is returned. 
+
+- Case 1. A dependence model with a transition term only:
+
+$$logit(\mu_{ij}^c) = \Delta_{ij}(\boldsymbol{X}_i) + \gamma Y_{i(j-1)}$$
+```{r}
+mod.mt <- mm(thought ~ month*gender + month*age, t.formula = ~1,  
+             data = madras, id = id)
+summary(mod.mt)
+```
+
+
+- Case 2. A dependence model with a latent term only:
+
+$$logit(\mu_{ij}^c) = \Delta_{ij}(\boldsymbol{X}_i) + \sigma U_i$$
+```{r}
+mod.mlv <- mm(thought ~ month*gender + month*age, lv.formula = ~1, 
+              data = madras, id = id)
+summary(mod.mlv)
+```
+
+- Case 3. A dependence model with a transition and a latent term:
+
+$$logit(\mu_{ij}^c) = \Delta_{ij}(\boldsymbol{X}_i) + \gamma Y_{i(j-1)} + \sigma U_i$$
+
+```{r}
+mod.mtlv <- mm(thought ~ month*gender + month*age,
+               t.formula = ~1, lv.formula = ~1, 
+               data = madras, id = id)
+summary(mod.mtlv)
+```
+
+  
+- Case 4. A dependence model with a transition term that is modified by gender.
+
+$$logit(\mu_{ij}^c) = \Delta_{ij}(\boldsymbol{X}_i) + (\gamma_0 + \gamma_1 gender_i) Y_{i(j-1)}$$
+
+```{r}
+mod.mtgender <- mm(thought ~ month*gender + month*age,
+                   t.formula = ~gender, data = madras, id = id)
+summary(mod.mtgender)
+```
+
+- Case 5. A dependence model with a latent term that is modified by gender. Note that because $\sigma$ is a positive quantity, to fit a mTLV model where the latent term is modified by gender, we need to specify two indicator variables: I0 for gender = 0, and I1 for gender = 1. The model to be specified in `lv.fomula` will take the form: `~0+I0+I1`.
+
+$$logit(\mu_{ij}^c) = \Delta_{ij}(\boldsymbol{X}_i) + [\sigma_0I(gender_i == 0) +  \sigma_1I(gender_i == 1)]U_i$$
+
+```{r}
+# set-up two new indicator variables for gender
+madras$g0    <- ifelse(madras$gender == 0, 1, 0)
+madras$g1    <- ifelse(madras$gender == 1, 1, 0)
+mod.mlvgender <- mm(thought ~ month*gender + month*age,
+                   lv.formula = ~0+g0+g1, data = madras, id = id)
+summary(mod.mlvgender)
+```
+
+The parameters from the marginal mean model have the same interpretation regardless of the dependence model used. Overall, older individuals tend to have slower recovery time than younger subjects, while females recover quicker than males.
+
+## Weighted Likelihood
+
+The `binaryMM` package allows user to add sampling weights and estimates the parameters of interest in those cases where the available sample might not be representative of the target population (i.e., survey data). This section shows how the sampling weights can be added in the `mm` syntax using the `datarand` dataframe.
+
+The dataframe has 24,999 observation on 2,500 subjects and includes the variables:
+
+- `id`. A unique patient identifier
+
+- `Y`. A binary longitudinal outcome
+
+- `time`. A continuous time-varying covariate indicating time of each follow-up
+
+- `binary`. A binary time-fixed covariate indicating whether a patient was assigned to a treatment arm (1) or a control arm (0)
+
+```{r}
+data(datrand)
+str(datrand)
+```
+
+From `datarand` a biased sampled can be created by assuming that complete data are available only for 1) every one who experienced the event `Y` at least once, and 2) 20% of the subjects who never experienced the event `Y`.
+
+```{r}
+# create the sampling scheme
+Ymean     <- tapply(datrand$Y, FUN = mean, INDEX = datrand$id)
+some.id   <- names(Ymean[Ymean != 0])
+none.id   <- names(Ymean)[!(names(Ymean) %in% some.id)]
+samp.some <- some.id[rbinom(length(none.id), 1, 1) == 1]
+samp.none <- none.id[rbinom(length(none.id), 1, 0.20) == 1]
+
+# sample subjects and create a weight vector
+datrand$sampled <- ifelse(datrand$id %in% c(samp.none, samp.some), 1, 0)
+dat.small       <- subset(datrand, sampled == 1)
+wt              <- ifelse(dat.small$id %in% samp.none, 1/1, 1/0.2)
+
+# fit the mTLV model
+mod.wt          <- mm(Y ~ time*binary, t.formula = ~1, data = dat.small, 
+                      id = id, weight = wt)
+summary(mod.wt)
+```
+
+Note that when the `weight` argument is specified, model-based standard error will not be correct and should not be reported. Thus, the software will return robust standard errors only together with a warning message.
+
+# Functions Available in the Package
+
+The two examples above showed how different mTLV model can be used using simulated data as well as data from the Madras Longitudinal Schizophrenia Study. The table below summarizes the functions in `mm` available to the user.
+
+
+| Function    | Description                                                                                                         |
+|-------------|---------------------------------------------------------------------------------------------------------------------|
+| `GenBinaryY`| Generate binary response variable under a user-specified mTLV model. The outcome is generated from a Bernoulli distribution where the probability of success is computed as the inverse-logit of the conditional mean.  The function requires the user to specify the mean model formula (`mean.formula`) in which a binary covariate is regressed on covariates, one or both components of the dependence model (the latent variable component `lv.formula` or the transition term component `t.formula`), the vector of cluster identifiers (`id`), a vector of values for the parameters of the mean model (`beta`), a vector of values for the parameters of the transition component of the dependence model (`gamma`), a vector of values for the latent component of the dependence model (`sigma`), a dataframe (`data`) with the mean model covariates (ordered by id and time) and a string of the mane of the new binary variable (`Yname`). The function returns the entire `data` object with an additional column `Yname` of the binary longitudinal outcome                  |
+| `mm`        | Fit mTLV model. The function requires the user to specify the mean model formula (`mean.formula`) in which a binary covariate is regressed on covariates, one or both components of the dependence model (the latent variable component `lv.formula` or the transition term component `t.formula`), the vector of cluster identifiers (`id`), and the dataframe to use (`data`). Users can additionally specify the sampling weights (`weight`) to estimate the parameters using weighted likelihood. |
+| `summary`   | Summarize the results of a class `MMLong` generated using `mm`. Tables with estimated parameters, standard errors and p-value are printed for both the mean model and the dependence model parameters           |
+| `anova`     | Allows to compare two nested models of class `MMLong` generated using `mm`. fits using mTLV. Currently comparison can be made for two models only|
+
+# Reference

@@ -1,0 +1,33 @@
+Package: binaryMM
+Type: Package
+Title: Flexible Marginalized Models for Binary Correlated Outcomes
+Version: 0.1.1
+Authors@R: c(person(given = "Jonathan", family = "Schildcrout", role =
+        c("aut"), email = "jonny.schild@vumc.org"), person(given =
+        "Nathaniel", family = "Mercaldo", role = c("aut"), email =
+        "nmercaldo@mgh.harvard.edu"), person(given = "Chiara", family =
+        "Di Gravio", role = c("cre"), email =
+        "chiara.di.gravio@vanderbilt.edu") )
+Description: Estimates marginalized mean and dependence model
+        parameters for correlated binary response data. Dependence
+        model may include transition and/or latent variable terms.
+        Methods are described in: Schildcrout and Heagerty (2007)
+        <doi:10.1111/j.1541-0420.2006.00680.x>, Heagerty (1999)
+        <doi:10.1111/j.0006-341x.1999.00688.x>, Heagerty (2002)
+        <doi:10.1111/j.0006-341x.2002.00342.x>.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.0
+Imports: fastGHQuad, MASS, Rcpp
+Suggests: rmarkdown, knitr, testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+NeedsCompilation: yes
+Packaged: 2022-10-11 21:34:40 UTC; chiaradigravio
+Author: Jonathan Schildcrout [aut], Nathaniel Mercaldo [aut], Chiara Di
+        Gravio [cre]
+Maintainer: Chiara Di Gravio <chiara.di.gravio@vanderbilt.edu>
+Repository: CRAN
+Date/Publication: 2022-10-11 21:52:31 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

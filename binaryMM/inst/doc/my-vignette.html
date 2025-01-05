@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>binaryMM: Fitting Flexible Marginalized Models for Binary Correlated Outcomes</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">binaryMM: Fitting Flexible Marginalized
+Models for Binary Correlated Outcomes</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#the-marginalized-transition-and-latent-variables-model" id="toc-the-marginalized-transition-and-latent-variables-model">The
+Marginalized Transition and Latent Variables Model</a></li>
+<li><a href="#basic-examples" id="toc-basic-examples">Basic Examples</a>
+<ul>
+<li><a href="#the-madras-longitudinal-schizophrenia-study" id="toc-the-madras-longitudinal-schizophrenia-study">The Madras
+Longitudinal Schizophrenia Study</a></li>
+<li><a href="#weighted-likelihood" id="toc-weighted-likelihood">Weighted
+Likelihood</a></li>
+</ul></li>
+<li><a href="#functions-available-in-the-package" id="toc-functions-available-in-the-package">Functions Available in the
+Package</a></li>
+<li><a href="#reference" id="toc-reference">Reference</a></li>
+</ul>
+</div>
+
+<p>The <code>binaryMM</code> package allows users to fit marginalized
+transition and latent variables (mTLV) models for binary longitudinal
+data. The aim of this vignette is to provide an overview of the models
+together with example code and analyses.</p>
+<div id="the-marginalized-transition-and-latent-variables-model" class="section level1">
+<h1>The Marginalized Transition and Latent Variables Model</h1>
+<p>Let <span class="math inline">\(N\)</span> be the total number of
+subjects, <span class="math inline">\(\boldsymbol{Y}_{i}\)</span> be the
+<span class="math inline">\(n_i-\)</span>vector of binary responses for
+subject <span class="math inline">\(i\)</span>, <span class="math inline">\(\boldsymbol{X}_i\)</span> be the <span class="math inline">\(n_i \times p\)</span> matrix of covariates and
+<span class="math inline">\(U_i \sim N(0, 1)\)</span>. The marginalized
+transition and latent variable (mTLV) model described in <span class="citation">Schildcrout and Heagerty (<a href="#ref-schildcrout2007mtlv" role="doc-biblioref">2007</a>)</span>
+can be defined by two equations:</p>
+<p><span class="math display">\[logit\left(\mu_{ij}^m\right) =
+\boldsymbol{\beta}^T\boldsymbol{X}_i\]</span> <span class="math display">\[logit\left(\mu_{ij}^c\right) =
+\Delta_{ij}(\boldsymbol{X}_i) + \gamma(\boldsymbol{X}_i)Y_{i(j-1)} +
+\sigma(\boldsymbol{X}_i) U_i\]</span></p>
+<p>where <span class="math inline">\(\mu_{ij}^m = E[Y_{ij} |
+\boldsymbol{X}_i]\)</span> and <span class="math inline">\(\mu_{ij}^c =
+E[Y_{ij} | \boldsymbol{X}_i, Y_{i(j-1)}, U_i]\)</span>.</p>
+<p>The first equation describes the marginal mean model and the
+relationship between the outcome <span class="math inline">\(\boldsymbol{Y}_{i}\)</span> and the covariates
+<span class="math inline">\(\boldsymbol{X}_i\)</span>. The second
+equation describes the conditional mean model (also named the dependence
+model) and the relationship between the outcome <span class="math inline">\(\boldsymbol{Y}_{i}\)</span> measured over time for
+each subject <span class="math inline">\(i\)</span>. In particular, the
+conditional model includes a short-term transition component <span class="math inline">\(\gamma(\boldsymbol{X}_i)Y_{i(j-1)}\)</span>, and a
+random intercept term, <span class="math inline">\(\sigma(\boldsymbol{X}_i) U_i\)</span>, describing
+long-term non-diminishing dependence.</p>
+<p><span class="math inline">\(\Delta_{ij}(\boldsymbol{X}_i)\)</span> is
+a function of the marginal mean, <span class="math inline">\(\mu_{ij}^m\)</span>, and the conditional mean,
+<span class="math inline">\(\mu_{ij}^c\)</span>, such that the two model
+above are cohesive. In particular, <span class="math inline">\(\Delta_{ij}(\boldsymbol{X}_i)\)</span> is the
+value that satisfies the convolution equation:</p>
+<p><span class="math display">\[\mu_{ij}^m = E_{U_i,
+Y_{i(j-1)}}(\mu_{ij}^c) =
+E_{Z_i}[E_{Y_{i(j-1)}}[logit^{-1}(\Delta_{ij}(\boldsymbol{X}_i) +
+\gamma(\boldsymbol{X}_i)Y_{i(j-1)} + \sigma(\boldsymbol{X}_i)
+U_i)]]\]</span> <span class="math inline">\(\Delta_{ij}(\boldsymbol{X}_i)\)</span> in mTLV is
+analytically intractable and its value is computed iteratively with a
+Newton-Raphson method.</p>
+<p>Detailed information on marginalized models with transition and/or
+latent terms can be found in <span class="citation">Heagerty (<a href="#ref-heagerty2002mt" role="doc-biblioref">2002</a>)</span>, <span class="citation">Heagerty and Zeger (<a href="#ref-heagerty1999mlv" role="doc-biblioref">1999</a>)</span> and <span class="citation">Schildcrout and Heagerty (<a href="#ref-schildcrout2007mtlv" role="doc-biblioref">2007</a>)</span>.</p>
+</div>
+<div id="basic-examples" class="section level1">
+<h1>Basic Examples</h1>
+<p>The next two sections explain how different specifications of mTLV
+models can be fitted using the <code>binaryMM</code> package. The data
+used are part of the package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(binaryMM)</span></code></pre></div>
+<div id="the-madras-longitudinal-schizophrenia-study" class="section level2">
+<h2>The Madras Longitudinal Schizophrenia Study</h2>
+<p><code>madras</code> contains a subset of the data from the Madras
+Longitudinal Schizophrenia Study <span class="citation">Diggle et al.
+(<a href="#ref-diggle2002" role="doc-biblioref">2002</a>)</span>, which
+collected monthly symptom data on 86 schizophrenia patients after their
+initial hospitalization. The dataframe has 922 observations on 86
+patients and includes the variables:</p>
+<ul>
+<li><p><code>though</code>. An indicator for thought disorders</p></li>
+<li><p><code>age</code>. An indicator for age-at-onset <span class="math inline">\(\geq\)</span> 20 years</p></li>
+<li><p><code>gender</code>. An indicator for female gender</p></li>
+<li><p><code>month</code>. Months since hospitalization</p></li>
+<li><p><code>id</code>. A unique patient identifiers</p></li>
+</ul>
+<p>The primary question of interest is whether subjects with an older
+age-at-onset tend to recover more or less quickly, and whether female
+patients recover more or less quickly. Recovery is measured by a
+reduction in the presentation of symptoms.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(madras)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(madras)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;data.frame&#39;:    922 obs. of  5 variables:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ id     : int  1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ thought: int  1 1 1 1 1 0 0 0 0 0 ...</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ month  : int  0 1 2 3 4 5 6 7 8 9 ...</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ gender : int  0 0 0 0 0 0 0 0 0 0 ...</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ age    : num  1 1 1 1 1 1 1 1 1 1 ...</span></span></code></pre></div>
+<p>The marginal mean model is defined as:</p>
+<p><span class="math display">\[logit(\mu_{ij}^m) = \beta_0 +
+\beta_1month_{ij} + \beta_2age_i + \beta_3gender_i + \beta_4 age_i
+\times month_{ij} + \beta_5 gender_i \times month_{ij}\]</span></p>
+<p>Multiple dependence models are explored to demonstrate how the
+<code>mm</code> function can be used. The different dependence models
+are declared by changing the <code>t.formula</code> and
+<code>lv.formula</code> arguments. Note that by default formula both are
+initially assigned <code>NULL</code> and if neither association models
+are specified, then an error is returned.</p>
+<ul>
+<li>Case 1. A dependence model with a transition term only:</li>
+</ul>
+<p><span class="math display">\[logit(\mu_{ij}^c) =
+\Delta_{ij}(\boldsymbol{X}_i) + \gamma Y_{i(j-1)}\]</span></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mod.mt <span class="ot">&lt;-</span> <span class="fu">mm</span>(thought <span class="sc">~</span> month<span class="sc">*</span>gender <span class="sc">+</span> month<span class="sc">*</span>age, <span class="at">t.formula =</span> <span class="sc">~</span><span class="dv">1</span>,  </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> madras, <span class="at">id =</span> id)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.mt)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class:</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MMLong</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mm(mean.formula = thought ~ month * gender + month * age, t.formula = ~1, </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     id = id, data = madras)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Information Criterion:</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       AIC        BIC     logLik   Deviance  </span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  688.3789   705.5594  -337.1895   674.3789  </span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marginal Mean Parameters:</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               Estimate  Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)   1.183683  0.444318     7.0971  0.007721</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month        -0.342857  0.081841    17.5501 2.798e-05</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gender       -0.141884  0.416152     0.1162  0.733147</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age          -0.649770  0.449183     2.0925  0.148021</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:gender -0.143788  0.081853     3.0859  0.078975</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:age     0.111555  0.085896     1.6867  0.194040</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dependence Model Parameters:</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   Estimate Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gamma:(Intercept)  3.16583  0.23014     189.23 &lt; 2.2e-16</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of clusters:             86 </span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximum cluster size:           12 </span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Convergence status (nlm code):  1 </span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of iterations:           22</span></span></code></pre></div>
+<ul>
+<li>Case 2. A dependence model with a latent term only:</li>
+</ul>
+<p><span class="math display">\[logit(\mu_{ij}^c) =
+\Delta_{ij}(\boldsymbol{X}_i) + \sigma U_i\]</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mod.mlv <span class="ot">&lt;-</span> <span class="fu">mm</span>(thought <span class="sc">~</span> month<span class="sc">*</span>gender <span class="sc">+</span> month<span class="sc">*</span>age, <span class="at">lv.formula =</span> <span class="sc">~</span><span class="dv">1</span>, </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> madras, <span class="at">id =</span> id)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.mlv)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MMLong</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mm(mean.formula = thought ~ month * gender + month * age, lv.formula = ~1, </span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     id = id, data = madras)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Information Criterion:</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       AIC        BIC     logLik   Deviance  </span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  750.5767   767.7571  -368.2883   736.5767  </span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marginal Mean Parameters:</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               Estimate  Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)   1.569015  0.399400    15.4326 8.550e-05</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month        -0.399007  0.062845    40.3107 2.166e-10</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gender       -0.539932  0.355893     2.3016   0.12924</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age          -0.911165  0.393487     5.3621   0.02058</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:gender -0.081899  0.060179     1.8521   0.17354</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:age     0.140215  0.063107     4.9366   0.02629</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dependence Model Parameters:</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        Estimate Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(sigma):(Intercept)  0.81289  0.12764     40.559 1.908e-10</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of clusters:             86 </span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximum cluster size:           12 </span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Convergence status (nlm code):  1 </span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of iterations:           42</span></span></code></pre></div>
+<ul>
+<li>Case 3. A dependence model with a transition and a latent term:</li>
+</ul>
+<p><span class="math display">\[logit(\mu_{ij}^c) =
+\Delta_{ij}(\boldsymbol{X}_i) + \gamma Y_{i(j-1)} + \sigma
+U_i\]</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mod.mtlv <span class="ot">&lt;-</span> <span class="fu">mm</span>(thought <span class="sc">~</span> month<span class="sc">*</span>gender <span class="sc">+</span> month<span class="sc">*</span>age,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">t.formula =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">lv.formula =</span> <span class="sc">~</span><span class="dv">1</span>, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> madras, <span class="at">id =</span> id)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.mtlv)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class:</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MMLong</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mm(mean.formula = thought ~ month * gender + month * age, lv.formula = ~1, </span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     t.formula = ~1, id = id, data = madras)</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Information Criterion:</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       AIC        BIC     logLik   Deviance  </span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  680.1283   699.7631  -332.0642   664.1283  </span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marginal Mean Parameters:</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               Estimate  Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)   1.327440  0.434588     9.3299  0.002255</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month        -0.367564  0.077443    22.5268 2.072e-06</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gender       -0.282497  0.402015     0.4938  0.482241</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age          -0.732176  0.436180     2.8177  0.093228</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:gender -0.111740  0.078306     2.0362  0.153591</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:age     0.117705  0.080870     2.1184  0.145536</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dependence Model Parameters:</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        Estimate Model SE Chi Square Pr(&gt;Chi)</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gamma:(Intercept)      2.511119 0.303963    68.2486   &lt;2e-16</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(sigma):(Intercept) 0.074494 0.244870     0.0925    0.761</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of clusters:             86 </span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximum cluster size:           12 </span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Convergence status (nlm code):  1 </span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of iterations:           50</span></span></code></pre></div>
+<ul>
+<li>Case 4. A dependence model with a transition term that is modified
+by gender.</li>
+</ul>
+<p><span class="math display">\[logit(\mu_{ij}^c) =
+\Delta_{ij}(\boldsymbol{X}_i) + (\gamma_0 + \gamma_1 gender_i)
+Y_{i(j-1)}\]</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mod.mtgender <span class="ot">&lt;-</span> <span class="fu">mm</span>(thought <span class="sc">~</span> month<span class="sc">*</span>gender <span class="sc">+</span> month<span class="sc">*</span>age,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">t.formula =</span> <span class="sc">~</span>gender, <span class="at">data =</span> madras, <span class="at">id =</span> id)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.mtgender)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class:</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MMLong</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mm(mean.formula = thought ~ month * gender + month * age, t.formula = ~gender, </span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     id = id, data = madras)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Information Criterion:</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       AIC        BIC     logLik   Deviance  </span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  690.2915   709.9263  -337.1458   674.2915  </span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marginal Mean Parameters:</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               Estimate  Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)   1.175157  0.444200     6.9990  0.008156</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month        -0.342431  0.081702    17.5662 2.775e-05</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gender       -0.137202  0.416448     0.1085  0.741809</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age          -0.635415  0.452122     1.9752  0.159901</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:gender -0.143961  0.082080     3.0763  0.079443</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:age     0.110312  0.085973     1.6464  0.199456</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dependence Model Parameters:</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   Estimate Model SE Chi Square Pr(&gt;Chi)</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gamma:(Intercept)  3.11501  0.28599    118.634   &lt;2e-16</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gamma:gender       0.14321  0.48550      0.087    0.768</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of clusters:             86 </span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximum cluster size:           12 </span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Convergence status (nlm code):  1 </span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of iterations:           34</span></span></code></pre></div>
+<ul>
+<li>Case 5. A dependence model with a latent term that is modified by
+gender. Note that because <span class="math inline">\(\sigma\)</span> is
+a positive quantity, to fit a mTLV model where the latent term is
+modified by gender, we need to specify two indicator variables: I0 for
+gender = 0, and I1 for gender = 1. The model to be specified in
+<code>lv.fomula</code> will take the form: <code>~0+I0+I1</code>.</li>
+</ul>
+<p><span class="math display">\[logit(\mu_{ij}^c) =
+\Delta_{ij}(\boldsymbol{X}_i) + [\sigma_0I(gender_i == 0)
++  \sigma_1I(gender_i == 1)]U_i\]</span></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set-up two new indicator variables for gender</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>madras<span class="sc">$</span>g0    <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(madras<span class="sc">$</span>gender <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>madras<span class="sc">$</span>g1    <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(madras<span class="sc">$</span>gender <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>mod.mlvgender <span class="ot">&lt;-</span> <span class="fu">mm</span>(thought <span class="sc">~</span> month<span class="sc">*</span>gender <span class="sc">+</span> month<span class="sc">*</span>age,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">lv.formula =</span> <span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>g0<span class="sc">+</span>g1, <span class="at">data =</span> madras, <span class="at">id =</span> id)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.mlvgender)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class:</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MMLong</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mm(mean.formula = thought ~ month * gender + month * age, lv.formula = ~0 + </span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     g0 + g1, id = id, data = madras)</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Information Criterion:</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       AIC        BIC     logLik   Deviance  </span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  752.4992   772.1340  -368.2496   736.4992  </span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marginal Mean Parameters:</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               Estimate  Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)   1.566764  0.400938    15.2705 9.316e-05</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month        -0.395507  0.064395    37.7227 8.155e-10</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gender       -0.515176  0.366086     1.9804   0.15935</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age          -0.921331  0.395394     5.4296   0.01980</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:gender -0.091526  0.069640     1.7273   0.18875</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; month:age     0.140228  0.063187     4.9251   0.02647</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dependence Model Parameters:</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               Estimate Model SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(sigma):g0  0.84429  0.17128     24.297 8.257e-07</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(sigma):g1  0.77199  0.19523     15.636 7.678e-05</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of clusters:             86 </span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximum cluster size:           12 </span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Convergence status (nlm code):  1 </span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of iterations:           50</span></span></code></pre></div>
+<p>The parameters from the marginal mean model have the same
+interpretation regardless of the dependence model used. Overall, older
+individuals tend to have slower recovery time than younger subjects,
+while females recover quicker than males.</p>
+</div>
+<div id="weighted-likelihood" class="section level2">
+<h2>Weighted Likelihood</h2>
+<p>The <code>binaryMM</code> package allows user to add sampling weights
+and estimates the parameters of interest in those cases where the
+available sample might not be representative of the target population
+(i.e., survey data). This section shows how the sampling weights can be
+added in the <code>mm</code> syntax using the <code>datarand</code>
+dataframe.</p>
+<p>The dataframe has 24,999 observation on 2,500 subjects and includes
+the variables:</p>
+<ul>
+<li><p><code>id</code>. A unique patient identifier</p></li>
+<li><p><code>Y</code>. A binary longitudinal outcome</p></li>
+<li><p><code>time</code>. A continuous time-varying covariate indicating
+time of each follow-up</p></li>
+<li><p><code>binary</code>. A binary time-fixed covariate indicating
+whether a patient was assigned to a treatment arm (1) or a control arm
+(0)</p></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(datrand)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(datrand)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;data.frame&#39;:    24999 obs. of  4 variables:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ id    : int  1 1 1 1 1 1 1 1 1 2 ...</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ Y     : int  0 0 1 1 0 0 0 0 0 0 ...</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ time  : num  0 1 2 3 4 5 6 7 8 0 ...</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ binary: num  0 0 0 0 0 0 0 0 0 0 ...</span></span></code></pre></div>
+<p>From <code>datarand</code> a biased sampled can be created by
+assuming that complete data are available only for 1) every one who
+experienced the event <code>Y</code> at least once, and 2) 20% of the
+subjects who never experienced the event <code>Y</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create the sampling scheme</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>Ymean     <span class="ot">&lt;-</span> <span class="fu">tapply</span>(datrand<span class="sc">$</span>Y, <span class="at">FUN =</span> mean, <span class="at">INDEX =</span> datrand<span class="sc">$</span>id)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>some.id   <span class="ot">&lt;-</span> <span class="fu">names</span>(Ymean[Ymean <span class="sc">!=</span> <span class="dv">0</span>])</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>none.id   <span class="ot">&lt;-</span> <span class="fu">names</span>(Ymean)[<span class="sc">!</span>(<span class="fu">names</span>(Ymean) <span class="sc">%in%</span> some.id)]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>samp.some <span class="ot">&lt;-</span> some.id[<span class="fu">rbinom</span>(<span class="fu">length</span>(none.id), <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">1</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>samp.none <span class="ot">&lt;-</span> none.id[<span class="fu">rbinom</span>(<span class="fu">length</span>(none.id), <span class="dv">1</span>, <span class="fl">0.20</span>) <span class="sc">==</span> <span class="dv">1</span>]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># sample subjects and create a weight vector</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>datrand<span class="sc">$</span>sampled <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(datrand<span class="sc">$</span>id <span class="sc">%in%</span> <span class="fu">c</span>(samp.none, samp.some), <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>dat.small       <span class="ot">&lt;-</span> <span class="fu">subset</span>(datrand, sampled <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>wt              <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dat.small<span class="sc">$</span>id <span class="sc">%in%</span> samp.none, <span class="dv">1</span><span class="sc">/</span><span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span><span class="fl">0.2</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the mTLV model</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>mod.wt          <span class="ot">&lt;-</span> <span class="fu">mm</span>(Y <span class="sc">~</span> time<span class="sc">*</span>binary, <span class="at">t.formula =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> dat.small, </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                      <span class="at">id =</span> id, <span class="at">weight =</span> wt)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.wt)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in summary.MMLong(mod.wt): When performing a weighted likelihood</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; analysis (by specifying the weight argument), robust standard errors are</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; reported. Model based standard errors will not be correct and should not be</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; used.</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class:</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MMLong</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mm(mean.formula = Y ~ time * binary, t.formula = ~1, id = id, </span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     data = dat.small, weight = wt)</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Information Criterion:</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       AIC        BIC     logLik   Deviance  </span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  74768.35   74795.57  -37379.17   74758.35  </span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marginal Mean Parameters:</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              Estimate Robust SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) -1.014456  0.045303    501.435 &lt; 2.2e-16</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time        -0.161408  0.010246    248.177 &lt; 2.2e-16</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; binary       0.320099  0.072732     19.369 1.077e-05</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time:binary  0.158889  0.013982    129.130 &lt; 2.2e-16</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dependence Model Parameters:</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   Estimate Robust SE Chi Square  Pr(&gt;Chi)</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; gamma:(Intercept) 1.043764  0.042677     598.17 &lt; 2.2e-16</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of clusters:             1712 </span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximum cluster size:           15 </span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Convergence status (nlm code):  1 </span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of iterations:           27</span></span></code></pre></div>
+<p>Note that when the <code>weight</code> argument is specified,
+model-based standard error will not be correct and should not be
+reported. Thus, the software will return robust standard errors only
+together with a warning message.</p>
+</div>
+</div>
+<div id="functions-available-in-the-package" class="section level1">
+<h1>Functions Available in the Package</h1>
+<p>The two examples above showed how different mTLV model can be used
+using simulated data as well as data from the Madras Longitudinal
+Schizophrenia Study. The table below summarizes the functions in
+<code>mm</code> available to the user.</p>
+<table>
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>GenBinaryY</code></td>
+<td>Generate binary response variable under a user-specified mTLV model.
+The outcome is generated from a Bernoulli distribution where the
+probability of success is computed as the inverse-logit of the
+conditional mean. The function requires the user to specify the mean
+model formula (<code>mean.formula</code>) in which a binary covariate is
+regressed on covariates, one or both components of the dependence model
+(the latent variable component <code>lv.formula</code> or the transition
+term component <code>t.formula</code>), the vector of cluster
+identifiers (<code>id</code>), a vector of values for the parameters of
+the mean model (<code>beta</code>), a vector of values for the
+parameters of the transition component of the dependence model
+(<code>gamma</code>), a vector of values for the latent component of the
+dependence model (<code>sigma</code>), a dataframe (<code>data</code>)
+with the mean model covariates (ordered by id and time) and a string of
+the mane of the new binary variable (<code>Yname</code>). The function
+returns the entire <code>data</code> object with an additional column
+<code>Yname</code> of the binary longitudinal outcome</td>
+</tr>
+<tr class="even">
+<td><code>mm</code></td>
+<td>Fit mTLV model. The function requires the user to specify the mean
+model formula (<code>mean.formula</code>) in which a binary covariate is
+regressed on covariates, one or both components of the dependence model
+(the latent variable component <code>lv.formula</code> or the transition
+term component <code>t.formula</code>), the vector of cluster
+identifiers (<code>id</code>), and the dataframe to use
+(<code>data</code>). Users can additionally specify the sampling weights
+(<code>weight</code>) to estimate the parameters using weighted
+likelihood.</td>
+</tr>
+<tr class="odd">
+<td><code>summary</code></td>
+<td>Summarize the results of a class <code>MMLong</code> generated using
+<code>mm</code>. Tables with estimated parameters, standard errors and
+p-value are printed for both the mean model and the dependence model
+parameters</td>
+</tr>
+<tr class="even">
+<td><code>anova</code></td>
+<td>Allows to compare two nested models of class <code>MMLong</code>
+generated using <code>mm</code>. fits using mTLV. Currently comparison
+can be made for two models only</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="reference" class="section level1 unnumbered">
+<h1 class="unnumbered">Reference</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-diggle2002" class="csl-entry">
+Diggle, P, PJ Heagerty, KY Liang, and Zeger SL. 2002. <em>Analysis of
+Longitudinal Data</em>. Oxford University Press.
+</div>
+<div id="ref-heagerty2002mt" class="csl-entry">
+Heagerty, PJ. 2002. <span>“Marginalized Transition Models and Likelihood
+Inference for Longitudinal Categorical Data.”</span> <em>Biometrics</em>
+58: 342–51.
+</div>
+<div id="ref-heagerty1999mlv" class="csl-entry">
+Heagerty, PJ, and SL Zeger. 1999. <span>“Marginalized Multilevel Models
+and Likelihood Inference.”</span> <em>Statistical Science</em> 15 (1):
+1–19.
+</div>
+<div id="ref-schildcrout2007mtlv" class="csl-entry">
+Schildcrout, JS, and PJ Heagerty. 2007. <span>“Marginalized Models for
+Moderate to Long Series of Longitudinal Binary Response Data.”</span>
+<em>Biometrics</em> 63 (2): 322–31.
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
