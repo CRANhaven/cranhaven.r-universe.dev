@@ -1,0 +1,22 @@
+Package: GiNA
+Type: Package
+Title: High Throughput Phenotyping
+Version: 1.0.1
+Date: 2016-03-29
+Author: Luis Diaz-Garcia and Giovanny Covarrubias-Pazaran, with
+        collaborations of Brandon Schlautman, Walter Salazar and Juan
+        Zalapa.
+Maintainer: Giovanny Covarrubias-Pazaran <covarrubiasp@wisc.edu>
+Description: Performs image segmentation in fruit or seeds pictures in
+        order to measure physical features in a high-throughput manner
+        for genome-wide association (GWAS) and genomic selection
+        programs.
+Depends: R (>= 3.2.1), methods, stats, EBImage, png, parallel,
+        doParallel, foreach
+License: GPL-3
+URL: http://www.wisc.edu
+Packaged: 2016-04-09 15:29:30 UTC; cova_ruber
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2016-04-10 00:27:50
+Additional_repositories: https://cranhaven.r-universe.dev

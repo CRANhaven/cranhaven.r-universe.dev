@@ -1,0 +1,12 @@
+citHeader("To cite the GiNA package in publications use:")
+
+citEntry(entry="Article",
+	title="GiNA: package for high throughput phenotyping of fruit crops",
+	author=as.person("Diaz-Garcia L, Covarrubias-Pazaran G, Schlautman B, Zalapa J"),
+	journal="https://cran.r-project.org/web/packages/GiNA/",
+	year=2016,
+	volume="R package version 1.0.1",
+	pages="",
+textVersion=paste("Diaz-Garcia L, Covarrubias-Pazaran G, Schlautman B, Salazar W, Zalapa J. (2016) GiNA: package for high throughput phenotyping of fruit crops. R package version 1.0.1",
+" URL https://cran.r-project.org/web/packages/GiNA/.")
+)

@@ -1,0 +1,31 @@
+export(brewer.pal, color.plot, cutoff, jet.scan, pixArea, scanCRAN)
+
+importFrom("grDevices", "col2rgb", "colorRampPalette", "rgb")
+  importFrom("graphics", "abline", "axis", "image", "layout", "legend",
+             "lines", "plot", "points", "rect", "text",
+             "par", "grid")
+  importFrom("stats", "na.omit", "median",
+             "var", "kmeans")
+#  importFrom("EBImage", "readImage", "resize", "channel", "thresh", 
+#             "opening", "makeBrush", "fillHull", "bwlabel", 
+#             "computeFeatures.shape", "computeFeatures.basic")
+  importFrom("png", "writePNG")
+  importFrom("parallel", "detectCores", "makeCluster", "stopCluster")
+  importFrom("doParallel", "registerDoParallel")
+#  importFrom("snow", "makeCluster", "stopCluster")
+#  importFrom("foreach", "foreach", "%dopar%") # dopar??
+#  importFrom("RColorBrewer", "brewer.pal")
+ 
+  ## FULL IMPORTS
+  import("methods")
+#  import("Matrix")
+#  import("MASS")
+  #import("plotrix")
+  import("EBImage")
+#  import("snow")
+#  import("png")
+#  import("parallel")
+#  import("doParallel") # before doSNOW
+  import("foreach")
+  
+  # R (>= 2.10), Matrix (>= 1.1.1), methods, stats, MASS, plotrix, matrixcalc, RColorBrewer, EBImage, png, parallel, doSNOW, foreach
