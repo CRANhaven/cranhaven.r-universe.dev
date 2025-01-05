@@ -1,0 +1,17 @@
+citHeader("To cite OptimalGoldstandardDesigns in publications use:")
+
+bibentry(
+bibtype = "Article",
+author = as.person("Jan Meis, Maximilian Pilz, Carolin Herrmann, Björn Bokelmann, Geraldine Rauch, Meinhard Kieser"),
+title = "Optimization of the two-stage group sequential three-arm gold-standard design for non-inferiority trials",
+journal = "Statistics in Medicine",
+volume = "42",
+number = "4",
+pages = "536-558",
+keywords = "gold-standard design, group sequential, hierarchical testing, non-inferiority, optimal design",
+doi = "10.1002/sim.9630",
+year = {2023},
+  textVersion = paste(
+  "Meis, J, Pilz, M, Herrmann, C, Bokelmann, B, Rauch, G, Kieser, M. Optimization of the two-stage group sequential three-arm gold-standard design for non-inferiority trials. Statistics in Medicine. 2023; 42( 4): 536– 558. doi:10.1002/sim.9630"
+  )
+)

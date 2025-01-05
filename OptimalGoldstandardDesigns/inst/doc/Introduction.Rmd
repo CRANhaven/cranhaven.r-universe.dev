@@ -1,0 +1,280 @@
+---
+title: "Usage guidance"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = identical(Sys.getenv("NOT_CRAN"), "true")
+)
+```
+
+```{r setup}
+library(OptimalGoldstandardDesigns)
+```
+
+# Introduction
+This package assumes that a hierarchical testing procedure
+for the three-arm gold-standard non-inferiority design is applied.
+The first test aims to establish assay sensitivity of the trial. It is a test of
+superiority of the experimental treatment (T) against the placebo treatment (P).
+If assay sensitivity is successfully established, the treatment is tested
+for non-inferiority against the control treatment (C).
+Individual observations are assumed to be normally distributed, where higher values
+correspond to better treatment effects. Testing is assumed to be done via
+Z test statistics.
+
+We highly recommend reading our open-access article
+[(Meis et al., 2022)](https://doi.org/10.1002/sim.9630)
+where the theoretical background of this package is explained.
+
+# Some examples from the paper
+To showcase the capabilities of this package, we will reproduce some results
+from the paper in the following.
+
+It should be noted that the results will not completely agree with the
+results from the paper, as the calculations in the paper used much
+lower error tolerances and more function evaluations.
+
+To achieve results closer to the results from the paper, you can
+supply the following options, though this will significantly increase
+computation times:
+
+```{r, eval=FALSE}
+  mvnorm_algorithm = mvtnorm::Miwa(
+    # steps = 128,
+    steps = 4097,
+    checkCorr = FALSE,
+    maxval = 1000),
+  nloptr_opts = list(algorithm = "NLOPT_LN_SBPLX",
+                     # xtol_abs = 1e-3,
+                     # xtol_rel = 1e-2,
+                     # maxeval = 2000,
+                     xtol_abs = 1e-10,
+                     xtol_rel = 1e-9,
+                     maxeval = 2000,
+                     print_level = 0)
+```
+
+You may also want to put 
+
+```{r, eval=FALSE}
+print_progress = TRUE
+```
+
+when running code interactively to see the progress of the optimization.
+
+## Design from Table 2
+The designs from in Table 2 from the paper are optimized to minimize the
+expected sample size under the alternative hypothesis.
+
+### Design 1, $\beta = 0.2$
+This is (approximately) the first line in Table 2 from the paper:
+```{r}
+tab1_D1 <- optimize_design_onestage(
+  alpha = .025,
+  beta = .2,
+  alternative_TP = .4,
+  alternative_TC = 0,
+  Delta = .2,
+  print_progress = FALSE
+)
+tab1_D1
+```
+
+### Design 2, $\beta = 0.2$
+This is (approximately) the second line in Table 2 from the paper:
+
+```{r}
+optimize_design_twostage(
+  cP1 = tab1_D1$stagec[[1]]$P, # The allocation ratios are enforced to be
+  cC1 = tab1_D1$stagec[[1]]$C, # the same as in the optimal single-stage design.
+  cT2 = 1,          
+  cP2 = tab1_D1$stagec[[1]]$P, 
+  cC2 = tab1_D1$stagec[[1]]$C, 
+  
+  bTP1f = -Inf,     # These two boundary conditions enforce no futility stops.
+  bTC1f = -Inf,
+  
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE
+)
+```
+
+### Design 3, $\beta = 0.2$
+This is (approximately) the third line in Table 2 from the paper:
+
+```{r}
+optimize_design_twostage(
+  bTP1f = -Inf,     # These two boundary conditions enforce no futility stops.
+  bTC1f = -Inf,
+  
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE
+)
+```
+
+### Design 4, $\beta = 0.2$
+This is (approximately) the fourth line in Table 2 from the paper:
+
+```{r}
+optimize_design_twostage(
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE,
+  binding_futility = FALSE
+)
+```
+
+### Design 5, $\beta = 0.2$
+This is (approximately) the fourth line in Table 2 from the paper:
+
+```{r}
+optimize_design_twostage(
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE,
+  binding_futility = TRUE
+)
+```
+
+
+## Design from Table 3
+Next, we will optimize a design under a combination of null and alternative
+hypothesis.
+
+### Design 5, $\beta = 0.2$, $\lambda = 0.9$
+This is (approximately) the third line in Table 3 from the paper:
+
+```{r}
+optimize_design_twostage(
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE,
+  binding_futility = TRUE,
+  lambda = 0.9
+)
+```
+
+## Design from Table 4
+Now we will optimize a design under the alternative while putting an
+extra penalty on placebo group sample size.
+
+### Design 5, $\beta = 0.2$, $\kappa = 0.5$
+This is (approximately) the fourth line in Table 2 from the paper:
+
+```{r}
+optimize_design_twostage(
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE,
+  binding_futility = TRUE,
+  kappa = 0.5
+)
+```
+
+## Design from Table 5
+Next, we will optimize a design under a combination of null and
+alternative hypothesis while including a penalty on the placebo group
+sample size.
+
+### Design 5, $\beta = 0.2$, $\lambda = 0.9$, $\kappa = 1$
+This is (approximately) the seventh line in Table 2 from the paper:
+
+```{r}
+optimize_design_twostage(
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE,
+  binding_futility = TRUE,
+  lambda = .9,
+  kappa = 1 
+)
+```
+
+
+## Other options
+### Penalizing the maximum sample size
+```{r}
+optimize_design_twostage(
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE,
+  eta = 1
+)
+```
+
+### Optimizing between group allocation with enforced between stage allocation at 1
+```{r}
+optimize_design_twostage(
+  cT2 = 1,           # These three boundary conditions enforce a
+  cP2 = quote(cP1),  # between-stage allocation ratio of one.
+  cC2 = quote(cC1),  # The quote() command is necessary for this to work.
+  
+  bTP1f = -Inf,      # These two boundary conditions enforce no futility stops.
+  bTC1f = -Inf,
+  
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE
+)
+```
+
+### Using a custom objective function
+You can replace the default objective function by any quoted expression.
+In the following example, we optimize the design parameters to minimize
+the expected squared sample size under the alternative hypothesis.
+These expressions can make use of internal objects created in the
+objective evaluation methods, check out the source code of
+`optimize_design_twostage` in the `optimization_methods.R` file for more
+information. `ASN`, `ASNP`, `n` and `final_state_probs` could be useful object
+for crafting a custom objective function.
+
+```{r}
+optimize_design_twostage(
+  beta = 0.2,
+  alternative_TP = 0.4,
+  alternative_TC = 0,
+  Delta = 0.2,
+  print_progress = FALSE,
+  objective = quote((final_state_probs[["H1"]][["TP1E_TC1E"]] + final_state_probs[["H1"]][["TP1F_TC1F"]]) *
+                      (n[[1]][["T"]] + n[[1]][["P"]] + n[[1]][["C"]])^2 +
+                      (final_state_probs[["H1"]][["TP1E_TC12E"]] + final_state_probs[["H1"]][["TP1E_TC12F"]]) *
+                      (n[[1]][["T"]] + n[[1]][["P"]] + n[[1]][["C"]] + n[[2]][["T"]] + n[[2]][["C"]])^2 +
+                      (final_state_probs[["H1"]][["TP12F_TC1"]] + final_state_probs[["H1"]][["TP12E_TC12E"]] +
+                         final_state_probs[["H1"]][["TP12E_TC12F"]]) *
+                      (n[[1]][["T"]] + n[[1]][["P"]] + n[[1]][["C"]] + n[[2]][["T"]] + n[[2]][["P"]] + n[[2]][["C"]])^2)
+)
+```
+
+# References
+Meis, J, Pilz, M, Herrmann, C, Bokelmann, B, Rauch, G, Kieser, M. Optimization of the two-stage group
+sequential three-arm gold-standard design for non-inferiority trials. *Statistics in Medicine.* 2023; 42(
+4): 536– 558. [doi:10.1002/sim.9630](https://doi.org/10.1002/sim.9630).
+

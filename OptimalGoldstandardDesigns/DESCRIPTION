@@ -1,0 +1,37 @@
+Package: OptimalGoldstandardDesigns
+Type: Package
+Title: Design Parameter Optimization for Gold-Standard Non-Inferiority
+        Trials
+Version: 1.0.1
+Authors@R: c(person("Jan", "Meis", role = c("aut", "cre"),
+        email="meis@imbi.uni-heidelberg.de", comment = c(ORCID =
+        "0000-0001-5407-7220")))
+Description: Methods to calculate optimal design parameters for one-
+        and two-stage three-arm group-sequential gold-standard
+        non-inferiority trial designs with or without binding or
+        nonbinding futility boundaries, as described in Meis et al.
+        (2023) <doi:10.1002/sim.9630>.
+License: GPL (>= 3)
+Encoding: UTF-8
+Depends: R (>= 3.5)
+Imports: nloptr, mvtnorm, cli, dplyr, tibble, Rdpack
+Suggests: testthat (>= 3.0.0), here, knitr, rmarkdown, covr, fpCompare,
+        mnormt, future.apply
+Config/testthat/edition: 3
+RoxygenNote: 7.2.3
+RdMacros: Rdpack
+Collate: 'OptimalGoldstandardDesigns-package.R'
+        'pmv_upper_smaller_slower_fix.R'
+        'conditional_probability_functions.R'
+        'design_display_functions.R' 'global_constants.R'
+        'design_helper_functions.R' 'objective_functions.R'
+        'optimization_methods.R' 'table_format_functions.R'
+VignetteBuilder: knitr
+URL: https://github.com/jan-imbi/OptimalGoldstandardDesigns
+NeedsCompilation: no
+Packaged: 2023-09-11 09:20:39 UTC; pn425
+Author: Jan Meis [aut, cre] (<https://orcid.org/0000-0001-5407-7220>)
+Maintainer: Jan Meis <meis@imbi.uni-heidelberg.de>
+Repository: CRAN
+Date/Publication: 2023-09-11 10:40:05 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

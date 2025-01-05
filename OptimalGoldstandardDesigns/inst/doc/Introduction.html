@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Usage guidance</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Usage guidance</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(OptimalGoldstandardDesigns)</span></code></pre></div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>This package assumes that a hierarchical testing procedure for the
+three-arm gold-standard non-inferiority design is applied. The first
+test aims to establish assay sensitivity of the trial. It is a test of
+superiority of the experimental treatment (T) against the placebo
+treatment (P). If assay sensitivity is successfully established, the
+treatment is tested for non-inferiority against the control treatment
+(C). Individual observations are assumed to be normally distributed,
+where higher values correspond to better treatment effects. Testing is
+assumed to be done via Z test statistics.</p>
+<p>We highly recommend reading our open-access article <a href="https://doi.org/10.1002/sim.9630">(Meis et al., 2022)</a> where
+the theoretical background of this package is explained.</p>
+</div>
+<div id="some-examples-from-the-paper" class="section level1">
+<h1>Some examples from the paper</h1>
+<p>To showcase the capabilities of this package, we will reproduce some
+results from the paper in the following.</p>
+<p>It should be noted that the results will not completely agree with
+the results from the paper, as the calculations in the paper used much
+lower error tolerances and more function evaluations.</p>
+<p>To achieve results closer to the results from the paper, you can
+supply the following options, though this will significantly increase
+computation times:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>  mvnorm_algorithm <span class="ot">=</span> mvtnorm<span class="sc">::</span><span class="fu">Miwa</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>    <span class="co"># steps = 128,</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="at">steps =</span> <span class="dv">4097</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="at">checkCorr =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="at">maxval =</span> <span class="dv">1000</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  nloptr_opts <span class="ot">=</span> <span class="fu">list</span>(<span class="at">algorithm =</span> <span class="st">&quot;NLOPT_LN_SBPLX&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>                     <span class="co"># xtol_abs = 1e-3,</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                     <span class="co"># xtol_rel = 1e-2,</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>                     <span class="co"># maxeval = 2000,</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                     <span class="at">xtol_abs =</span> <span class="fl">1e-10</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>                     <span class="at">xtol_rel =</span> <span class="fl">1e-9</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>                     <span class="at">maxeval =</span> <span class="dv">2000</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                     <span class="at">print_level =</span> <span class="dv">0</span>)</span></code></pre></div>
+<p>You may also want to put</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>print_progress <span class="ot">=</span> <span class="cn">TRUE</span></span></code></pre></div>
+<p>when running code interactively to see the progress of the
+optimization.</p>
+<div id="design-from-table-2" class="section level2">
+<h2>Design from Table 2</h2>
+<p>The designs from in Table 2 from the paper are optimized to minimize
+the expected sample size under the alternative hypothesis.</p>
+<div id="design-1-beta-0.2" class="section level3">
+<h3>Design 1, <span class="math inline">\(\beta = 0.2\)</span></h3>
+<p>This is (approximately) the first line in Table 2 from the paper:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>tab1_D1 <span class="ot">&lt;-</span> <span class="fu">optimize_design_onestage</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">alpha =</span> .<span class="dv">025</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">beta =</span> .<span class="dv">2</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">alternative_TP =</span> .<span class="dv">4</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">Delta =</span> .<span class="dv">2</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>tab1_D1</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 413, P: 125, C: 404</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 1.95996, Z_TC_e: 1.95996</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 942</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; Placebo penalty at optimum (kappa * nP): 0.0</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; Objective function value: 942.0</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; Type I error for TP testing: 2.5%</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; Type I error for TC testing: 2.5%</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; Power: 80.2%</span></span></code></pre></div>
+</div>
+<div id="design-2-beta-0.2" class="section level3">
+<h3>Design 2, <span class="math inline">\(\beta = 0.2\)</span></h3>
+<p>This is (approximately) the second line in Table 2 from the
+paper:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">cP1 =</span> tab1_D1<span class="sc">$</span>stagec[[<span class="dv">1</span>]]<span class="sc">$</span>P, <span class="co"># The allocation ratios are enforced to be</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">cC1 =</span> tab1_D1<span class="sc">$</span>stagec[[<span class="dv">1</span>]]<span class="sc">$</span>C, <span class="co"># the same as in the optimal single-stage design.</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">cT2 =</span> <span class="dv">1</span>,          </span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">cP2 =</span> tab1_D1<span class="sc">$</span>stagec[[<span class="dv">1</span>]]<span class="sc">$</span>P, </span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">cC2 =</span> tab1_D1<span class="sc">$</span>stagec[[<span class="dv">1</span>]]<span class="sc">$</span>C, </span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  </span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="at">bTP1f =</span> <span class="sc">-</span><span class="cn">Inf</span>,     <span class="co"># These two boundary conditions enforce no futility stops.</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="at">bTC1f =</span> <span class="sc">-</span><span class="cn">Inf</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  </span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>)</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 224, P: 68, C: 219</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 224, P: 68, C: 219</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.10510, Z_TC_e: 2.27093</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: -Inf, Z_TC_f: -Inf</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.27188, Z_TC_e: 2.10568</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.70711, w2: 0.70711</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.70711, w2: 0.70711</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1022</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 801.2</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 1020.3</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 82.8</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 134.8</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; Objective function value: 801.2</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.50%</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 0.00%</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 0.00%</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 0.00%</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; Power: 80.20%</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: nonbinding</span></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+<div id="design-3-beta-0.2" class="section level3">
+<h3>Design 3, <span class="math inline">\(\beta = 0.2\)</span></h3>
+<p>This is (approximately) the third line in Table 2 from the paper:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">bTP1f =</span> <span class="sc">-</span><span class="cn">Inf</span>,     <span class="co"># These two boundary conditions enforce no futility stops.</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">bTC1f =</span> <span class="sc">-</span><span class="cn">Inf</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 230, P: 90, C: 224</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 202, P: 106, C: 191</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.04997, Z_TC_e: 2.27978</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: -Inf, Z_TC_f: -Inf</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.39960, Z_TC_e: 2.09141</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.69161, w2: 0.72227</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.73218, w2: 0.68111</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1043</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 787.2</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 1040.3</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 103.1</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 193.9</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; Objective function value: 787.2</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.50%</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 0.00%</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 0.00%</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 0.00%</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; Power: 80.06%</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: nonbinding</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+<div id="design-4-beta-0.2" class="section level3">
+<h3>Design 4, <span class="math inline">\(\beta = 0.2\)</span></h3>
+<p>This is (approximately) the fourth line in Table 2 from the
+paper:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">binding_futility =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 238, P: 84, C: 241</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 201, P: 122, C: 185</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.03084, Z_TC_e: 2.27784</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: -0.29297, Z_TC_f: 0.57221</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.47898, Z_TC_e: 2.08790</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.66534, w2: 0.74654</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.74431, w2: 0.66783</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1071</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 775.4</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 672.8</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 97.9</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 109.3</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; Objective function value: 775.4</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.43%</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 5.33%</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 77.96%</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 19.62%</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; Power: 80.01%</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: nonbinding</span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt; Note: Results are presented as if futility boundaries were strictly obeyed.</span></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+<div id="design-5-beta-0.2" class="section level3">
+<h3>Design 5, <span class="math inline">\(\beta = 0.2\)</span></h3>
+<p>This is (approximately) the fourth line in Table 2 from the
+paper:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">binding_futility =</span> <span class="cn">TRUE</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 229, P: 90, C: 231</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 217, P: 107, C: 199</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.04659, Z_TC_e: 2.29485</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: 0.23336, Z_TC_f: 0.75795</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.40505, Z_TC_e: 2.04331</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.68710, w2: 0.72656</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.72466, w2: 0.68911</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1073</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 768.5</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 619.9</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 100.2</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 103.5</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; Objective function value: 768.5</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.50%</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 8.33%</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 86.28%</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 34.17%</span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; Power: 80.16%</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: binding</span></span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+</div>
+<div id="design-from-table-3" class="section level2">
+<h2>Design from Table 3</h2>
+<p>Next, we will optimize a design under a combination of null and
+alternative hypothesis.</p>
+<div id="design-5-beta-0.2-lambda-0.9" class="section level3">
+<h3>Design 5, <span class="math inline">\(\beta = 0.2\)</span>, <span class="math inline">\(\lambda = 0.9\)</span></h3>
+<p>This is (approximately) the third line in Table 3 from the paper:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">binding_futility =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">lambda =</span> <span class="fl">0.9</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>)</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 227, P: 89, C: 231</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 230, P: 98, C: 213</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.05198, Z_TC_e: 2.26340</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: 0.85517, Z_TC_f: 0.77016</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.34293, Z_TC_e: 2.06018</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.69370, w2: 0.72026</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.71238, w2: 0.70180</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1088</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 771.1</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 587.6</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 98.2</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 95.6</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; Objective function value: 758.0</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.50%</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 9.18%</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 92.17%</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 43.67%</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; Power: 80.15%</span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: binding</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+</div>
+<div id="design-from-table-4" class="section level2">
+<h2>Design from Table 4</h2>
+<p>Now we will optimize a design under the alternative while putting an
+extra penalty on placebo group sample size.</p>
+<div id="design-5-beta-0.2-kappa-0.5" class="section level3">
+<h3>Design 5, <span class="math inline">\(\beta = 0.2\)</span>, <span class="math inline">\(\kappa = 0.5\)</span></h3>
+<p>This is (approximately) the fourth line in Table 2 from the
+paper:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">binding_futility =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  <span class="at">kappa =</span> <span class="fl">0.5</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 239, P: 75, C: 237</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 211, P: 114, C: 204</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.03405, Z_TC_e: 2.25340</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: 0.01742, Z_TC_f: 0.80964</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.46906, Z_TC_e: 2.06256</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.65529, w2: 0.75538</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.73076, w2: 0.68263</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1080</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 767.5</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 624.9</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 89.9</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 90.1</span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; Objective function value: 812.4</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.50%</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 8.59%</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 85.70%</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 31.96%</span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt; Power: 80.09%</span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: binding</span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+</div>
+<div id="design-from-table-5" class="section level2">
+<h2>Design from Table 5</h2>
+<p>Next, we will optimize a design under a combination of null and
+alternative hypothesis while including a penalty on the placebo group
+sample size.</p>
+<div id="design-5-beta-0.2-lambda-0.9-kappa-1" class="section level3">
+<h3>Design 5, <span class="math inline">\(\beta = 0.2\)</span>, <span class="math inline">\(\lambda = 0.9\)</span>, <span class="math inline">\(\kappa = 1\)</span></h3>
+<p>This is (approximately) the seventh line in Table 2 from the
+paper:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">binding_futility =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="at">lambda =</span> .<span class="dv">9</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">kappa =</span> <span class="dv">1</span> </span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>)</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 235, P: 71, C: 236</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 222, P: 88, C: 224</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.05815, Z_TC_e: 2.26759</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: 0.75006, Z_TC_f: 0.78151</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.34303, Z_TC_e: 2.05618</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.67865, w2: 0.73446</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.71693, w2: 0.69714</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1076</span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 776.6</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 584.6</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 83.8</span></span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 77.4</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; Objective function value: 846.6</span></span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.50%</span></span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 9.26%</span></span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 91.74%</span></span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 40.58%</span></span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a><span class="co">#&gt; Power: 80.07%</span></span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: binding</span></span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+</div>
+<div id="other-options" class="section level2">
+<h2>Other options</h2>
+<div id="penalizing-the-maximum-sample-size" class="section level3">
+<h3>Penalizing the maximum sample size</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="at">eta =</span> <span class="dv">1</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>)</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 224, P: 84, C: 248</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 190, P: 55, C: 167</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.25324, Z_TC_e: 2.52099</span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: -0.27777, Z_TC_f: -0.06567</span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.09262, Z_TC_e: 2.00438</span></span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.76715, w2: 0.64146</span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.75346, w2: 0.65750</span></span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 968</span></span>
+<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 800.9</span></span>
+<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 711.8</span></span>
+<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 94.2</span></span>
+<span id="cb12-20"><a href="#cb12-20" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 104.3</span></span>
+<span id="cb12-21"><a href="#cb12-21" tabindex="-1"></a><span class="co">#&gt; Objective function value: 1768.9</span></span>
+<span id="cb12-22"><a href="#cb12-22" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb12-23"><a href="#cb12-23" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.49%</span></span>
+<span id="cb12-24"><a href="#cb12-24" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 1.30%</span></span>
+<span id="cb12-25"><a href="#cb12-25" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 62.00%</span></span>
+<span id="cb12-26"><a href="#cb12-26" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 4.54%</span></span>
+<span id="cb12-27"><a href="#cb12-27" tabindex="-1"></a><span class="co">#&gt; Power: 80.13%</span></span>
+<span id="cb12-28"><a href="#cb12-28" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: nonbinding</span></span>
+<span id="cb12-29"><a href="#cb12-29" tabindex="-1"></a><span class="co">#&gt; Note: Results are presented as if futility boundaries were strictly obeyed.</span></span>
+<span id="cb12-30"><a href="#cb12-30" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+<div id="optimizing-between-group-allocation-with-enforced-between-stage-allocation-at-1" class="section level3">
+<h3>Optimizing between group allocation with enforced between stage
+allocation at 1</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">cT2 =</span> <span class="dv">1</span>,           <span class="co"># These three boundary conditions enforce a</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">cP2 =</span> <span class="fu">quote</span>(cP1),  <span class="co"># between-stage allocation ratio of one.</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">cC2 =</span> <span class="fu">quote</span>(cC1),  <span class="co"># The quote() command is necessary for this to work.</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  </span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">bTP1f =</span> <span class="sc">-</span><span class="cn">Inf</span>,      <span class="co"># These two boundary conditions enforce no futility stops.</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="at">bTC1f =</span> <span class="sc">-</span><span class="cn">Inf</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  </span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a>)</span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 217, P: 87, C: 212</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 217, P: 87, C: 212</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.06549, Z_TC_e: 2.28000</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: -Inf, Z_TC_f: -Inf</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.34934, Z_TC_e: 2.10025</span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.70711, w2: 0.70711</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.70711, w2: 0.70711</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1032</span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 789.8</span></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 1029.7</span></span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 99.0</span></span>
+<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 172.3</span></span>
+<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="co">#&gt; Objective function value: 789.8</span></span>
+<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.50%</span></span>
+<span id="cb13-30"><a href="#cb13-30" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 0.00%</span></span>
+<span id="cb13-31"><a href="#cb13-31" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 0.00%</span></span>
+<span id="cb13-32"><a href="#cb13-32" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 0.00%</span></span>
+<span id="cb13-33"><a href="#cb13-33" tabindex="-1"></a><span class="co">#&gt; Power: 80.09%</span></span>
+<span id="cb13-34"><a href="#cb13-34" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: nonbinding</span></span>
+<span id="cb13-35"><a href="#cb13-35" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+<div id="using-a-custom-objective-function" class="section level3">
+<h3>Using a custom objective function</h3>
+<p>You can replace the default objective function by any quoted
+expression. In the following example, we optimize the design parameters
+to minimize the expected squared sample size under the alternative
+hypothesis. These expressions can make use of internal objects created
+in the objective evaluation methods, check out the source code of
+<code>optimize_design_twostage</code> in the
+<code>optimization_methods.R</code> file for more information.
+<code>ASN</code>, <code>ASNP</code>, <code>n</code> and
+<code>final_state_probs</code> could be useful object for crafting a
+custom objective function.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">optimize_design_twostage</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">alternative_TP =</span> <span class="fl">0.4</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">alternative_TC =</span> <span class="dv">0</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">Delta =</span> <span class="fl">0.2</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="at">print_progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  <span class="at">objective =</span> <span class="fu">quote</span>((final_state_probs[[<span class="st">&quot;H1&quot;</span>]][[<span class="st">&quot;TP1E_TC1E&quot;</span>]] <span class="sc">+</span> final_state_probs[[<span class="st">&quot;H1&quot;</span>]][[<span class="st">&quot;TP1F_TC1F&quot;</span>]]) <span class="sc">*</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>                      (n[[<span class="dv">1</span>]][[<span class="st">&quot;T&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">1</span>]][[<span class="st">&quot;P&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">1</span>]][[<span class="st">&quot;C&quot;</span>]])<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>                      (final_state_probs[[<span class="st">&quot;H1&quot;</span>]][[<span class="st">&quot;TP1E_TC12E&quot;</span>]] <span class="sc">+</span> final_state_probs[[<span class="st">&quot;H1&quot;</span>]][[<span class="st">&quot;TP1E_TC12F&quot;</span>]]) <span class="sc">*</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>                      (n[[<span class="dv">1</span>]][[<span class="st">&quot;T&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">1</span>]][[<span class="st">&quot;P&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">1</span>]][[<span class="st">&quot;C&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">2</span>]][[<span class="st">&quot;T&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">2</span>]][[<span class="st">&quot;C&quot;</span>]])<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>                      (final_state_probs[[<span class="st">&quot;H1&quot;</span>]][[<span class="st">&quot;TP12F_TC1&quot;</span>]] <span class="sc">+</span> final_state_probs[[<span class="st">&quot;H1&quot;</span>]][[<span class="st">&quot;TP12E_TC12E&quot;</span>]] <span class="sc">+</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>                         final_state_probs[[<span class="st">&quot;H1&quot;</span>]][[<span class="st">&quot;TP12E_TC12F&quot;</span>]]) <span class="sc">*</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>                      (n[[<span class="dv">1</span>]][[<span class="st">&quot;T&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">1</span>]][[<span class="st">&quot;P&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">1</span>]][[<span class="st">&quot;C&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">2</span>]][[<span class="st">&quot;T&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">2</span>]][[<span class="st">&quot;P&quot;</span>]] <span class="sc">+</span> n[[<span class="dv">2</span>]][[<span class="st">&quot;C&quot;</span>]])<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>)</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 1): T: 265, P: 86, C: 250</span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co">#&gt; Sample sizes (stage 2): T: 157, P: 106, C: 178</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 1): Z_TP_e: 2.04615, Z_TC_e: 2.29343</span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="co">#&gt; Futility boundaries (stage 1): Z_TP_f: 0.05568, Z_TC_f: 0.61221</span></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="co">#&gt; Efficacy boundaries (stage 2): Z_TP_e: 2.40364, Z_TC_e: 2.06634</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TP): w1: 0.70160, w2: 0.71257</span></span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt; Inverse normal combination test weights (TC): w1: 0.77851, w2: 0.62763</span></span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="co">#&gt; Maximum overall sample size: 1042</span></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H1): 776.9</span></span>
+<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a><span class="co">#&gt; Expected sample size (H0): 676.6</span></span>
+<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H1): 97.0</span></span>
+<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a><span class="co">#&gt; Expected placebo group sample size (H0): 103.3</span></span>
+<span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a><span class="co">#&gt; Objective function value: 636459.1</span></span>
+<span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TP testing: 2.50%</span></span>
+<span id="cb14-29"><a href="#cb14-29" tabindex="-1"></a><span class="co">#&gt; (local) type I error for TC testing: 2.45%</span></span>
+<span id="cb14-30"><a href="#cb14-30" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H1): 4.93%</span></span>
+<span id="cb14-31"><a href="#cb14-31" tabindex="-1"></a><span class="co">#&gt; Probability of futility stop (H0): 82.46%</span></span>
+<span id="cb14-32"><a href="#cb14-32" tabindex="-1"></a><span class="co">#&gt; Minimum conditional power: 14.48%</span></span>
+<span id="cb14-33"><a href="#cb14-33" tabindex="-1"></a><span class="co">#&gt; Power: 80.06%</span></span>
+<span id="cb14-34"><a href="#cb14-34" tabindex="-1"></a><span class="co">#&gt; Futility boundaries: nonbinding</span></span>
+<span id="cb14-35"><a href="#cb14-35" tabindex="-1"></a><span class="co">#&gt; Note: Results are presented as if futility boundaries were strictly obeyed.</span></span>
+<span id="cb14-36"><a href="#cb14-36" tabindex="-1"></a><span class="co">#&gt; Futility testing method: always both futility tests</span></span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Meis, J, Pilz, M, Herrmann, C, Bokelmann, B, Rauch, G, Kieser, M.
+Optimization of the two-stage group sequential three-arm gold-standard
+design for non-inferiority trials. <em>Statistics in Medicine.</em>
+2023; 42( 4): 536– 558. <a href="https://doi.org/10.1002/sim.9630">doi:10.1002/sim.9630</a>.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
