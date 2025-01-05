@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Zhou Hanpu" />
+
+
+<title>Predictive Evaluation Metrics in Survival Analysis</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Predictive Evaluation Metrics in Survival
+Analysis</h1>
+<h4 class="author">Zhou Hanpu</h4>
+<h4 class="date">2021/7/26</h4>
+
+
+
+<div id="vignette" class="section level1">
+<h1>Vignette</h1>
+<div id="introduction" class="section level2">
+<h2>1. Introduction</h2>
+<p>Survival analysis aims to study the relationship between independent
+covariates and survival time and event outcomes. With the increasing
+demand for accuracy in practical applications, survival models are
+constantly being developed and improved. Meanwhile, how to measure the
+prediction performance of survival models has also attracted more and
+more attention (<span class="citation">[4]</span>). The censoring
+problem of survival data is the main reason why survival models are
+difficult to evaluate (<span class="citation">[8]</span>; <span class="citation">[11]</span>). In this package, we want to provide an
+“all-in-one” package which includes most of the evaluation metrics for
+survival predictions.</p>
+<p>In the following, we will show how these model evaluation metrics
+work based on some simulated datasets and the popular Cox and random
+survival forest (RSF) models.</p>
+</div>
+<div id="data" class="section level2">
+<h2>2. Data</h2>
+<p>The four simulated survival data scenarios used here have different
+degrees of violation of the proportional hazard assumption and are
+constructed as follows:</p>
+<p>Dataset 1: Data is created using 300 independent observations, where
+the covariate vector <span class="math inline">\(( W_1, . . . ,W_{25}
+)\)</span> is multivariate normal with mean zero and a covariance matrix
+having elements <span class="math inline">\((i, j)\)</span> equal to
+<span class="math inline">\(0.9^{|i−j|}\)</span>. Survival times are
+simulated from an exponential distribution with mean <span class="math inline">\(\mu = e^{0.1 \sum_{i=11}^{20}} W_i\)</span> (i.e.,
+a proportional hazards model) and the censoring distribution is
+exponential with mean chosen to get approximately 30% censoring.</p>
+<p>Dataset 2: Data is created using 200 independent observations where
+the covariate vector (<span class="math inline">\(W_1, . . .
+,W_{25}\)</span>) consists of 25 iid uniform random variables on the
+interval [0, 1]. The survival times follow an exponential distribution
+with mean <span class="math inline">\(μ = sin(W_1\pi) + 2|W_2 − 0.5| +
+W_3^3\)</span>. Censoring is uniform on [0, 6], which results in
+approximately 24% censoring. Here, the proportional hazards assumption
+is mildly violated.</p>
+<p>Dataset 3: Data is created using 300 independent observations where
+the covariates (<span class="math inline">\(W_1, . . . ,W_{25}\)</span>)
+are multivariate normal with mean zero and a covariance matrix having
+elements <span class="math inline">\((i, j)\)</span> equal to <span class="math inline">\(0.75^{|i−j|}\)</span>. Survival times are gamma
+distributed with shape parameter <span class="math inline">\(\mu=0.5+0.3|\sum_{i=11}^{15} W_i|\)</span> and
+scale parameter 2. Censoring times are uniform on [0, 15], which results
+in approximately 20% censoring. Here, the proportional hazards
+assumption is strongly violated.</p>
+<p>Dataset 4: Data is created using 300 independent observations where
+the covariates <span class="math inline">\((W_1, . . . ,W_{25})\)</span>
+are multivariate normal with mean zero and a covariance matrix having
+elements <span class="math inline">\((i, j)\)</span> equal to <span class="math inline">\(0.75^{|i−j|}\)</span>. Survival times are
+simulated according to a log-normal distribution with mean <span class="math inline">\(\mu = 0.1|\sum_{i=1}^5 W_i| +
+0.1|\sum_{i=21}^{25}W_i|\)</span>. Censoring times are log-normal with
+mean <span class="math inline">\(\mu + 0.5\)</span> and scale parameter
+one, and the censoring rate is approximately 32%. Here, the underlying
+censoring distribution depends on covariates.</p>
+</div>
+<div id="predictive-evaluation-metrics-in-survival-analysis" class="section level2">
+<h2>3. Predictive Evaluation Metrics in Survival Analysis</h2>
+<div id="concordance-index" class="section level3">
+<h3>3.1 Concordance index</h3>
+<p>The most used survival model evaluation metrics is the Concordance
+index (CI) (<span class="citation">[5]</span>; <span class="citation">[9]</span>; <span class="citation">[13]</span>; <span class="citation">[12]</span>; <span class="citation">[2]</span>), which
+is the generalization of the ROC curve in the complete data in the
+survival data (<span class="citation">[4]</span>; <span class="citation">[14]</span>; <span class="citation">[10]</span>; <span class="citation">[13]</span>). CI can be divided into two categories
+according to whether considering the data tied.</p>
+<p>In practical applications, deaths may be observed in both samples
+(<span class="math inline">\(\delta_i=1\)</span> and <span class="math inline">\(\delta_j=1\)</span>) in the sample pair, and the
+observed survival times are the same (<span class="math inline">\(T_i=X_i=X_j=T_j\)</span>). In this case, when the
+survival probabilities or survival times predicted by the model are also
+equal(<span class="math inline">\(Y_i=Y_j\)</span>), the model has a
+perfect predictive ability. However, without considering ties between
+survival times, this kind of sample pair cannot improve CI for the
+original CI definition.</p>
+<p>To deal with this problem, Ishwaran introduced an improved CI
+calculation method for the tied survival data (<span class="citation">[7]</span>). According to their definition, if the
+prediction result is survival time or survival probability, the smaller
+the prediction result, the worse it is; if the prediction result is the
+hazard function, the larger the value, the worse the prediction result.
+Detailed information on how to calculate CI are shown below:</p>
+<ul>
+<li>First define the comparable sample pair:</li>
+</ul>
+<p><span class="math display">\[np_{ij}\left(X_{i}, \delta_{i}, X_{j},
+\delta_{j}\right) = max(I\left(X_{i} \geqslant X_{j}\right)
+\delta_{j},I\left(X_{i} \leqslant X_{j}\right) \delta_{i}) \]</span></p>
+<ul>
+<li>In the second step, calculate the Complete Concordance (CC):</li>
+</ul>
+<p><span class="math display">\[ CC =
+\sum_{i,j}I(sign(Y_i,Y_j)=csign(X_i,X_j)|np_{ij}=1) \]</span> where:</p>
+<p><span class="math display">\[sign(Y_i,Y_j) = I\left(Y_{i} \geqslant
+Y_{j}\right) -I\left(Y_{i} \leqslant Y_{j}\right)\]</span> <span class="math display">\[\operatorname{csign}\left(X_{i}, \delta_{i},
+X_{j}, \delta_{j}\right)=I\left(X_{i} \geqslant X_{j}\right)
+\delta_{j}-I\left(X_{i} \leqslant X_{j}\right) \delta_{i}\]</span></p>
+<ul>
+<li>Then, derive the Partial Concordance (PC):</li>
+</ul>
+<p><span class="math display">\[\begin{aligned}
+PC &amp; =\sum_{i, j} I\left(Y_{i}=Y_{j} \mid n p_{i j}=1, X_{i} \neq
+X_{j}\right)\\
+&amp;+I\left(Y_{i} \neq Y_{j} \mid n p_{i j}=1, X_{i}=X_{j},
+\delta_{i}=\delta_{j}=1\right) \\
+&amp;+ I\left(Y_{i} \geq Y_{j} \mid n p_{i j}=1, X_{i}=X_{j},
+\delta_{i}=1, \delta_{j}=0\right)
+\end{aligned}\]</span></p>
+<ul>
+<li>Finally, CI can be calculated as:</li>
+</ul>
+<p><span class="math display">\[CI =\frac{Concordance}{Permissible} =
+\frac{CC+0.5*PC}{\sum_{i,j}np_{ij}(X_i,\delta_i,X_j,\delta_j)}
+\]</span></p>
+<p>where, <span class="math inline">\(\delta_i\)</span> is the survival
+status of sample <span class="math inline">\(i\)</span> (0 means
+censoring, 1 means event), <span class="math inline">\(Y_i\)</span> and
+<span class="math inline">\(X_i\)</span> represents the predicted
+survival time and the observed survival time, respectively.</p>
+</div>
+<div id="example-on-ci" class="section level3">
+<h3>3.2 Example on CI</h3>
+<p>Take simulation data set 4 as an example. First, we randomly divide
+the data into training set and test set. Then, using Cox and RSF models,
+we can get the corresponding CI values.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SurvMetrics)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(randomForestSRC)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)  </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pec)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Initialization</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>metrics_cox <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>metrics_rsf <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>) {</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  mydata <span class="ot">=</span> <span class="fu">SDGM4</span>(<span class="at">N =</span> <span class="dv">100</span>, <span class="at">p =</span> <span class="dv">20</span>, <span class="at">c_step =</span> <span class="fl">0.2</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  index_data <span class="ot">=</span> <span class="fu">createFolds</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mydata), <span class="dv">2</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  train_data <span class="ot">=</span> mydata[index_data[[<span class="dv">1</span>]],]</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  test_data <span class="ot">=</span> mydata[index_data[[<span class="dv">2</span>]],]</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">#fit the models</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  fitrsf <span class="ot">=</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">nsplit =</span> <span class="dv">3</span>, <span class="at">ntree =</span> <span class="dv">500</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  mat_rsf <span class="ot">=</span> <span class="fu">predict</span>(fitrsf, test_data)<span class="sc">$</span>survival</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  dis_time <span class="ot">=</span> fitrsf<span class="sc">$</span>time.interest</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  fitcox <span class="ot">=</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  mat_cox <span class="ot">=</span> <span class="fu">predictSurvProb</span>(fitcox, test_data, dis_time)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#calculate the C index</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  med_index <span class="ot">=</span> <span class="fu">median</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(dis_time))</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  surv_obj <span class="ot">=</span> <span class="fu">Surv</span>(test_data<span class="sc">$</span>time, test_data<span class="sc">$</span>status)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="co">#C index for Cox</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  metrics_cox[i] <span class="ot">=</span> <span class="fu">Cindex</span>(surv_obj, <span class="at">predicted =</span> mat_cox[, med_index])</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="co">#C index for RSF</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  metrics_rsf[i] <span class="ot">=</span> <span class="fu">Cindex</span>(surv_obj, <span class="at">predicted =</span> mat_rsf[, med_index])</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>data_CI <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="st">&#39;Cindex&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(metrics_cox, metrics_rsf),</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                     <span class="st">&#39;model&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&#39;Cox&#39;</span>, <span class="dv">20</span>), <span class="fu">rep</span>(<span class="st">&#39;RSF&#39;</span>, <span class="dv">20</span>)))</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_CI, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> Cindex, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#FFBBCC&quot;</span>, <span class="st">&quot;#88CCFF&quot;</span>))</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>The larger the C index, the better the model prediction. It can be
+seen that the performance of RSF is better than Cox, which is also
+consistent with the data generation method.</p>
+</div>
+<div id="brier-score" class="section level3">
+<h3>3.3 Brier Score</h3>
+<p>In survival analysis, we usually use the prediction error curve (PEC)
+to evaluate the prediction performance of the survival model at
+different time points. When there is no censored sample in the test set,
+PEC corresponding to sample <span class="math inline">\(i\)</span> at
+time <span class="math inline">\(t\)</span> is the expected value of the
+square of the difference between the true survival state of sample <span class="math inline">\(i\)</span> at time <span class="math inline">\(t\)</span> and the predicted survival
+probability.</p>
+<p><span class="math display">\[PEC(t)=E\left(\hat{S}(t|z_i)-\delta_i(t)\right)^2\]</span></p>
+<p>Where <span class="math inline">\(\hat{S}(t|z_i)\)</span> is the
+survival function obtained by the model, which is used to estimate the
+survival probability of sample <span class="math inline">\(i\)</span> at
+time <span class="math inline">\(t\)</span>; <span class="math inline">\(\delta_i(t)\)</span> is a binary variable used to
+represent the true survival state of sample <span class="math inline">\(i\)</span> at time <span class="math inline">\(t\)</span>: 1 means that the sample is dead, 0
+means that the sample is still alive at time <span class="math inline">\(t\)</span>.</p>
+<p>Based on the ideas of PEC and Brier’s (<span class="citation">[1]</span>) prediction index for the weather forecast
+model, Graf (<span class="citation">[3]</span>) proposed another common
+evaluation metric in survival analysis: Brier Score (BS). The prediction
+error at the time point was improved by inverse probability censoring
+weighting (IPCW) to evaluate the prediction performance of the survival
+model. BS at point <span class="math inline">\(t^*\)</span> can be
+expressed as:</p>
+<p><span class="math display">\[BS(t^*)=\frac{1}{N}\sum_{i=1}^N\left[\frac{(\hat{S}(t^*|z_i))^2}{\hat{G}(X_i)}\cdot
+I(X_i&lt;t^*,\delta_i=1)+\frac{(1-\hat{S}(t^*|z_i))^2}{\hat{G}(t^*)}\cdot
+I(X_i\ge t^*)\right]\]</span></p>
+<p>Where <span class="math inline">\(t^*\)</span> is the time point at
+which BS is to be calculated; <span class="math inline">\(N\)</span> is
+the sample size; <span class="math inline">\(Z_i\)</span> is the
+covariate corresponding to sample <span class="math inline">\(i\)</span>; <span class="math inline">\(\hat{S}(\cdot)\)</span> is the survival function
+predicted by the model; <span class="math inline">\(\hat{G}(\cdot)\)</span> is the survival function
+corresponding to censoring.</p>
+<p>From the definition of BS, it can be found that BS is essentially a
+square prediction error based on IPCW, so the smaller BS, the better the
+prediction effect of the survival model.</p>
+<p>At the same time, we found that BS depends on the selection of time
+point <span class="math inline">\(t^*\)</span>. Generally, the median of
+the observation time is selected as the time point. However, in
+practice, different selection methods may also have large differences in
+the evaluation of the model’s prediction effect.</p>
+</div>
+<div id="example-on-brier-score" class="section level3">
+<h3>3.4 Example on Brier Score</h3>
+<p>Again, take simulation data set 4 as an example. First, we randomly
+divide the data into training set and test set. Then, using Cox and RSF
+models, we get the corresponding Brier Scores.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Initialization</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>metrics_cox <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>metrics_rsf <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  mydata <span class="ot">=</span> <span class="fu">SDGM4</span>(<span class="at">N =</span> <span class="dv">100</span>, <span class="at">p =</span> <span class="dv">20</span>, <span class="at">c_step =</span> <span class="fl">0.5</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  index_data <span class="ot">=</span> <span class="fu">createFolds</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mydata), <span class="dv">2</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  train_data <span class="ot">=</span> mydata[index_data[[<span class="dv">1</span>]],]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  test_data <span class="ot">=</span> mydata[index_data[[<span class="dv">2</span>]],]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#fit the models</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  fitrsf <span class="ot">=</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">nsplit =</span> <span class="dv">3</span>, <span class="at">ntree =</span> <span class="dv">500</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  mat_rsf <span class="ot">=</span> <span class="fu">predict</span>(fitrsf, test_data)<span class="sc">$</span>survival</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  dis_time <span class="ot">=</span> fitrsf<span class="sc">$</span>time.interest</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  fitcox <span class="ot">=</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  mat_cox <span class="ot">=</span> <span class="fu">predictSurvProb</span>(fitcox, test_data, dis_time)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">#calculate the Brier Score</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  med_index <span class="ot">=</span> <span class="fu">median</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(dis_time))</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  surv_obj <span class="ot">=</span> <span class="fu">Surv</span>(test_data<span class="sc">$</span>time, test_data<span class="sc">$</span>status)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  t_star <span class="ot">=</span> <span class="fu">median</span>(fitrsf<span class="sc">$</span>time.interest)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Brier Score for Cox</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  metrics_cox[i] <span class="ot">=</span> <span class="fu">Brier</span>(surv_obj, <span class="at">pre_sp =</span> mat_cox[, med_index], t_star)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Brier Score for RSF</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  metrics_rsf[i] <span class="ot">=</span> <span class="fu">Brier</span>(surv_obj, <span class="at">pre_sp =</span> mat_rsf[, med_index], t_star)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>data_BS <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="st">&#39;BS&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(metrics_cox, metrics_rsf),</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>                     <span class="st">&#39;model&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&#39;Cox&#39;</span>, <span class="dv">10</span>), <span class="fu">rep</span>(<span class="st">&#39;RSF&#39;</span>, <span class="dv">10</span>)))</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_BS, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> BS, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#FFBBCC&quot;</span>, <span class="st">&quot;#88CCFF&quot;</span>))</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>The smaller the BS, the better the model prediction. From the figure,
+it can be seen that the performance of RSF is better than Cox, which is
+also consistent with the data generation method SDGM4.</p>
+</div>
+<div id="ibs-integrated-brier-score" class="section level3">
+<h3>3.5 IBS (Integrated Brier Score)</h3>
+<p>In practice, IBS, the integral form of Brier Score, is often
+preferred in that IBS value does not depend on the selection of a single
+time point.</p>
+<p><span class="math display">\[IBS=\frac{1}{\max\limits_i{(X_i)}}
+\int_0^{\max\limits_i(X_i)}BS(t)dt \]</span></p>
+<p>At the same time, one of the reasons why BS and IBS are not as widely
+used as CI is that the existing packages for input objects in the BS
+calculation method in R are not clear, which leads to the prediction
+results of many survival models that cannot be directly used to
+calculate the value of BS or IBS.</p>
+</div>
+<div id="example-on-ibs" class="section level3">
+<h3>3.6 Example on IBS</h3>
+<p>Also, we take simulation data set 4 as an example. First, we randomly
+divide the data into training set and test set. Then, using Cox and RSF
+models, we get the corresponding IBS values:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Initialization</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>metrics_cox <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>metrics_rsf <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  mydata <span class="ot">=</span> <span class="fu">SDGM4</span>(<span class="at">N =</span> <span class="dv">100</span>, <span class="at">p =</span> <span class="dv">20</span>, <span class="at">c_step =</span> <span class="sc">-</span><span class="fl">0.5</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  index_data <span class="ot">=</span> <span class="fu">createFolds</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mydata), <span class="dv">2</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  train_data <span class="ot">=</span> mydata[index_data[[<span class="dv">1</span>]],]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  test_data <span class="ot">=</span> mydata[index_data[[<span class="dv">2</span>]],]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#fit the models</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  fitrsf <span class="ot">=</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">nsplit =</span> <span class="dv">3</span>, <span class="at">ntree =</span> <span class="dv">500</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  mat_rsf <span class="ot">=</span> <span class="fu">predict</span>(fitrsf, test_data)<span class="sc">$</span>survival</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  dis_time <span class="ot">=</span> fitrsf<span class="sc">$</span>time.interest</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  fitcox <span class="ot">=</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  mat_cox <span class="ot">=</span> <span class="fu">predictSurvProb</span>(fitcox, test_data, dis_time)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">#calculate the IBS</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  med_index <span class="ot">=</span> <span class="fu">median</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(dis_time))</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  surv_obj <span class="ot">=</span> <span class="fu">Surv</span>(test_data<span class="sc">$</span>time, test_data<span class="sc">$</span>status)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#IBS for Cox</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  metrics_cox[i] <span class="ot">=</span> <span class="fu">IBS</span>(surv_obj, <span class="at">sp_matrix =</span> mat_cox, dis_time)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#IBS for RSF</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  metrics_rsf[i] <span class="ot">=</span> <span class="fu">IBS</span>(surv_obj, <span class="at">sp_matrix =</span> mat_rsf, dis_time)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>data_IBS <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="st">&#39;IBS&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(metrics_cox, metrics_rsf),</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>                     <span class="st">&#39;model&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&#39;Cox&#39;</span>, <span class="dv">5</span>), <span class="fu">rep</span>(<span class="st">&#39;RSF&#39;</span>, <span class="dv">5</span>)))</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_IBS, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> IBS, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#FFBBCC&quot;</span>, <span class="st">&quot;#88CCFF&quot;</span>))</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>The smaller the IBS, the better the model prediction. From the
+figure, it can be seen that the performance of RSF is better than Cox,
+which is also consistent with the data generation method SDGM4.</p>
+</div>
+<div id="iaeise" class="section level3">
+<h3>3.7 IAE、ISE</h3>
+<p>Two additional evaluation metrics for survival models used are IAE
+(Integrated Absolute Error) and ISE (Integrated Square Error). (<span class="citation">[6]</span>; <span class="citation">[16]</span>;).</p>
+<p><span class="math display">\[IAE=\int_{t}|S(t)-\hat{S}(t)| d
+t  \]</span> <span class="math display">\[ ISE
+=\int_{t}(S(t)-\hat{S}(t))^{2} d t \]</span></p>
+<p>where, <span class="math inline">\(S(t)\)</span> and <span class="math inline">\(\hat{S}(t)\)</span> represent the true survival
+function and the predicted survival function, respectively. However, in
+practical applications, the mathematical expression of the survival
+function is usually unknown, which results in that the existing IAE and
+ISE can only be used in simulation experiments. In the SurvMetrics
+package, the non-parametric KM estimation method is used to obtain the
+approximate expression of <span class="math inline">\(S(t)\)</span>, and
+an evaluation standard for the prediction effect of the model is given,
+which also extends the scope of application of IAE and ISE to the
+situation of real data sets.</p>
+</div>
+<div id="example-on-iae-and-ise" class="section level3">
+<h3>3.8 Example on IAE and ISE</h3>
+<p>Also, we take simulation data set 4 as an example. First, we randomly
+divide the data into training set and test set. Then, using Cox and RSF
+models, we get the corresponding IAE and ISE values:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Initialization</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>metrics_cox_IAE <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>metrics_rsf_IAE <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>metrics_cox_ISE <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>metrics_rsf_ISE <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  mydata <span class="ot">=</span> <span class="fu">SDGM4</span>(<span class="at">N =</span> <span class="dv">100</span>, <span class="at">p =</span> <span class="dv">20</span>, <span class="at">c_step =</span> <span class="fl">0.2</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  index_data <span class="ot">=</span> <span class="fu">createFolds</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mydata), <span class="dv">2</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  train_data <span class="ot">=</span> mydata[index_data[[<span class="dv">1</span>]],]</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  test_data <span class="ot">=</span> mydata[index_data[[<span class="dv">2</span>]],]</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">#fit the models</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  fitrsf <span class="ot">=</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">nsplit =</span> <span class="dv">3</span>, <span class="at">ntree =</span> <span class="dv">500</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  mat_rsf <span class="ot">=</span> <span class="fu">predict</span>(fitrsf, test_data)<span class="sc">$</span>survival</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  dis_time <span class="ot">=</span> fitrsf<span class="sc">$</span>time.interest</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  fitcox <span class="ot">=</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status)<span class="sc">~</span>., <span class="at">data =</span> train_data, <span class="at">x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  mat_cox <span class="ot">=</span> <span class="fu">predictSurvProb</span>(fitcox, test_data, dis_time)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">#calculate the IAE and ISE</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  med_index <span class="ot">=</span> <span class="fu">median</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(dis_time))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  surv_obj <span class="ot">=</span> <span class="fu">Surv</span>(test_data<span class="sc">$</span>time, test_data<span class="sc">$</span>status)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#IAE and ISE for Cox</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  temp1 <span class="ot">=</span> <span class="fu">IAEISE</span>(surv_obj, <span class="at">sp_matrix =</span> mat_cox, dis_time)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  metrics_cox_IAE[i] <span class="ot">=</span> temp1[<span class="dv">1</span>]</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  metrics_cox_ISE[i] <span class="ot">=</span> temp1[<span class="dv">2</span>]</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="co">#IAE and ISE for RSF</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  temp2 <span class="ot">=</span> <span class="fu">IAEISE</span>(surv_obj, <span class="at">sp_matrix =</span> mat_rsf, dis_time)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  metrics_rsf_IAE[i] <span class="ot">=</span> temp2[<span class="dv">1</span>]</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  metrics_rsf_ISE[i] <span class="ot">=</span> temp2[<span class="dv">2</span>]</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>data_IAE <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="st">&#39;IAE&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(metrics_cox_IAE, metrics_rsf_IAE),</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>                     <span class="st">&#39;model&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&#39;Cox&#39;</span>, <span class="dv">10</span>), <span class="fu">rep</span>(<span class="st">&#39;RSF&#39;</span>, <span class="dv">10</span>)))</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>data_ISE <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="st">&#39;ISE&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(metrics_cox_ISE, metrics_rsf_ISE),</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>                     <span class="st">&#39;model&#39;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&#39;Cox&#39;</span>, <span class="dv">10</span>), <span class="fu">rep</span>(<span class="st">&#39;RSF&#39;</span>, <span class="dv">10</span>)))</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>P1 <span class="ot">=</span> <span class="fu">ggplot</span>(data_IAE, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> IAE, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#FFBBCC&quot;</span>, <span class="st">&quot;#88CCFF&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&#39;none&#39;</span>)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>P2 <span class="ot">=</span> <span class="fu">ggplot</span>(data_ISE, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> ISE, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#FFBBCC&quot;</span>, <span class="st">&quot;#88CCFF&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&#39;none&#39;</span>)</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(P1, P2, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>The smaller the IAE and ISE, the better the model prediction. From
+the figure, it can be seen that the performance of RSF is better than
+Cox both in IAE and ISE metrics, which is also consistent with the data
+generation method SDGM4.</p>
+</div>
+<div id="mae" class="section level3">
+<h3>3.9 MAE</h3>
+<p>The final evaluation metric of survival model presented here is MAE
+(Mean Absolute Error) (<span class="citation">[15]</span>).</p>
+<p><span class="math display">\[MAE=\frac{1}{n}
+\sum_{i=1}^{N}\left(\delta_{i}\left|Y_{i}-{X}_{i}\right|\right)\]</span>
+where, <span class="math inline">\(N\)</span> is the observed sample
+size, and <span class="math inline">\(n\)</span> is the death sample
+size. MAE only calculates the average absolute error between the
+predicted survival time and the true survival time in the uncensored
+sample, because it does not consider the information of the censored
+data and requires the model to output survival time, while the general
+model can only output the survival probability or cumulative risk, so
+MAE is rarely used in practice.</p>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>4. Conclusion</h2>
+<p>In this vignette, we present the survival model evaluation metrics
+and give examples of how these calculation methods work. In the current
+version of SurvMetrics, six survival model evaluation metrics are
+present. We are working to provide a more user-friendly interface and
+facilitate both statistical and non-statistical clinical research
+workers in evaluating survival models.</p>
+</div>
+<div id="reference" class="section level2 unnumbered">
+<h2 class="unnumbered">Reference</h2>
+<div id="refs" class="references csl-bib-body">
+<div id="ref-Brier.1950" class="csl-entry">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">G.
+W. Brier. 1950. VERIFICATION OF FORECASTS EXPRESSED IN TERMS OF
+PROBABILITY. <em>Monthly Weather Review</em> 78, (1950).</div>
+</div>
+<div id="ref-Devlin.2021" class="csl-entry">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">Sean M Devlin and Glenn Heller. 2021.
+Concordance probability as a meaningful contrast across disparate
+survival times. <em>Statistical methods in medical research</em> 30, 3
+(2021), 816–825.</div>
+</div>
+<div id="ref-Graf.1999" class="csl-entry">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">E.
+Graf, C. Schmoor, W. Sauerbrei, and M. Schumacher. 1999. Assessment and
+comparison of prognostic classification schemes for survival data.
+<em>Statistics in Medicine</em> 18, 17-18 (1999), 2529–2545.</div>
+</div>
+<div id="ref-HEaGerty.2005" class="csl-entry">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">H
+Ea Gerty P. J. and Y. Zheng. 2005. Survival model predictive accuracy
+and ROC curves. <em>Biometrics</em> 61, 1 (2005), 92–105.</div>
+</div>
+<div id="ref-Harrell.1982" class="csl-entry">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">F.
+E. Jun Harrell, R. M. Califf, D. B. Pryor, K. L. Lee, and R. A. Rosati.
+1982. Evaluating the yield of medical tests. <em>JAMA The Journal of the
+American Medical Association</em> 247, 18 (1982), 2543–2546.</div>
+</div>
+<div id="ref-Hoora.2017" class="csl-entry">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">HooraMoradian, DenisLarocque, and
+FranoisBellavance. 2017. L1 splitting rules in survival forests.
+<em>Lifetime Data Analysis</em> 23, 4 (2017), 671–691.</div>
+</div>
+<div id="ref-Ishwaran.2008" class="csl-entry">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">H.
+Ishwaran. 2008. Random survival forest. <em>Ann. Appl. Statist</em> 2,
+(2008).</div>
+</div>
+<div id="ref-Ivanescu.2015" class="csl-entry">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">AE
+Ivanescu, Peng Li, B George, Andrew Brown, Scott Keith, Dheeraj Raju,
+and David Allison. 2015. The importance of prediction model validation
+and assessment in obesity and nutrition research. <em>International
+journal of obesity (2005)</em> 40, (October 2015).</div>
+</div>
+<div id="ref-Jing.2019" class="csl-entry">
+<div class="csl-left-margin">[9] </div><div class="csl-right-inline">B.
+Jing, T. Zhang, Z. Wang, Y. Jin, and C. Li. 2019. A deep survival
+analysis method based on ranking. <em>Artificial intelligence in
+medicine</em> 98, (2019), 1–9.</div>
+</div>
+<div id="ref-Kang.2015" class="csl-entry">
+<div class="csl-left-margin">[10] </div><div class="csl-right-inline">L.
+Kang, W. Chen, N. A. Petrick, and B. D. Gallas. 2015. Comparing two
+correlated c indices with right-censored survival outcome: A one-shot
+nonparametric approach. <em>Statistics in Medicine</em> 34, 4
+(2015).</div>
+</div>
+<div id="ref-Klein.2010" class="csl-entry">
+<div class="csl-left-margin">[11] </div><div class="csl-right-inline">J.
+P. Klein and M. L. Moeschberger. 2010. Survival analysis: Techniques for
+censored and truncated data. <em>Biometrics</em> 99, 467 (2010),
+900–901.</div>
+</div>
+<div id="ref-Lee.2018" class="csl-entry">
+<div class="csl-left-margin">[12] </div><div class="csl-right-inline">Changhee Lee, William Zame, Jinsung Yoon, and
+Mihaela van der Schaar. 2018. Deephit: A deep learning approach to
+survival analysis with competing risks. In <em>Proceedings of the AAAI
+conference on artificial intelligence</em>.</div>
+</div>
+<div id="ref-Li.2016" class="csl-entry">
+<div class="csl-left-margin">[13] </div><div class="csl-right-inline">Yan Li, Jie Wang, Jieping Ye, and Chandan K
+Reddy. 2016. A multi-task learning formulation for survival analysis. In
+<em>Proceedings of the 22nd ACM SIGKDD international conference on
+knowledge discovery and data mining</em>, 1715–1724.</div>
+</div>
+<div id="ref-Obuchowski.2006" class="csl-entry">
+<div class="csl-left-margin">[14] </div><div class="csl-right-inline">N.
+A. Obuchowski. 2006. An ROC-type measure of diagnostic accuracy when the
+gold standard is continuous-scale. <em>Statistics in Medicine</em> 25, 3
+(2006), 481–493.</div>
+</div>
+<div id="ref-Schemper.1992" class="csl-entry">
+<div class="csl-left-margin">[15] </div><div class="csl-right-inline">M.
+Schemper. 1992. The explained variation in proportional hazards
+regression. <em>Biometrika</em> 79, 1 (1992), 202–204.</div>
+</div>
+<div id="ref-Zou.2021" class="csl-entry">
+<div class="csl-left-margin">[16] </div><div class="csl-right-inline">Y.
+Zou, G. Fan, and R. Zhang. 2021. Integrated square error of hazard rate
+estimation for survival data with missing censoring indicators.
+<em>Journal of Systems Science and Complexity</em> 34, 2 (2021),
+735–758.</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
