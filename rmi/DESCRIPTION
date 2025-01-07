@@ -1,0 +1,23 @@
+Package: rmi
+Title: Mutual Information Estimators
+Version: 0.1.1
+Author: Isaac Michaud [cre, aut]
+Maintainer: Isaac Michaud <ijmichau@ncsu.edu>
+Description: Provides mutual information estimators based on k-nearest
+        neighbor estimators by A. Kraskov, et al. (2004)
+        <doi:10.1103/PhysRevE.69.066138>, S. Gao, et al. (2015)
+        <http://proceedings.mlr.press/v38/gao15.pdf> and local density
+        estimators by W. Gao, et al. (2017)
+        <doi:10.1109/ISIT.2017.8006749>.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
+LinkingTo: Rcpp, RcppArmadillo, BH
+Imports: Rcpp, stats, graphics
+Suggests: testthat, parallel, tgp
+NeedsCompilation: yes
+Packaged: 2018-07-31 17:15:50 UTC; isaacmichaud
+Repository: CRAN
+Date/Publication: 2018-08-02 11:40:06 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
