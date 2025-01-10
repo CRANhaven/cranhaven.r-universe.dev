@@ -1,0 +1,14 @@
+35a3d0aee90fa3bc9acdff75e058bb08 *DESCRIPTION
+96a2330debebd05168115018f1e38c96 *LICENSE
+32068a3f75b66e21b8f7714594ec5bda *NAMESPACE
+fd781a5fd65c010584f01ea9ae7a0527 *R/data.R
+e7cfd139314f47311297e633e74dcf86 *R/data_refresh.R
+08f48796cd056aee128ea1a4bd6c6b33 *data/brazil_municipality.rda
+b742b0eba9f4ea1fffda9a375e2159e6 *data/brazil_region.rda
+e41ff29235e4f1430d08c642061dd3bb *data/brazil_state.rda
+573f84d961d4d98a9eae2a63884c04ab *data/brazil_total.rda
+bcd0b41b2ee0982dacdcf866b959330d *man/brazil_municipality.Rd
+eb9686b3bdec28c8bcb9cfbfcf8ddbcb *man/brazil_region.Rd
+13e4d7a20c7379883d7188fd88eea6c1 *man/brazil_state.Rd
+2369c11780f1fdaba031f67ad84f43a6 *man/brazil_total.Rd
+b329d2b6094b4278c35284578523952e *man/update_data.Rd
