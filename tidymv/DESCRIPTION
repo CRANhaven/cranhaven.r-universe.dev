@@ -1,0 +1,36 @@
+Package: tidymv
+Type: Package
+Title: Tidy Model Visualisation for Generalised Additive Models
+Version: 3.4.2
+Date: 2023-05-09
+Authors@R: c(person(given = "Stefano", family = "Coretta", email =
+        paste0("stefano.coretta", "@", "gmail.com"), role = c("aut",
+        "cre")), person(given = "Jacolien", family = "van Rij", role =
+        "cph", comment = "Imported functions from itsadug"),
+        person(given = "Martijn", family = "Wieling", role = "cph",
+        comment = "Imported functions from itsadug"))
+Description: Provides functions for visualising generalised additive
+        models and getting predicted values using tidy tools from the
+        'tidyverse' packages.
+URL: https://github.com/stefanocoretta/tidymv,
+        https://stefanocoretta.github.io/tidymv/
+BugReports: https://github.com/stefanocoretta/tidymv/issues
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Depends: R (>= 2.10)
+Imports: dplyr, ggplot2, lifecycle, magrittr, mgcv, rlang, tibble,
+        tidyr
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+Language: en_GB
+License: GPL (>= 3)
+NeedsCompilation: no
+Packaged: 2023-05-09 21:18:45 UTC; ste
+Author: Stefano Coretta [aut, cre], Jacolien van Rij [cph] (Imported
+        functions from itsadug), Martijn Wieling [cph] (Imported
+        functions from itsadug)
+Maintainer: Stefano Coretta <stefano.coretta@gmail.com>
+Repository: CRAN
+Date/Publication: 2023-05-10 02:40:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

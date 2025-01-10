@@ -1,0 +1,175 @@
+---
+title: "Get model predictions and plot them with ggplot2"
+author: "Stefano Coretta"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Get model predictions and plot them with ggplot2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "300px", fig.align = "center", dpi = 300
+)
+library(ggplot2)
+theme_set(theme_bw())
+library(dplyr)
+library(mgcv)
+library(tidymv)
+```
+
+While `plot_smooths()` offers a streamlined way of plotting predicted smooths from a GAM model (see `vignette("plot-smooths", package = "tidymv")`), it is too constrained for other more complex cases.
+
+The most general solution is to get the predicted values of the outcome variable according to all the combinations of terms in the model and use this dataframe for plotting.
+This method grants the user maximum control over what can be plotted and how to transform the data (if necessary).
+
+I will illustrate how to use the function `predict_gam()` to create a prediction dataframe and how this dataframe can be used for plotting different cases.
+
+Let's load the necessary packages.
+
+```{r load, eval=FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+library(dplyr)
+library(mgcv)
+library(tidymv)
+```
+
+## Smooths
+
+First of all let's generate some simulated data and create a GAM model with a factor `by` variable.
+
+```{r model}
+library(mgcv)
+set.seed(10)
+data <- gamSim(4, 400)
+
+model <- gam(
+  y ~
+    fac +
+    s(x2, by = fac),
+  data = data
+)
+
+summary(model)
+```
+
+We can extract the predicted values with `predict_gam()`.
+The predicted values of the outcome variable are in the column `fit`, while `fit.se` reports the standard error of the predicted values.
+
+```{r model-p}
+model_p <- predict_gam(model)
+model_p
+```
+
+Now plotting can be done with `ggplot2`.
+The convenience function `geom_smooth_ci()` can be used to plot the predicted smooths with confidence intervals.
+
+```{r model-plot}
+model_p %>%
+  ggplot(aes(x2, fit)) +
+  geom_smooth_ci(fac)
+```
+
+## Surface smooths
+
+Now let's plot a model that has a tensor product interaction term (`ti()`).
+
+```{r model-2}
+model_2 <- gam(
+  y ~
+    s(x2) +
+    s(f1) +
+    ti(x2, f1),
+  data = data
+)
+
+summary(model_2)
+```
+
+Let's get the prediction dataframe and produce a contour plot.
+We can adjust labels and aesthetics using the usual `ggplot2` methods.
+
+```{r model-2-p}
+model_2_p <- predict_gam(model_2)
+model_2_p
+```
+
+```{r model-2-plot}
+model_2_p %>%
+  ggplot(aes(x2, f1, z = fit)) +
+  geom_raster(aes(fill = fit)) +
+  geom_contour(colour = "white") +
+  scale_fill_continuous(name = "y") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+## Smooths at specified values of a continuous predictor
+
+To plot the smooths across a few values of a continuous predictor, we can use the `values` argument in `predict_gam()`.
+
+```{r model-2-values}
+predict_gam(model_2, values = list(f1 = c(0.5, 1, 1.5))) %>%
+  ggplot(aes(x2, fit)) +
+  geom_smooth_ci(f1)
+```
+
+## Exclude terms (like random effects)
+
+It is possible to exclude terms when predicting values by means of the `exclude_terms` argument.
+This can be useful when there are random effects, like in the following model.
+
+```{r model-3}
+data_re <- data %>%
+  mutate(rand = rep(letters[1:4], each = 100), rand = as.factor(rand))
+
+model_3 <- gam(
+  y ~
+    s(x2) +
+    s(x2, rand, bs = "fs", m = 1),
+  data = data_re
+)
+
+summary(model_3)
+```
+
+`exclude_terms` takes a character vector of term names, as they appear in the output of `summary()` (rather than as they are specified in the model formula).
+For example, to remove the term `s(x2, fac, bs = "fs", m = 1)`, `"s(x2,fac)"` should be used since this is how the summary output reports this term.
+The output still contains the excluded columns.
+The predicted values of the outcome variable are not affected by the value the excluded terms (the predicted values are repeated for each value of the excluded terms).
+In other words, the coefficients for the excluded terms are set to 0 when predicting.
+We can filter the predicted dataset to get unique predicted values by choosing any value or level of the excluded terms.\footnote{Alternatively, we can use `splice()`: `group_by(a) %>% splice(1)`. See `?splice`.}
+
+```{r model-3-plot}
+predict_gam(model_3, exclude_terms = "s(x2,rand)") %>%
+  filter(rand == "a") %>%
+  ggplot(aes(x2, fit)) +
+  geom_smooth_ci()
+```
+
+To speed up the calculation of the predictions when excluding terms, it is helpful to select a single value for the unnecessary terms using the `values` argument, rather than filtering with `filter()`.
+As with `filter()`, any value of the excluded variable can be used.
+If the value is `NULL`, the first value/level of the term is automatically selected (in the example below, `values = list(rand = NULL)` and `values = list(rand = "a")` would be equivalent).
+
+```{r model-3-plot-2}
+predict_gam(model_3, exclude_terms = "s(x2,rand)", values = list(rand = NULL)) %>%
+  ggplot(aes(x2, fit)) +
+  geom_smooth_ci()
+```
+
+Of course, it is possible to plot the predicted values of random effects if we wish to do so.
+In the following example, the random effect `rand` is not excluded when predicting, and it is used to facet the plot.
+
+```{r model-3-rand}
+predict_gam(model_3) %>%
+  ggplot(aes(x2, fit)) +
+  geom_smooth_ci() +
+  facet_wrap(~rand)
+```
