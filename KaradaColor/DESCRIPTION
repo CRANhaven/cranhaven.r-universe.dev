@@ -1,0 +1,24 @@
+Package: KaradaColor
+Type: Package
+Title: Color Palettes Inspired by Japanese Landscape and Culture
+Description: The palette includes motifs from Japanese landscape and
+        culture. And it provides commands for color manipulation and
+        'ggplot2' color scales.
+Version: 0.1.5
+Authors@R: person("Masaki", "Fujishima", role = c("aut", "cre"), email
+        = "info@karada-good.net")
+License: GPL (>= 3)
+Encoding: UTF-8
+Language: en_US
+RoxygenNote: 7.2.3
+Depends: R (>= 3.5.0)
+Imports: crayon, graphics, grDevices, ggplot2
+Suggests: scales, aRtsy
+URL: https://github.com/KaradaGood/KaradaColor
+NeedsCompilation: no
+Packaged: 2023-04-20 21:27:40 UTC; chalu
+Author: Masaki Fujishima [aut, cre]
+Maintainer: Masaki Fujishima <info@karada-good.net>
+Repository: CRAN
+Date/Publication: 2023-04-21 08:02:37 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
