@@ -1,0 +1,40 @@
+Package: RFpredInterval
+Type: Package
+Title: Prediction Intervals with Random Forests and Boosted Forests
+Version: 1.0.8
+Authors@R: c(person(given = "Cansu", family = "Alakus", role = c("aut",
+        "cre"), email = "cansu.alakus@hec.ca"), person(given = "Denis",
+        family = "Larocque", role = c("aut"), email =
+        "denis.larocque@hec.ca"), person(given = "Aurelie", family =
+        "Labbe", role = c("aut"), email = "aurelie.labbe@hec.ca"),
+        person(given = "Hemant", family = "Ishwaran", role = c("ctb"),
+        comment = "Author of included randomForestSRC codes"),
+        person(given = "Udaya B.", family = "Kogalur", role = c("ctb"),
+        comment = "Author of included randomForestSRC codes"))
+Description: Implements various prediction interval methods with random
+        forests and boosted forests. The package has two main
+        functions: pibf() produces prediction intervals with boosted
+        forests (PIBF) as described in Alakus et al. (2022)
+        <doi:10.32614/RJ-2022-012> and rfpi() builds 15 distinct
+        variations of prediction intervals with random forests (RFPI)
+        proposed by Roy and Larocque (2020)
+        <doi:10.1177/0962280219829885>.
+Depends: R (>= 3.6.0)
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.0
+Imports: ranger, data.table, hdrcde, parallel, data.tree, DiagrammeR
+Suggests: knitr, rmarkdown, testthat
+URL: https://github.com/calakus/RFpredInterval
+BugReports: https://github.com/calakus/RFpredInterval/issues
+NeedsCompilation: yes
+Packaged: 2023-12-07 21:27:40 UTC; cansualakus
+Author: Cansu Alakus [aut, cre], Denis Larocque [aut], Aurelie Labbe
+        [aut], Hemant Ishwaran [ctb] (Author of included
+        randomForestSRC codes), Udaya B. Kogalur [ctb] (Author of
+        included randomForestSRC codes)
+Maintainer: Cansu Alakus <cansu.alakus@hec.ca>
+Repository: CRAN
+Date/Publication: 2023-12-07 22:00:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
