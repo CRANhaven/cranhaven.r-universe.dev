@@ -1,0 +1,90 @@
+Changes in version 1.1.5 (July 28, 2016):
+
+  * Fix bug introduced by changes in the copulaedas package.
+    Thanks to Martin Maechler for providing a patch.
+
+Changes in version 1.1.4 (October 7, 2015):
+
+  * New eps argument in the h() and hinverse() methods. It allows to
+    control the numerical precision for arguments and return values
+    close to 0 or 1. Thanks to Joris Meys and Hilde Vernieuwe.
+  * Fix warnings caused by missing imports in NAMESPACE.
+  * Use testthat for the package tests.
+
+Changes in version 1.1.3 (March 25, 2015):
+
+  * Update the package description to comply with CRAN requirements.
+
+Changes in version 1.1.2 (March 21, 2015):
+
+  * Fix order of the parameter bounds in vineFit. Thanks to Bastian Klein.
+
+Changes in version 1.1.1 (January 19, 2015):
+
+  * Make CITATION readable without having the package installed.
+
+Changes in version 1.1.0 (May 10, 2014):
+
+  * Improved numerical stability of the h-functions of the normal and t copulas.
+  * Package license set to GPL (>= 2) instead of GPL (>= 3).
+
+Changes in version 1.0.11 (March 4, 2014):
+
+  * Bug fix: abs(theta) was being used instead of fabs(theta) in the C
+    code of the h-functions. Thanks to Prof. Brian Ripley.
+
+Changes in version 1.0.10 (February 6, 2014):
+
+  * Added missing loglikCopula to importFrom(copula, ...) in NAMESPACE.
+  * Updated the use of the Archimedean copula functions from the
+    copula package (new use.indepC argument).
+
+Changes in version 1.0.9 (February 2, 2014):
+
+  * Fixed incorrect call to all.equal in tests/hfunctions.R.
+
+Changes in version 1.0.8 (May 14, 2013):
+
+  * Fixed a missing documentation warning.
+
+Changes in version 1.0.7 (April 16, 2013):
+
+  * Improved the numerical stability of the evaluation of the vine PDF.
+  * Minor corrections in the documentation.
+
+Changes in version 1.0.6 (November 2, 2012):
+
+  * Reduced the running time of the tests.
+  * Only integer values of the degrees of freedom parameter of the
+    t-copula are now used in the test scripts, in order to avoid errors
+    related with the mvtnorm package only accepting integer values.
+
+Changes in version 1.0.5 (July 31, 2012):
+
+  * Fixed an error because of the message slot of copula objects
+    being renamed to fullname.
+  * Changes to match the new names and signatures of {d,p,r}Copula.
+  * Added the URL of the github repository of the package.
+  * Fixed errors in the inst/CITATION file.
+
+Changes in version 1.0.4 (April 11, 2012):
+
+  * Fixed an error in the script that tests the implementation of the
+    h-functions related with the evaluation of the pcopula function
+    of the t-copula for non-integer degrees of freedom.
+
+Changes in version 1.0.3 (July 28, 2011):
+
+  * The file with the full text of the GNU GPL was removed from the package.
+
+Changes in version 1.0.2 (July 19, 2011):
+
+  * Spelling corrections.
+
+Changes in version 1.0.1 (May 23, 2011):
+
+  * R CMD check warnings fixed.
+
+Changes in version 1.0.0 (May 20, 2011):
+
+  * First public release.

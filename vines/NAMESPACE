@@ -1,0 +1,26 @@
+useDynLib(vines, .registration = TRUE, .fixes = "C_")
+
+import(methods)
+importFrom(stats, cor, numericDeriv, optim, optimize, pchisq, qnorm, runif, uniroot)
+importFrom(copula, dCopula, pCopula, loglikCopula, indepCopula, tCopula, calibKendallsTau)
+importFrom(ADGofTest, ad.test)
+importFrom(cubature, adaptIntegrate)
+importFrom(TSP, as.TSP, insert_dummy, solve_TSP, cut_tour)
+
+exportClasses(Vine, RVine, CVine, DVine)
+exportClasses(vineFit, vineFitML)
+exportClasses(vineGoF)
+
+exportMethods(h, hinverse)
+exportMethods(dvine)
+exportMethods(pvine)
+exportMethods(rvine)
+exportMethods(vinePIT)
+exportMethods(show, dimnames, "dimnames<-")
+
+export(Vine, CVine, DVine)
+export(vineFit)
+export(vineLogLik)
+export(vineOrder)
+export(vineParameters, "vineParameters<-")
+export(vineGoF)

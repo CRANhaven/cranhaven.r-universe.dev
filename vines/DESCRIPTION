@@ -1,0 +1,31 @@
+Type: Package
+Package: vines
+Title: Multivariate Dependence Modeling with Vines
+Version: 1.1.5
+Authors@R: c(person("Yasser", "Gonzalez-Fernandez", role = c("aut",
+        "cre"), email = "ygonzalezfernandez@gmail.com"),
+        person("Marta", "Soto", role = "aut", email =
+        "mrosa@icimaf.cu"), person("Joris", "Meys", role = "ctb", email
+        = "Joris.Meys@UGent.be"))
+Description: Implementation of the vine graphical model for building
+        high-dimensional probability distributions as a factorization
+        of bivariate copulas and marginal density functions. This
+        package provides S4 classes for vines (C-vines and D-vines) and
+        methods for inference, goodness-of-fit tests,
+        density/distribution function evaluation, and simulation.
+License: GPL (>= 2)
+URL: https://github.com/yasserglez/vines
+Depends: methods, copula
+Imports: ADGofTest, cubature, TSP
+Suggests: testthat
+Collate: h.R hinverse.R Vine.R show.R dimnames.R vineParameters.R
+        vineIter.R vineFit.R vineFitML.R vinePIT.R vineGoF.R
+        vineOrder.R dvine.R pvine.R rvine.R
+NeedsCompilation: yes
+Packaged: 2016-07-28 07:04:41 UTC; yasserglez
+Author: Yasser Gonzalez-Fernandez [aut, cre], Marta Soto [aut], Joris
+        Meys [ctb]
+Maintainer: Yasser Gonzalez-Fernandez <ygonzalezfernandez@gmail.com>
+Repository: CRAN
+Date/Publication: 2016-07-28 11:49:43
+Additional_repositories: https://cranhaven.r-universe.dev
