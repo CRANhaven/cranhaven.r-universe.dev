@@ -1,0 +1,10 @@
+citHeader("To cite aPEAR in publications use:")
+
+bibentry(
+  bibtype  = "Article",
+  title    = "aPEAR: an R package for autonomous visualisation of pathway enrichment networks",
+  author   = c(as.person("Ieva Kerseviciute"), as.person("Juozas Gordevicius")),
+  journal  = "BioRxiv",
+  year     = 2023,
+  doi      = "10.1101/2023.03.28.534514" 
+)

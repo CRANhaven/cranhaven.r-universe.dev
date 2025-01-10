@@ -1,0 +1,148 @@
+---
+title: "An introduction to _aPEAR_"
+output: rmarkdown::html_vignette
+author: Ieva Kerseviciute
+date: 2023-06-02
+vignette: >
+  %\VignetteIndexEntry{An introduction to _aPEAR_}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{clusterProfiler}
+  %\VignetteDepends{DOSE}
+  %\VignetteDepends{org.Hs.eg.db}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7.2,
+  fig.height = 4.3,
+  fig.retina = 2
+)
+```
+
+`aPEAR` is designed to help you notice the most important biological themes in your
+enrichment analysis results. It analyses the gene lists of the pathways and detects
+clusters of redundant overlapping gene sets.
+
+Let's begin by performing a simple gene set enrichment analysis with `clusterProfiler`:
+
+```{r, message = FALSE, warning = FALSE}
+# Load all the packages:
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(clusterProfiler)
+library(DOSE)
+library(org.Hs.eg.db)
+library(aPEAR)
+data(geneList)
+
+# Perform enrichment using clusterProfiler
+set.seed(42)
+enrich <- gseGO(geneList, OrgDb = org.Hs.eg.db, ont = 'CC')
+```
+
+## Generate an enrichment network with `enrichmentNetwork()`
+
+`enrichmentNetwork` is the most important function exported by `aPEAR`. It detects clusters of similar pathways
+and generates a `ggplot2` visualization. The only thing it asks you to provide is your enrichment result:
+
+```{r, fig.height = 6}
+set.seed(654824)
+enrichmentNetwork(enrich@result)
+```
+
+Internally, `enrichmentNetwork` calls two functions, `findPathClusters` and `plotPathClusters`, which
+are described in more detail below.
+
+### What if I performed my enrichment analysis using another method, not `clusterProfiler`?
+
+`aPEAR` currently recognizes input from `clusterProfiler` and `gProfileR`. However, if you have custom enrichment
+input, do not worry!
+
+`aPEAR` accepts any kind of enrichment input as long as it is formatted correctly, the only
+requirement is that the gene list of each pathway is known. You should format your data so that:
+
+- it is a `data.frame`.
+- it has a column titled **Description** - it will be used to label each node and to select the name of
+  the most important cluster.
+- it has a column titled **pathwayGenes** which contains the gene list of each pathway - it will be used
+  to calculate the similarities between the pathways. It can be leading edge genes or the full gene list.
+  The ID type (Ensembl, Gene symbol, etc.) does not matter but should be the same between all the pathways.
+  The genes should be separated by "/".
+- a column for colouring the nodes - it should be specified with the parameter `colorBy`.
+- a column for setting the node size - it should be specified with the parameter `nodeSize`.
+
+For example, you might format your data like this:
+
+```{r, include = FALSE, echo = FALSE}
+enrichmentData <- enrich@result %>%
+  as.data.table() %>%
+  .[ 1:5 ] %>%
+  .[ , list(Description, pathwayGenes = core_enrichment, NES, Size = setSize) ] %>%
+  .[ , pathwayGenes := str_trunc(pathwayGenes, 20) ]
+```
+
+```{r}
+enrichmentData[ 1:5 ]
+```
+
+```{r, include = FALSE, echo = FALSE}
+enrichmentData <- enrich@result %>%
+  as.data.table() %>%
+  .[ , list(Description, pathwayGenes = core_enrichment, NES, Size = setSize) ]
+```
+
+Then, tell the `enrichmentNetwork` what to do:
+
+```{r}
+p <- enrichmentNetwork(enrichmentData, colorBy = 'NES', nodeSize = 'Size', verbose = TRUE)
+```
+
+### What if I performed ORA and do not have the normalized enrichment score (NES)?
+
+Good news: you can use the p-values to color the nodes! Just specify the `colorBy` column and `colorType = 'pval'`:
+
+```{r}
+set.seed(348934)
+enrichmentNetwork(enrich@result, colorBy = 'pvalue', colorType = 'pval', pCutoff = -5)
+```
+
+## Find pathway clusters with `findPathClusters()`
+
+If your goal is only to obtain the clusters of redundant pathways, the function `findPathClusters` is
+the way to go. It accepts a `data.frame` with the enrichment results and returns a list of the pathway clusters
+and the similarity matrix:
+
+```{r}
+clusters <- findPathClusters(enrich@result, cluster = 'hier', minClusterSize = 6)
+
+clusters$clusters[ 1:5 ]
+
+pathways <- clusters$clusters[ 1:5, Pathway ]
+clusters$similarity[ pathways, pathways ]
+```
+
+For more information about available similarity metrics, clustering methods, cluster naming conventions,
+and other available parameters, see `?aPEAR.theme`.
+
+## Visualize pathway clusters with `plotPathClusters()`
+
+To visualize clustering results obtained with `findPathClusters`, use the function `plotPathClusters`:
+
+```{r}
+set.seed(238923)
+plotPathClusters(
+  enrichment = enrich@result,
+  sim = clusters$similarity,
+  clusters = clusters$clusters,
+  fontSize = 4,
+  outerCutoff = 0.01, # Decrease cutoff between clusters and show some connections
+  drawEllipses = TRUE
+)
+```
+
+For more parameter options, see `?aPEAR.theme`.
