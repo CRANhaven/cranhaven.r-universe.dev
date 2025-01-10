@@ -1,0 +1,30 @@
+Package: CoFRA
+Title: Complete Functional Regulation Analysis
+Version: 0.1002
+Authors@R: person("Rune", "Matthiesen", email = "runem2009@gmail.com",
+        role = c("aut", "cre"))
+Description: Calculates complete functional regulation analysis and
+        visualize the results in a single heatmap. The provided example
+        data is for biological data but the methodology can be used for
+        large data sets to compare quantitative entities that can be
+        grouped. For example, a store might divide entities into cloth,
+        food, car products etc and want to see how sales changes in the
+        groups after some event. The theoretical background for the
+        calculations are provided in New insights into functional
+        regulation in MS-based drug profiling, Ana Sofia Carvalho,
+        Henrik Molina & Rune Matthiesen, Scientific Reports
+        <doi:10.1038/srep18826>.
+Depends: R (>= 3.2.3)
+Imports: gplots, grid, methods, parallel, stats, stringr
+License: GPL-2 | file LICENSE
+LazyData: true
+RoxygenNote: 5.0.1
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2017-04-06 08:40:45 UTC; rune
+Author: Rune Matthiesen [aut, cre]
+Maintainer: Rune Matthiesen <runem2009@gmail.com>
+Repository: CRAN
+Date/Publication: 2017-04-06 09:26:46 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
