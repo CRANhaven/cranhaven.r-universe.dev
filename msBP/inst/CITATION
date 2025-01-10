@@ -1,0 +1,20 @@
+bibentry(bibtype = "Article",
+  title        = "{msBP}: An {R} Package to Perform Bayesian Nonparametric Inference Using Multiscale Bernstein Polynomials Mixtures",
+  author       = person(given = "Antonio",
+                        family = "Canale",
+                        email = "canale@stat.unipd.it"),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "78",
+  number       = "6",
+  pages        = "1--19",
+  doi          = "10.18637/jss.v078.i06",
+
+  header       = "To cite msBP in publications use:",
+  textVersion  =
+  paste("Antonio Canale (2017).",
+        "msBP: An R Package to Perform Bayesian Nonparametric Inference Using Multiscale Bernstein Polynomials Mixtures.",
+        "Journal of Statistical Software, 78(6), 1-19.",
+        "doi:10.18637/jss.v078.i06")
+)
+

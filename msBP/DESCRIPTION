@@ -1,0 +1,19 @@
+Package: msBP
+Type: Package
+Title: Multiscale Bernstein Polynomials for Densities
+Version: 1.4-1
+Date: 2023-08-22
+Author: Antonio Canale
+Maintainer: Antonio Canale <antonio.canale@unipd.it>
+Description: Performs Bayesian nonparametric multiscale density
+        estimation and multiscale testing of group differences with
+        multiscale Bernstein polynomials (msBP) mixtures as in Canale
+        and Dunson (2016).
+License: GPL-2
+Suggests: R.rsp
+VignetteBuilder: R.rsp
+NeedsCompilation: yes
+Packaged: 2023-08-22 16:42:47 UTC; tony
+Repository: CRAN
+Date/Publication: 2023-08-23 00:00:13 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

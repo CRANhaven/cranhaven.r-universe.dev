@@ -1,0 +1,812 @@
+
+
+%\VignetteIndexEntry{R packages: LaTeX vignettes}
+%\VignetteEngine{R.rsp::tex}
+%\VignetteKeyword{R}
+%\VignetteKeyword{package}
+%\VignetteKeyword{vignette}
+%\VignetteKeyword{LaTeX}
+
+\documentclass[nojss]{jss}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{amsfonts}
+\usepackage{amssymb}  
+\usepackage{amsthm}  
+\usepackage{subfigure}
+\usepackage{setspace}
+\usepackage{verbatim}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{url}
+%\usepackage{hyperref}
+\usepackage{qtree}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{pdflscape}
+
+
+
+\newcommand{\de}{\text{d}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\my}{ {\bf y} }
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\I}{1{\hskip -2.5 pt}\hbox{I} }
+\newcommand{\kulleib}[3]{\int #1(#3) \log\left( 	\frac{#1(#3)}{#2(#3)} \right) \d #3  }
+\newcommand{\kulleibExtr}[5]{\int_{#4}^{#5} #1(#3) \log\left( 	\frac{#1(#3)}{#2(#3)} \right) \d #3  }
+%\newcommand{\v}{\bf{R}}
+\newcommand{\note}[1]{{\color{red} \footnote{\color{red} #1}}}
+\newcommand{\tony}[1]{{\color{red} #1}}
+\newcommand{\ceiling}[1]{{\lceil #1 \rceil}}
+\newcommand{\Be}[2]{\mbox{Be}(#1,#2)}
+\newcommand{\mockalph}[1]{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% almost as usual
+\author{Antonio Canale\\University of Padova}
+\title{\pkg{msBP}: An \proglang{R} Package to Perform Bayesian Nonparametric Inference Using Multiscale Bernstein Polynomials Mixtures}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Antonio Canale} %% comma-separated
+\Plaintitle{msBP: An R Package to Perform Bayesian Nonparametric Inference Using Multiscale Bernstein Polynomials Mixtures} %% without formatting
+\Shorttitle{\pkg{msBP}: Bayesian nonparametric inference using multiscale Bernstein Polynomials} %% a short title (if necessary)
+
+%% an abstract and keywords
+\Abstract{
+This introduction to the R package \pkg{msBP} can be also found in \citet{cana:2017}, published in the Journal of Statistical Software.
+\pkg{msBP} is an available \proglang{R} package that implements a new method to perform  Bayesian multiscale nonparametric inference introduced by \citet{cana:duns:2016}. The method, based on mixtures of multiscale beta dictionary densities, overcomes the drawbacks of P\'olya trees and inherits many of the advantages of Dirichlet process mixture models. The key idea is that an infinitely-deep binary tree is introduced, with a beta dictionary density assigned to each node of the tree. Using a multiscale stick-breaking characterization, stochastically decreasing weights are assigned to each node. The results is an infinite mixture model.
+The package \pkg{msBP} implements a series of basic functions to deal with this family of prior such as random densities and numbers generation, creation and manipulation of binary tree objects, and generic functions to plot and print the results. In addition, it implements the Gibbs samplers for posterior computation to perform multiscale density estimation and multiscale testing of group differences 
+described in \citet{cana:duns:2016}.
+\begin{center}
+{{\bf Cite the package as} \\
+Canale, A. (2017). {\it msBP: An R Package to Perform Bayesian Nonparametric Inference Using Multiscale Bernstein Polynomials Mixtures.} Journal of Statistical Software, 78(6).}
+\end{center}
+
+}
+\Keywords{Binary trees, Density estimation, Multiscale stick-breaking, Multiscale testing}
+\Plainkeywords{binary trees, density estimation, multiscale stick-breaking, multiscale testing} %% without formatting
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{50}
+%% \Issue{9}
+%% \Month{June}
+%% \Year{2012}
+%% \Submitdate{2012-06-04}
+%% \Acceptdate{2012-06-04}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  Antonio Canale\\
+  Department Statistics\\
+  University of Padova\\
+  E-mail: \email{canale@stat.unipd.it}\\
+  URL: \url{tonycanale.github.io}
+}
+%% It is also possible to add a telephone and fax number
+%% before the e-mail in the following format:
+%% Telephone: +43/512/507-7103
+%% Fax: +43/512/507-2851
+
+%% for those who use Sweave please include the following line (with % symbols):
+%% need no \usepackage{Sweave.sty}
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\section{Introduction}
+
+Multiscale methods have received abundant attention in the statistical literature, having several appealing characteristics that pushed their use in many applications. With the term ``multiscale model'' we refer to  a model in which multiple sub-models at different scales are used simultaneously. A notable example is represented by wavelets, which are routinely used in signal and image processing, nonparametric regression, and density estimation \citep{dono:etal:1996}. However, from the Bayesian perspective, multiscale density estimation is surprisingly understudied. Indeed, most of the approaches rely on single-scale kernel mixtures.  Above the other, the Dirichlet process (DP) \citep{art:ferg:1973,art:ferg:1974} mixtures of Gaussian \citep{art:lo:1984, art:esco:west:1995} is the gold standard in many applications. An exception is represented by P\'olya trees \citep{maul:etal:1992,lavi:1992a,lavi:1992b} that unfortunately have some unappealing characteristics. For example they tend to produce highly spiky densities even when the true density is fairly smooth and are sensitive to the prior specification. This sensitivity can be overcome within a mixture approach \citep{hans:2002}, but in this case there is a price to pay in terms of computation. Both the DP and P\'olya tree mixture models are implemented in the famous \pkg{DPpackage}  \citep{pkg:jara}, an \proglang{R} package that represents the de facto standard software for Bayesian nonparametric inference under a variety of settings.
+
+\citet{cana:duns:2016} recently proposed a Bayesian multiscale method that inherits some advantages of the DP mixture and avoids the disadvantages of P\'olya trees. 
+The key idea lies in introducing an infinitely-deep binary tree, with a beta dictionary density assigned to each node of the tree. Using a multiscale stick-breaking \citep{art:seth:1994} characterization, the authors define a stochastically decreasing sequence of weights assigned to each node of the tree. This formulation implies that within a level of the tree, the densities are equivalent to Bernstein polynomials \citep{petr:1999a, petr:1999b}. Extensions to deal with unconstrained domain data are also discussed. A similar idea appeared also in \citet{chen:etal}. 
+%
+The DP-like characteristics derives from the formulation of a multiscale generalization of the stick-breaking process, which can be exploited to build an efficient slice sampling algorithm. The same multiscale stick-breaking process has also been used by \citet{wang:etal:2014} to learn the joint density in massive dimensional settings, using geometric multiresolution analysis to estimate the dictionary densities over the binary tree at a first stage. 
+
+The \proglang{R} package \pkg{msBP} implements the multiscale stick-breaking process, and its applications to density estimation and to testing of group differences as discussed in \citet{cana:duns:2016}, and a series of basic \proglang{R} functions to deal with this family of nonparametric priors such as random density and number generation, creation and manipulation of binary trees, and generic functions to plot and print the results. The package's core is written in \proglang{C++} by means of specific \code{bintree} data class and it is called from \proglang{R} via the \code{.C} function. 
+
+The rest of the paper is organized as follow: in the next section we outline the theoretical framework with particular emphasis on the multiscale stick-breaking process. Section \ref{sec:C} describes the main features of the \proglang{C++} implementation while Section~\ref{sec:tutorial} is concerned with demonstrating the main features of the package. 
+
+\section{A multiscale prior for densities}
+\label{sec:two}
+
+\subsection{Basic formulation}
+\label{sec:model}
+
+Let $x \in \mathcal{X} \subset \R$, be a random variable, $g$ be an unknown density and $x \sim g$. 
+Under a Bayesian perspective $g_0$ is assumed to be a prior guess for $g$, with $G_0$ and $G_0^{-1}$ the corresponding cumulative distribution function (CDF) and inverse CDF, respectively.  
+A prior for $g$ centered on $g_0$ can be introduced through a prior for the density $f$ of $y = G_0( x ) \in (0,1)$.  The CDFs $F$ and $G$ corresponding to the densities $f$ and $g$, respectively, have the following relationship
+\begin{eqnarray}
+G(x) = F\{ G_0(x) \}, x \in \mathcal{X},\quad 
+F(y) = G\{ G_0^{-1}(y) \}, y \in (0,1). \label{eq:map}
+\end{eqnarray}
+A similar construction also appeared in \citet{chen:etal}. The density $f$ is assumed to have the following structure:
+\begin{equation}
+	f(y) = \sum_{s=0}^\infty \sum_{h=1}^{2^s} \pi_{s,h} \mbox{Be}(y; h, 2^s - h +1),
+\label{eq:mix1}
+\end{equation}
+where Be($a$, $b$) denotes the beta density with mean $a/(a+b)$. The sequence of random weights $\{ \pi_{s,h} \}$ are constructed via the multiscale stick-breaking process described below. We will refer to the latter construction as multiscale Bernstein polynomial (msBP) model.
+
+To build a multiscale stick-breaking process, an infinite sequence of scales $s=0,1,\ldots,\infty$ labelling the levels of an infinite-deep binary tree is introduced.  At each scale $s$ there will be $2^s$ different nodes. A cartoon of the binary tree is reported in Figure~\ref{tree1}.  To describe a stochastic path from the root node to the leaves, at each scale $s$ and node $h$ within the scale, the following independent random variables are introduced:
+\begin{equation}
+S_{s,h} \sim \Be{1}{a},\quad  R_{s,h} \sim \Be{b}{b},
+\label{eq:SR}
+\end{equation}
+corresponding to the probability of stopping at node ($s,h$) and taking the right path after node ($s,h$) conditionally on not stopping,  respectively. This formulation generalizes the stick-breaking process representation of \citet{art:seth:1994}.  Each time the stick is broken, it is then randomly divided in two parts (one for the probability of going right, the remainder for the probability of going left) before the next break. 
+Hence, similarly to  \citet{art:seth:1994}, the infinite sequence of weights can be defined as 
+\begin{equation}
+	\pi_{s,h} = S_{s,h} \prod_{r<s} (1-S_{r,g_{shr}}) T_{shr}
+\label{eq:weights}
+\end{equation}
+where $g_{shr} = \lceil h/2^{s-r} \rceil$ is the node traveled through at scale $r$ on the way to node $h$ at scale $s$, $T_{shr} = R_{r,g_{shr}}$ if $(r+1,g_{shr+1})$ is the right daughter of node $(r,g_{shr})$, and $T_{shr} = 1-R_{r,g_{shr}}$ if $(r+1,g_{shr+1})$ is the left daughter of $(r,g_{shr})$. Note that the general $(s,h)$ node is related to the Be($h, 2^s - h +1$) density. 
+
+\begin{figure}
+\Tree [.Be(1,1)\\(0,1)
+		[.Be(1,2)\\(1,1) 
+			[.Be(1,4)\\(2,1) 
+				[.Be(1,8)\\(3,1)  ] [.Be(2,7)\\(3,2)  ] ] 
+			[.Be(2,3)\\(2,2) 
+				[.Be(3,6)\\(3,3)  ] [.Be(4,5)\\(3,4)  ] ] ] 
+		[.Be(2,1)\\(1,2) 
+			[.Be(3,2)\\(2,3) 
+				[.Be(5,4)\\(3,5)  ] [.Be(6,3)\\(3,6)  ]  ] 
+			[.Be(4,1)\\(2,4) 
+				[.Be(7,2)\\(3,7)  ] [.Be(8,1)\\(3,8)  ]  ] ]    
+	]
+\caption{Binary tree with beta kernels at each node $(s, h)$, where $s$ is the scale level and $h$ is the index within the scale.}\label{tree1}
+\end{figure}
+\setcounter{figure}{1}
+	
+The above construction leads to a meaningful sequence of weights, i.e., $ \sum_{s=0}^\infty \sum_{h=1}^{2^s} \pi_{s,h} = 1 $ almost surely for any  $a,b>0$ as proved in Lemma 1 of \citet{cana:duns:2016}. An appealing aspect of this formulation is that it produces a multiscale clustering of the subjects.  In particular, two subjects having similar observations may have the same cluster allocation up to some scale $s$, but are not clustered together on finer scales.  
+
+\subsection{Bayesian multiscale inference on group differences}
+\label{subsec:testing}
+
+A promising feature of this multiscale stick-breaking process is its ease of generalization to more complex settings than mere density estimation. For example, the sequence of random variables defined in Equation~\ref{eq:SR} can be generalized to include predictors or other forms of dependence, (e.g., spatial or temporal). Motivated by epigenetic data, \citet{cana:duns:2016} modified model (\ref{eq:mix1})--(\ref{eq:SR}), to perform Bayesian multiscale inference on group differences. 
+Let $y_i$ be a bounded (between zero and one) outcome for subject $i$ with $y_i \sim f_{d_i}$ and $d_i \in \{0,1\}$. The label $d_i$ denotes a subject's group (e.g., cases/controls, drug/placebo). Using the msBP representation, the hypothesis $f_0 = f_1$ is true if the groups share the same weights over the binary tree.
+If $f_0 \neq f_1$, we may have the same weights on the dictionary elements up to a given scale, so that the densities are equivalent up to that scale but not at finer scales.  Thus, one can also test for  $H_0^s: f^s_{0} = f^s_{1}$, i.e., no differences between the two groups at scale $s$. Clearly $H_0^0$ is true with probability one, and thus a further modification of \eqref{eq:SR} consists to set $S_{0,1}=0$.
+
+The subjects surviving up to scale $s$ can stop or progress to the next scale. Let $\mathcal{N}^s$ denote these actions, with  $\mathcal{N}^s_{(d)}$ denoting the actions in group $d$. Conditionally on  $\mathcal{N}^s$ the posterior probability of $H_0$ being true at scale $s$ can be written as
+\begin{align}
+\mbox{pr}(H_0^s|\mathcal{N}^s) 
+	& = \frac{P_0^s\mbox{pr}(\mathcal{N}^s | H_0^s) }{ P_0^s\mbox{pr}(\mathcal{N}^s | H_0^s)  + (1-P_0^s)\mbox{pr}(\mathcal{N}^s| H_1^s)},\label{eq:postH0} %\\
+\end{align}
+where $P_0^s$ is our prior guess for the null being true at scale $s$ and $\mbox{pr}(\mathcal{N}^s | H_0^s)$ is the probability of the possible actions if $H_0$ is true up to scale $s$. To compute the latter, we can use
+\begin{align}
+\mbox{pr} & (\mathcal{N}^s | H_0^s) 
+		 = \int_{\mathcal{T}^{}} \mbox{pr}(\mathcal{N}^{s} | \mathcal{T}^{}) \mbox{pr}(\mathcal{T}^{}|a,b) d \mathcal{T}^{} \notag \\
+		& =  \left\{\frac{\Gamma(a+1)}{\Gamma(a)} \frac{\Gamma(2b)}{\Gamma(b)^2} \right\}^{2^{s}} 
+		     \int_{\mathcal{T}^{}}  \prod_{h = 1}^{2^{s}} 
+				S_{s,h}^{n_{s,h}} (1-S_{s,h})^{\hat{a}_{s,h}-1} 
+				R_{s,h}^{\hat{b}_{s,h}-1}  (1 - R_{s,h})^{\hat{c}_{s,h} -1} d \mathcal{T}^{} \notag \\
+		& =   \left\{\frac{\Gamma(a+1)\Gamma(2b)}{\Gamma(a) \Gamma(b)^2} \right\}^{2^{s}} 
+			 \prod_{h = 1}^{2^{s}} 
+			\frac{\Gamma(1 + n_{s,h}) \Gamma(\hat{a}) }{\Gamma(a + v_{s,h} + 1)} 
+			\frac{\Gamma(\hat{b}) \Gamma(\hat{c}) }{\Gamma(2b + v_{s,h} - n_{s,h})}, \label{pnest0}
+\end{align} 
+where $\hat{a}_{s,h} =  a + v_{s,h} - n_{s,h}$, $\hat{b}_{s,h} = b + r_{s,h}$, and $\hat{c}_{s,h} = b + v_{s,h} - n_{s,h} - r_{s,h}$, and $v_{s,h}$ is the number of subjects passing through node $(s,h)$, $n_{s,h}$ is the number of subjects stopping at node $(s,h)$,   and  $r_{s,h}$ is the number of subjects that continue to the right after passing through node $(s, h)$. Similarly
+\begin{align}
+\mbox{pr}(\mathcal{N}^{s} | H_1^{s})  = &\, \mbox{pr}(\mathcal{N}_{(0)}^{s}| H_1^{s})
+ \times \mbox{pr}(\mathcal{N}_{(1)}^{s}| H_1^{s}) \notag\\
+	= &  \left\{\frac{\Gamma(a+1)\Gamma(2b)}{\Gamma(a) \Gamma(b)^2} \right\}^{2^{2s}} 
+			\prod_{h = 1}^{2^{s}} 
+			\frac{\Gamma(1 + n_{s,h}^{(0)}) \Gamma(\hat{a}^{(0)}) }{\Gamma(a + v_{s,h}^{(0)} + 1)} 
+			\frac{\Gamma(\hat{b}^{(0)}) \Gamma(\hat{c}^{(0)}) }{\Gamma(2b + v_{s,h}^{(0)} - n_{s,h}^{(0)})}\times \notag\\
+	& %\left\{\frac{\Gamma(a+1)\Gamma(2b)}{\Gamma(a) \Gamma(b)^2} \right\}^{2^{s}} 		
+			\prod_{h = 1}^{2^s} 
+			\frac{\Gamma(1 + n_{s,h}^{(1)}) \Gamma(\hat{a}^{(1)}) }{\Gamma(a + v_{s,h}^{(1)} + 1)} 
+			\frac{\Gamma(\hat{b}^{(1)}) \Gamma(\hat{c}^{(1)}) }{\Gamma(2b + v_{s,h}^{(1)} - n_{s,h}^{(1)})}, \label{pnest1}
+\end{align}
+where $v_{s,h}^{(d)}$ is the number of subjects passing through node $(s,h)$ in group $d$, $n_{s,h}^{(d)}$ is the number of subjects stopping at node $(s,h)$ in group $d$, and $r_{s,h}^{(d)}$ is the number of subjects that continue to the right after passing through node $(s, h)$ in group $d$, with $d=0,1$. 
+%
+The global null will be the cumulative product of Equation~\ref{eq:postH0} for each scale. 
+
+Motivated by a DNA methylation arrays application, \citet{cana:duns:2016} generalized the latter formulation in the case in which $y_i = (y_{i1},\ldots,y_{ip})^T$. To deal with $p$-dimensional arrays, a prior for $P_0^s$ is assumed so to borrow informations across sites and to learn the joint null probability $P_0^s$. This feature is not yet implemented in the \pkg{msBP} package. A similar multiscale approach to perform two-sample comparison has been proposed and successfully applied in the multivariate context in \citet{ma:wong} extending the optional P\'olya tree prior of \citet{wong:ma}. The latter approach is able to jointly perform testing of two sample difference and learn the underlying structure of the difference. Anther proposal connected to P\'olya Trees and dealing with more than two groups, censored, and multivariate data, is discussed in \citet{chen:hans}. See also \citet{holmes:etal} for a related approach.
+
+
+\section{The C++ implementation}
+\label{sec:C}
+
+All the main functions of the \pkg{msBP} package are written in \proglang{C++} and most of them rely on the \code{bintree} data structure, i.e.,
+\begin{Code}
+struct bintree
+{
+	double data;
+	struct bintree *left;
+	struct bintree *right;
+};
+\end{Code}
+The \code{bintree} structure is composed of a root (or parent node), each of which stores data and the two links to the leaves (or daughters nodes). Clearly each leaf connects to two other leaves and it is the beginning of a new, nested, binary tree. A binary tree is a well known data structure with appealing characteristics in computer science. For example, it is possible to easily access and insert data into a binary tree using search and insert functions recursively called on successive leaves. 
+This data structure will be used to store the random variables $S_{s,h}$ and $R_{s,h}$, the weights in the mixtures, and other sample statistics. 
+Basic functions to handle the \code{bintree} data structure, such as create a tree, write and extract the data on a given node of a tree and so forth,  have also been implemented. 
+Among them, the following functions 
+\begin{comment}
+\begin{itemize}
+\item \code{struct bintree *newtree(double data)}: 
+\item \code{struct bintree* writeNode(struct bintree *tree, double x, int s, int h)}: 
+\item \code{double extractNode(struct bintree *tree, int s, int h, double ifempty)}: 
+\item \code{void tree2array(struct bintree *node, double *array, int maxScale, double ifempty)}: 
+\item \code{void array2tree(double *a, int maxScale, struct bintree *node)}: 
+\item \code{void printTree(struct bintree *node, int maxS)}: 
+\item \code{int maxDepth(struct bintree *node)}: 
+\item \code{void clearTree(struct bintree *node)}: 
+\item \code{void deleteTree(struct bintree *node)}: 
+\end{itemize}
+\end{comment}
+\begin{Code}
+void tree2array(struct bintree *node, double *array, ...)
+void array2tree(double *a, int maxScale, struct bintree *node)
+\end{Code}
+allow for the conversion of a binary tree structure into an array and \textsl{vice versa}, and have been written to allow the input-output communication of \proglang{R} and \proglang{C++} via the  \code{.C} function. The first two arguments of the \code{tree2array} function are the pointers to the binary tree and to the array in which to write the values of the tree. Note that the array needs to be initialized before the use of \code{tree2array} and needs to have at least length $2^s-1$, where $s$ is the maximum depth of the tree. The \code{tree2array} function writes the array as described in Figure~\ref{fig:tree2array}. The arguments of \code{array2tree}, instead, are the pointer to the array, an integer denoting the maximum scale of the binary tree, and the pointer to the binary tree structure to populate. In this latter case the binary tree structure need only to be initialized and the function takes care of growing the tree up to the desired depth.
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=.6]{Figures/msbp-tree2array}
+\end{center}
+\caption{Behavior of the \code{tree2array} function. Arrows denote the branch of the original binary tree, with continuous line for the right daughter and dashed line for the left daughter. The number inside the array cells represent the original tree indexes.}
+\label{fig:tree2array}
+\end{figure}
+
+In addition to the basic functions early described, the \pkg{msBP} package features more complex functions. However, most of them are then wrapped into \proglang{R} scripts and define the working functions of the package itself. Thus we do not further describe them here.
+
+\section{Usage of the msBP package}
+\label{sec:tutorial}
+
+
+The main functions of \pkg{msBP} are \code{msBP.Gibbs}, which allows to perform nonparametric density estimation using Gibbs sampler, and \code{msBP.test}  which allows to perform Bayesian multiscale testing of group differences. In this section of the article we provide examples of how to use these functions.  In the first subsections, basic and generic functions to handle the multiscale prior, to sample from a msBP process, and to plot the results, are first described. Then, in the second and the third subsections, \code{msBP.Gibbs} and \code{msBP.test} are extensively discussed. 
+ 
+
+\subsection{Basic and generic functions}
+
+The \pkg{msBP} package introduces two new \proglang{R} object class. The first is the \code{binaryTree} class. An object of the \code{binaryTree} class represents a finite-depth binary tree. It consists of a list containing \code{T} and \code{max.s}, the binary tree itself and an integer denoting its depth, respectively. Specifically, \code{T} is a list where each element is a vector containing the values of the nodes at a given scale. A binary tree of depth 3 containing the integers from 1 to 15 can be obtained with 
+\begin{Schunk}
+\begin{Sinput}
+R> tree <- structure(list( T = list(1, c(2, 3), c(4, 5, 6, 7), 
++    c(8, 9, 10, 11, 12, 13, 14, 15)), max.s = 3), class = "binaryTree")
+\end{Sinput}
+\end{Schunk}
+The tree structure can be converted into a vector using the \code{tree2vec} function
+\begin{Schunk}
+\begin{Sinput}
+R> x <- tree2vec(tree)
+\end{Sinput}
+\end{Schunk}
+while the \code{vec2tree(x)} populates a binary tree with the values contained into the vector \code{x}. The latter function is ideally constructed for vectors of length $2^n-1$, where $n \in N$. However if the length $l \neq 2^n-1$ for any $n$, the function creates a tree up to scale $\lceil \log_2(\lfloor l/2\rfloor+1)\rceil$ with the last leaves populated with \code{NA}. This object class will be largely used by other higher level functions, since the approach described in Section~\ref{sec:two}, deals with several binary trees such as Equations~\ref{eq:SR}, \ref{eq:weights} and so forth. A general \code{plot} function is available for the \code{binaryTree} object class. The results of \code{plot(tree, ...)} is a cartoon of a binary tree with the root node at the top. As additional arguments, the function features: \code{value},  \code{size}, and \code{white}. 
+If \code{value = TRUE} the numerical values of each node appears inside the node (up to the number of digits specified by \code{precision}); if \code{size = TRUE} the size of the nodes are proportional to their values; if \code{white = TRUE} the background color of the nodes is white, otherwise it is in color scale (default \code{gray.colors}). Figure~\ref{plotbinaryTree} shows the output of some combinations.
+
+
+\begin{figure}
+\subfigure[]{\includegraphics[width=0.5\textwidth]{Figures/msbp-plot1}}
+\subfigure[]{\includegraphics[width=0.5\textwidth]{Figures/msbp-plot2}}
+\subfigure[]{\includegraphics[width=0.5\textwidth]{Figures/msbp-plot3}}
+\subfigure[]{\includegraphics[width=0.5\textwidth]{Figures/msbp-plot4}}
+\caption{Output of the \code{plot(tree)} function with (a) default arguments values, (b) \code{size = TRUE}, (c) \code{white = FALSE}, and (d) \code{white = FALSE, size = TRUE, value = FALSE, col.grid = heat.colors(15)}.}
+\label{plotbinaryTree}
+\end{figure}
+
+
+The second object class implemented in the \pkg{msBP} package is the \code{msBPTree} class. An object of the class \code{msBPTree} is a list of 5 elements that represent a random draw from a msBP($a,b$) process. The first two elements are the trees of the stopping and descending-to-the-right probabilities, described by Equation~\ref{eq:SR}. Both are object of the class \code{binaryTree} with the same \code{max.s}. The third and fourth argument are the hyperparameters of the msBP prior, namely $a$ and $b$. The last value is an integer with the maximum depth of both trees. To simulate a random density from a msBP($a,b$) prior truncated at scale 3, the \code{msBP.rtree} function can be used as
+\begin{Schunk}
+\begin{Sinput}
+R> set.seed(17012014)
+R> draw <- msBP.rtree(a = 5, b = 1, max.s = 3)
+\end{Sinput}
+\end{Schunk}
+Note that the last scale have $S_{s,h}=1$. The induced trees of probabilities, calculated by means of \eqref{eq:weights} can be obtained with the \code{msBP.compute.prob} function as
+\begin{Schunk}
+\begin{Sinput}
+R> weights <- msBP.compute.prob(draw)
+\end{Sinput}
+\end{Schunk}
+and the results can be plotted using \code{plot}, as it is an object of the class \code{binaryTree}. An additional argument \code{root = FALSE} let $S_{0,1}=0$. This can be used, for example, in the settings of Section~\ref{subsec:testing}. The induced random density can be drawn on a finite grid of length \code{n.points} of its domain with the function \code{msBP.pdf}, i.e.,
+
+\begin{Schunk}
+\begin{Sinput}
+R> density <- msBP.pdf(weights, n.points = 100)
+R> plot(density$dens ~ density$y, xlab = "y", ylab = "Density", ty = 'l')
+\end{Sinput}
+\end{Schunk}
+
+Given a random density from a msBP($a,b$) process, it is also possible to generate a sample of size $n$ from that density. To this end we use the Algorithm~1, implemented in \proglang{C++} and wrapped into \proglang{R} via the \code{msBP.rsample} function. The \code{msBP.rsample} needs two parameters only: the sample size $n$ and an object of the \code{msBPTree} class. 
+\begin{algorithm}
+\caption{Generating a random sample from a random density having an msBP prior}
+\label{algo:generate}
+\begin{algorithmic}
+\FOR{$i =1, \dots, n$}
+\STATE \texttt{loop} = TRUE;
+\STATE $s_i = 0$, $h_i=1$;
+\WHILE{\texttt{loop}}
+%\STATE simulate  $S_{s,h} \sim \mbox{Be}(1, a)$
+\STATE let \texttt{loop} = FALSE with probability $S_{s,h}$.
+\IF{\texttt{loop}}
+%	\STATE simulate  $R_{s,h} \sim \mbox{Be}(b, b)$
+	\STATE with probability $R_{s_i,h_i}$, let $h_i = 2h_i$
+	\STATE with probability $1-R_{s_i,h_i}$, let $h_i = 2h_i-1$
+\ENDIF
+\ENDWHILE
+\STATE generate $y_i \sim \mbox{Be}(h_i, 2^{s_i} - h_i +1)$.
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Density estimation} 
+
+Posterior density estimation under the msBP setup  relies on Markov chain Monte Carlo (MCMC) sampling algorithm.
+We briefly recall the algorithm proposed by \citet{cana:duns:2016} in what follows. It basically consists of two steps: (i) multiscale cluster allocation conditionally on the current values of the parameters $\{ \pi_{s,h} \}$, and (ii) update of the probabilities parameters in the mixture, conditionally on the cluster allocation. Such structure is typical of mixture models in which a first data augmentation allocates the observation to a mixture component and conditionally on such allocation the parameters of each component are updated \citep{bush:mace:1996, MacE:Mull:1998,art:ishw:jame:2001}. 
+
+Suppose that  $s_i$ and $h_i$ are the scale and the node within scale labels for subject $i$. Conditionally on the binary tree of weights $\{ \pi_{s,h} \}$, the posterior probability of subject $i$ belonging to node ($s,h$) is simply
+\begin{align*}
+\mbox{pr}(s_i = s, h_i=h | y_i, \pi_{s,h}) & \propto \pi_{s,h} \mbox{Be}(y; h, 2^s - h +1).
+\end{align*}
+Now rewrite model \eqref{eq:mix1} as
+\begin{align*}
+	f(y) = \sum_{s=0}^\infty \pi_{s} \sum_{h=1}^{2^s} \bar{\pi}_{s,h} \mbox{Be}(y; h, 2^s - h +1),
+\end{align*}
+where $\pi_s = \sum_{h=1}^{2^s} \pi_{s,h}$, and $\bar{\pi}_{s,h} = \pi_{s,h}/\pi_{s}$. 
+The cluster allocation uses a modification of the slice sampler of \citet{kall:etal:2011} and is reported in Algorithm \ref{algo:postcluster}.
+
+\begin{algorithm}
+\caption{Multiscale cluster posterior allocation for $i$th subject}
+\begin{algorithmic}
+\footnotesize
+\FOR{each scale $s$}
+	\STATE calculate $\pi_s = \sum_{h=1}^{2^s} \pi_{s,h}$:
+\ENDFOR
+\STATE simulate $u_i | y_i, s_i \sim U(0, \pi_{s_i})$;
+\FOR{each scale $s$}
+	\IF{$\pi_{s}> u_i$}
+		\FOR{$h=1, \dots 2^s$}
+			\STATE  compute $\bar{\pi}_{s,h} = \pi_{s,h}/\pi_{s}$
+		\ENDFOR
+		\STATE compute $ \mbox{pr}(s_i=s | u_i,y_i) \propto \sum_{h=1}^{2^s} \bar{\pi}_{s,h}  \mbox{Be}(y_i; h, 2^{s} - h +1 )$
+	\ELSE 
+		\STATE $\mbox{pr}(s_i=s | u_i,y_i) = 0$;
+	\ENDIF
+\ENDFOR
+\STATE sample $s_i$ with probability $\mbox{pr}(s_i=s | u_i,y_i) \propto \I(s: \pi_{s}> u_i)\sum_{h=1}^{2^{s}} \bar{\pi}_{s,h}  \mbox{Be}(y_i; h, 2^{s} - h +1 )$;
+\STATE sample $h_i$ with probability $\mbox{pr}(h_i=h | y_i,s_i) \propto \bar{\pi}_{s_i,h}  \mbox{Be}(y_i; h, 2^{s_i} - h +1 )$;
+\end{algorithmic}
+\label{algo:postcluster}
+\end{algorithm}
+
+Algorithm \ref{algo:postcluster} is implemented in the \code{msBP.postCluster} function. It requires two arguments: the sample of observations \code{y} and a binary tree of weights \code{weights}. The function makes a call to the \code{postCluster} \proglang{C++} subroutine. The output of the function is a matrix with \code{length(y)} rows and two columns of cluster labels: the first denoting the scale and the second denoting the node within a given scale. The same \proglang{C++} subroutine called by \code{msBP.postCluster} is called at each iteration of the MCMC sampler as described below. 
+
+Conditionally on the cluster allocations, the stopping and descending-right probabilities can be updated from their full conditional posteriors, namely: 
+\begin{equation}
+S_{s,h} \sim \Be{1+n_{s,h}}{a + v_{s,h} - n_{s,h}},\quad
+R_{s,h}  \sim \Be{b+r_{s,h}}{b + v_{s,h}  - n_{s,h} - r_{s,h} }. \label{eq:postSR}
+\end{equation}
+%where $v_{s,h}$ is the number of subjects passing through node $(s,h)$, $n_{s,h}$ is the number of subjects stopping at node $(s,h)$,   and  $r_{s,h}$ is the number of subjects that continue to the right after passing through node $(s, h)$.
+Calculation of $v_{s,h}$ and $r_{s,h}$ can be performed via the \code{msBP.nrvTrees} function, a wrapper  calling the \code{allTree} \proglang{C++} subroutine. The input of \code{msBP.nrvTrees} is the output of \code{msBP.postCluster}, i.e., a matrix with 2 columns and a number of rows equal to the sample size. %The elements $n_{s,h}$, $r_{s,h}$, and $v_{s,h}$ can be stored in a binary tree structure. %Namely the output of the  \proglang{C++} subroutine are stored in three different \code{bintree} at \proglang{C++} level that are later used at each iteration of the MCMC sampler. 
+The output of \code{msBP.nrvTrees} is a list containing tree objects of the class \code{binaryTree}. 
+
+The main function implemented in the \pkg{msBP} package is the \code{msBP.Gibbs} function, performing the actual MCMC simulation from the posterior. The function basically iterates between cluster allocation, using  the \code{postCluster} \proglang{C++} subroutine and parameter updating, calculating first the elements $n_{s,h}$, $r_{s,h}$, and $v_{s,h}$ by means of the \code{allTree} \proglang{C++} subroutine, and then using Equation~\ref{eq:postSR}. The Markov chains sampling is written in \proglang{C++} but additional \proglang{R} language is used to initialize the function. 
+
+To describe the use of \code{msBP.Gibbs}, we will now walk the reader through the entire process of density estimation under the msBP setup. We will start showing how to elicit prior informations, how to run the sampler, and how to analyze the output of the analysis. We do this using the famous Galaxy dataset \citep{roed:1990}. The dataset consists on the velocity of 82 galaxies. The histogram of the speeds reveals that the data are clearly multimodal. This feature supports the Big Bang theory, as the different modes of density can be though as clusters of galaxies moving at different speed. 
+
+\begin{Schunk}
+\begin{Sinput}
+R> data("galaxy")
+R> galaxy <- data.frame(galaxy)
+R> x <- galaxy$speed / 1000
+\end{Sinput}
+\end{Schunk}
+
+%$
+
+We start by discussing prior elicitation. In Section~\ref{sec:model} we assumed that $g_0$ is our a prior guess for $g$, the density of $x$ and we want to center our msBP process in such prior. We discussed that if $G_0$ and $G_0^{-1}$ are the corresponding CDF  and inverse CDF, we can first transform the data with $y = G_0( x ) \in (0,1)$, and then estimate $f \sim \text{msBP}(a,b)$. 
+It can be shown \citep[see][]{cana:duns:2016} that the expectation $E\{F(A)\} = \lambda(A)$, where $\lambda(A)$ is the Lebesgue measure over the set $A$ and $F(A) = \int_A f$. Since the prior for $f$ is centered about the uniform, the prior on $g$ is automatically centered in $g_0$. To allow this from a practical viewpoint we can use the argument \code{g0} of the \code{msBP.Gibbs} function. The package features four different prior guesses for $g_0$: \code{g0 = c("uniform", "normal", "gamma", "empirical")} for uniform, normal, gamma and, following an empirical approach, the kernel density estimate. As default choice the function implements the \code{"empirical"} specification. 
+For \code{"normal"} and \code{"gamma"}, the parameters can be fixed or additional prior distribution can be assumed. The former approach is adopted using \code{g0par} a vector of size two corresponding to mean and standard deviation of the normal, or shape and rate parameters for the gamma, respectively. The latter approach is adopted using \code{hyper\$hyperpriors\$g0 = TRUE}. In this case the model becomes
+\[
+y = G_0( x; \theta ), \quad \theta \sim \mbox{pr}(\theta),
+\]
+and thus an additional step of Gibbs sampling to simulate $\theta$ is necessary. The full conditional posterior of $\theta$ is simply
+\[
+\mbox{pr}(\theta \mid -) \propto \mbox{pr}(\theta) \prod_{i=1}^n f(G_0(x_i);\theta) g_0(x_i;\theta),
+\]
+and to sample from  the latter full conditional posterior distribution the package uses a Metropolis-Hastings step \citep{metropolis} with proposal equal to the prior. Currently only 
+\mbox{\code{g0 = "normal"}} is allowed with normal-inverse-gamma prior.
+
+Then one has to specify the values of $a$ and $b$, the hyperparameters of the msBP prior. The hyperparameter $a$ controls the decline in probabilities over scales. Let $S^{(i)}$ denotes the scale of $i$th observation. It can be showed that $E(S^{(i)})  = a$ which means that for small $a$, high probability is placed on coarse scales, leading to smoother densities and as $a$ increases, finer scale densities will be weighted more, leading to spiker realizations. Additional hyperpriors for $a$ and $b$ can be assumed. Clearly, this will lead to have additional sampling steps in the Gibbs sampling algorithm. In the \code{msBP.Gibbs} function this can be achieved letting \mbox{\code{hyper\$hyperpriors\$a = TRUE}} and \code{hyper\$hyperpriors\$b = TRUE}, respectively. 
+Specifically the algorithm implements $a \sim Ga(\beta,\gamma)$ and  $b \sim Ga(\delta, \lambda)$. %$
+This leads to the following conditional posterior distributions:
+\begin{equation}
+	 a | -  \sim \mbox{Ga}\left(\beta + 2^{s'+1} - 1, \gamma - \sum_{s=0}^{s'} \sum_{h=1}^{2^s} \log(1-S_{s,h}) \right), 
+\label{eq:posterio_a}
+\end{equation}
+and 
+\begin{equation}
+	\text{pr}(b|-) \propto \frac{b^{\delta-1}}{B(b,b)^{2^{s'+1}-1}} \exp \left\{b \left(
+	\sum_{s=0}^{s'} \sum_{h=1}^{2^s} \log\{R_{s,h} (1 - R_{s,h} )\} - \lambda \right) \right\},
+\label{eq:posterio_b}
+\end{equation}
+where $s'$ is the maximum occupied scale and $B(p, q)$ is the Beta function. To sample from the conditional posterior distribution of $b$, a Griddy-Gibbs approach over the grid defined by \code{hyper\$hyperpar\$gridB} is used (see \citet{ritt:tann:1992}). For sake of illustration we run and discuss \code{msBP.Gibbs} under the following different prior specifications:
+\begin{Schunk}
+\begin{Sinput}
+R> hyper1 <- list(hyperprior = list(a = TRUE, b = TRUE, g0 = FALSE), 
++    hyperpar = list(beta = 50, gamma = 5, delta = 10, lambda = 1, 
++ 	 gridB = seq(0, 20, length = 30)))
+R> g0_1 <- "empirical"
+R> hyper2 <- list(hyperprior = list(a = TRUE, b = TRUE, g0 = FALSE), 
++    hyperpar = list(beta = 50, gamma = 5, delta= 10, lambda = 1,
++ 	 gridB = seq(0, 20, length = 30)))
+R> g0_2 <- "normal"
+R> g0par_2 <- c(21, 2.5)
+R> hyper2 <- list(hyperprior = list(a = TRUE, b = TRUE, g0 = TRUE), 
++    hyperpar = list(beta = 50, gamma = 5, delta = 10, lambda = 1,
++    gridB = seq(0, 20, length = 30),
++    mu0 = 21, kappa0 = 0.1, alpha0 = 1, beta0 = 20))
+R> g0_3 <- "normal"
+R> g0par_3 <- c(21, 2.5)
+\end{Sinput}
+\end{Schunk}
+which correspond to: (i) $g_0$ assumed to be equal to the empirical kernel density estimate, (ii) $g_0$ assumed to be normal with mean 21 and variance 2.5, and (iii) $g_0$ assumed to be normal with random mean and variance with prior $(\mu, \sigma^2) \sim N(\mu, \mu_0, \kappa_0 \sigma^2) \mbox{I-Ga}(\sigma^2; \alpha_0, \beta_0)$. In all cases the parameters of the msBP prior are assumed to be random with hyperprior distributions $a\sim Ga(50,5)$,  and $b\sim Ga(10,1)$, with the prior for $b$ evaluated on a grid from 0 to 20 of length 30.
+
+The number of iterations to perform in the MCMC can be set via the function argument \code{mcmc}, a list including \code{nb}, the number of burn-in iterations, \code{nrep} the total number of iterations (including \code{nb}), and \code{ndisplay} the multiple of iterations to be displayed on screen while the \proglang{C++} routine is running: 
+
+\begin{Schunk}
+\begin{Sinput}
+R> mcmc <- list(nrep = 10000, nb = 5000, ndisplay = 1000)
+\end{Sinput}
+\end{Schunk}
+
+To obtain a posterior estimate of the density, the \code{grid} argument need to be fixed. It consists of a named list giving the parameters for plotting the posterior mean density over a finite grid of points. It must include \code{low} and \code{upp} giving the lower and upper bound respectively of the grid and \code{n.points}, an integer giving the number of evaluation points.
+
+\begin{Schunk}
+\begin{Sinput}
+R> grid <- list(n.points = 150, low = 5, upp = 38)
+\end{Sinput}
+\end{Schunk}
+
+Additional arguments to be set are \code{maxS} and \code{printing}. The former is an upper bound for the binary trees involved in the MCMC, and the latter is a control argument. If \mbox{\code{printing = TRUE}} the \proglang{C++} routine prints on standard output what is doing every \code{ndisplay} iterations. The default choice is \code{printing = FALSE}. With the following expressions we run the MCMC algorithm:
+
+\begin{Schunk}
+\begin{Sinput}
+R> set.seed(17012014)
+R> fit.msbp.1 <- msBP.Gibbs(speeds, a = 10, b = 10, g0 = g0_1, 
++    mcmc = mcmc, hyper = hyper1, maxS = 5, grid = grid)
+R> fit.msbp.2 <- msBP.Gibbs(speeds, a = 10, b = 10, g0 = g0_2, 
++    g0par = g0par_2, mcmc = mcmc, hyper = hyper2, maxS = 5, grid = grid)
+R> fit.msbp.3 <- msBP.Gibbs(speeds, a = 10, b = 10, g0 = g0_3, 
+     g0par = g0par_3, mcmc = mcmc, hyper = hyper3, maxS = 5, grid = grid)
+\end{Sinput}
+\end{Schunk}
+
+The function output is a named list containing four objects: 
+\begin{itemize}
+\item \code{density}: a named list containing \code{postMeanDens}, the posterior mean density estimate evaluated
+over \code{xDens} and the related lower and upper pointwise 95\% credible bands (\code{postLowDens} and \code{postUppDens}).
+\item \code{mcmc}: a named list containing the MCMC chains: \code{dens} is a matrix (\code{nrep-nb}) $\times$ \code{n.grid} containing the values of the density for each MCMC iteration, \code{a} and \code{b} are vectors containing the MCMC replicates for the two msBP parameters (if \code{hyperprior\$a} or \code{hyperprior\$b} are set as \code{TRUE}), \code{scale} is a matrix where each column is a MCMC sample of the total mass for each scale, \code{R} and \code{S} are matrices where each column in the \code{tree2vec} form of the corresponding trees, \code{weights} is a matrix where each column is the \code{tree2vec} form of the corresponding tree of weights, \code{s} and \code{h} are matrices where each column is the MCMC chain for the node labels for a subject, \code{mu} and \code{sigma} are vectors containing the MCMC replicates for the two parameters of the normal transformation of the data (if \code{hyper\$hyperprior\$g0} was set to \code{TRUE})
+\item \code{postmean}: a named list containing posterior means over the MCMC samples of $a$, $b$, and of all binary trees. If \code{hyper\$hyperprior\$g0} was set to \code{TRUE}, the named list contains also the posterior means of the two parameters of the normal transformation of the data. 
+\item \code{fit}: a named list containing the LPML, mean, and median of the log CPO.
+\end{itemize}
+
+
+The histogram of the raw data and the plot of the posterior mean density and the related 95\% credible bands for the first specification is reported in Figure~\ref{fig:posterior}. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{Figures/msbp-posterior}
+\caption{Posterior mean density for the galaxy dataset.}
+\label{fig:posterior}
+\end{figure}
+
+To assess the convergence of the MCMC, one can have visual inspections of the traceplots of the chains for some parameter of interest. In general \code{fit.msbp.1\$mcmc} contains the MCMC chains of all the model's parameters.
+For example, if hyperpriors on the msBP prior parameters have been assumed, one can monitor the convergence of the chains for $a$ and $b$ with
+
+\begin{Schunk}
+\begin{Sinput}
+R> plot(fit.msbp.1$mcmc$a, type = 'l', main = "Traceplot for a", ylab = "")
+R> plot(fit.msbp.1$mcmc$b, type = 'l', main = "Traceplot for b", ylab = "")
+\end{Sinput}
+\end{Schunk}
+and test for convergence using, for example, the \citet{gewe:1992} diagnostics implemented in the \pkg{coda} package \citep{coda:pkg}, i.e.,
+\begin{Schunk}
+\begin{Sinput}
+R> library("coda")
+R> geweke.diag(fit.msbp.1$mcmc$a)
+\end{Sinput}
+\begin{Soutput}
+Fraction in 1st window = 0.1
+Fraction in 2nd window = 0.5 
+
+  var1 
+-0.1161
+\end{Soutput}
+\begin{Sinput}
+> geweke.diag(fit.msbp.1$mcmc$b)
+\end{Sinput}
+\begin{Soutput}
+Fraction in 1st window = 0.1
+Fraction in 2nd window = 0.5 
+
+  var1 
+-1.769  
+\end{Soutput}
+\end{Schunk}
+
+\begin{figure}
+\centering
+\subfigure[]{\includegraphics[width=0.7\textwidth]{Figures/msbp-traceplots}}
+\caption{Posterior draw for $a$ and $b$.}
+\label{traceplots}
+\end{figure}
+
+We finally compare the fit obtained with the different prior specifications with the fit obtained running \code{DPdensity} and \code{PTdensity} of \pkg{DPpackage}. As prior specification for the latter models we rely on the specifications described in the documentation of the package, reported for sake of completeness in online supplements of this article. The comparison is based on the log pseudo-marginal likelihood (LPML) criterion. The LPML is a leave-one-out cross validatory measure based on the predictive densities, see \citet{green} and \citet{gelfanddey} for details. 
+The three msBP specifications have a LPML of $-215$, $-298$, and $-265$, respectively. The best performance is obtained using the first \pageref{?}rior specification which centers the prior expected density in the kernel density estimate of the raw data. The latter is practically equivalent to the best fits obtained with \code{DPdensity} and \code{PTdensity}, equal to $-210$ and to $-215$, respectively.
+
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Inference in group differences} 
+
+The function \code{msBP.test} performs multiscale hypothesis testing of difference in the distribution of two groups. It exploits the closed form expression for the conditional posterior probability for $H_0^s$ in Equation~\ref{eq:postH0}. However, since it cannot be directly used due to the dependence on the unknown multiscale clustering structure, the function relies on a Gibbs sampling algorithm. Again, the algorithm is made of two steps: multiscale cluster allocation, and update of the tree of weights. For node $h$ at scale $s$, let $\pi_{s,h}^{(0)}$ denote the weight under $H_0^s$ and $\pi_{s,h}^{(1,d)}$ for $d=0,1$ denote the group-specific weights under $H_1^s$.  The allocation of subject $i$, at each iteration, will be made via \code{msBP.postCluster} using the following set of weights:
+\begin{equation}
+	\pi_{s,h}^{(d_i)} = P(H_0^s|\mathcal{N}^s_{(0)}, \mathcal{N}^s_{(1)}) \pi_{s,h}^{(0)} + 
+		\{1 - P(H_0^s|\mathcal{N}^s_{(0)}, \mathcal{N}^s_{(1)})\} \pi_{s,h}^{(1,d_i)}.
+\label{eq:treetest}
+\end{equation}
+Then, at a given iteration the quantities in Equations~\ref{pnest0}--\ref{pnest1} can be calculated explicitly, and used to update the stopping and descending probabilities. 
+
+We describe the parameters and the behavior of the function via the Indian Liver dataset, available at the UCI Machine Learning repository \citep{uci:2013}. This data set contains data on 580 subjects of which 413 liver patients and 167 non-liver patients. Subjects with liver problems typically register higher levels of bilirubin in their blood and thus we want to test if there is a difference in the distribution of the relative direct bilirubin, calculated as the ratio of the direct bilirubin over the total bilirubin. An histogram of the raw data is reported in Figure~\ref{fig:liver}, Panel (a).
+
+The \code{msBP.test} function, in addition to a vector of observations and to a vector of group labels, requires prior values for $a$, $b$, and for the probability of $H_0$. 
+The choice of the hyperparameters $a$ and $b$ can be made using prior information. In what follows, however, the choice is done with a two-step procedure. First, the density of the pooled dataset is fitted with the \code{msBP.Gibbs} function assuming hyperpriors for $a$ and $b$
+
+
+\begin{Schunk}
+\begin{Sinput}
+R> mcmc.test = list(nrep = 8000, nb = 4000, ndisplay = 1000)
+R> hyper.test = list(hyperprior = list(a = TRUE, b = TRUE),  
++    hyperpar = list(beta = 5, gamma = 0.5, delta = 1, lambda = 1))
+R> set.seed(17012014)
+R> dens.liver <- msBP.Gibbs(liver$dirbil, a = 10, b = 10, g0 = "unif",
++    mcmc = mcmc.test, hyper = hyper.test, maxScale = 5)
+\end{Sinput}
+\end{Schunk}
+%$
+Then the posterior mean of $a$ and $b$ are used as plug-in estimates for the testing. We fix the prior probability of $H_0$ to $0.5$ in order to equal weights the null and the alternative, and we fix the upper bound for the scales to 5. The function can be executed via:
+\begin{Schunk}
+\begin{Sinput}
+R> test.liver <- msBP.test(liver$dirbil, a = dens.liver$postmean$a, 
++    b = dens.liver$postmean$b, group = liver$group,
++ 	 priorH0 = 0.5, mcmc = mcmc.test, plot.it = TRUE, maxScale = 5)
+\end{Sinput}
+\end{Schunk}
+
+%$
+
+The function's output is a list containing all the MCMC replicates for $\mbox{pr}(H_0^s|-)$ along with their posterior means and the global Bayes factor
+\[
+\mbox{BF} = \frac{\mbox{pr}(H_0 \mid - )}{\mbox{pr}(H_1 \mid - )}.
+\]
+Figure~\ref{fig:liver} (b) reports the posterior mean of the global null hypothesis, in function of the scale. The differences between the two groups are minimal at the first scale but start to become evident for increasing scales. 
+
+\begin{figure}
+\centering
+\subfigure[]{\includegraphics[width=0.45\textwidth, height=0.45\textwidth]{Figures/msbp-liver}}
+\subfigure[]{\includegraphics[width=0.45\textwidth]{Figures/msbp-test}}
+\caption{Histogram of the raw data (a) and posterior mean of $\mbox{pr}(H_{0s}\mid - )$ as function of $s$ for the Indian liver dataset.}
+\label{fig:liver}
+\end{figure}
+
+
+\section{Conclusions}
+We have presented a detailed introduction to the \proglang{R} package \pkg{msBP}, which implements a recently introduced multiscale stick-breaking prior and allows to perform density estimation and to test for differences in the distribution of two groups. The package implements also basic and generic functions to handle the involved multiscale trees structures.
+
+\section*{Acknowledgement}
+The author thanks David Dunson and Giovanna Menardi for comments on early versions of the manuscript. Comments on the package implementation by Roberto Vigo, Marco Pischedda, Brian Ripley, and the R-package-devel mailing list are gratefully acknowledged.
+
+\begin{thebibliography}{23}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Bache and Lichman(2013)}]{uci:2013}
+Bache K, Lichman M (2013).
+\newblock \enquote{{UCI} Machine Learning Repository.}
+\newblock \urlprefix\url{http://archive.ics.uci.edu/ml}.
+
+\bibitem[{Bush and Mac{E}achern(1996)}]{bush:mace:1996}
+Bush CA, Mac{E}achern SN (1996).
+\newblock \enquote{A Semiparametric {B}ayesian Model for Randomised Block
+  Designs.}
+\newblock \emph{Biometrika}, \textbf{83}(2), 275--285.
+
+\bibitem[{Canale(2017)}]{cana:2017}
+Canale A (2017).
+\newblock \enquote{{msBP}: {A}n {R} Package to perform {B}ayesian nonparametric inference using multiscale {B}ernstein polynomials mixtures.}
+\newblock \emph{Journal of Statistical Software},  \textbf{78}(6).
+
+\bibitem[{Canale and Dunson(2016)}]{cana:duns:2016}
+Canale A, Dunson D (2016).
+\newblock \enquote{Multiscale {B}ernstein Polynomial for Densities.}
+\newblock \emph{Statistica Sinica},  \textbf{26}(3).
+
+\bibitem[{Chen and Hanson(2014)}]{chen:hans}
+Chen Y, Hanson T (2014).
+\newblock \enquote{Bayesian Nonparametric $k$-sample Tests for Censored and Uncensored data}
+\newblock \emph{Computational Statistics \& Data Analysis},  \textbf{71}, 335--346.
+
+\bibitem[{Chen \emph{et~al.}(2014)Chen, Hanson and Zhang}]{chen:etal}
+Chen Y, Hanson T,  Zhang J (2014).
+\newblock \enquote{Accelerated Hazards Model Based on Parametric Families Generalized With {B}ernstein Polynomials}
+\newblock \emph{Biometrics},  \textbf{70}, 192--201.
+
+\bibitem[{Donoho \emph{et~al.}(1996)Donoho, Johnstone, Kerkyacharian, and
+  Picard}]{dono:etal:1996}
+Donoho D, Johnstone I, Kerkyacharian G, Picard D (1996).
+\newblock \enquote{Density Estimation by Wavelet Thresholding.}
+\newblock \emph{The Annals of Statistics}, \textbf{24}, 508--539.
+
+\bibitem[{Escobar and West(1995)}]{art:esco:west:1995}
+Escobar MD, West M (1995).
+\newblock \enquote{Bayesian Density Estimation and Inference Using Mixtures.}
+\newblock \emph{Journal of the American Statistical Association}, \textbf{90},
+  577--588.
+
+\bibitem[{Ferguson(1973)}]{art:ferg:1973}
+Ferguson TS (1973).
+\newblock \enquote{A {B}ayesian Analysis of Some Nonparametric Problems.}
+\newblock \emph{The Annals of Statistics}, \textbf{1}, 209--230.
+
+\bibitem[{Ferguson(1974)}]{art:ferg:1974}
+Ferguson TS (1974).
+\newblock \enquote{Prior Distributions on Spaces of Probability Measures.}
+\newblock \emph{The Annals of Statistics}, \textbf{2}, 615--629.
+
+\bibitem[Gelfand and Dey, 1994]{gelfanddey}
+Gelfand AE and Dey DK (1994).
+\newblock Bayesian Model Choice: Asymptotics and Exact Calculations.
+\newblock \emph{Journal of the Royal Statistical Society B
+  (Methodological)}, \textbf{56}, 501--514.
+
+\bibitem[Green and Richardson, 2001]{green}
+Green and Richardson (2001).
+\newblock Modelling Heterogeneity With and Without the Dirichlet Process.
+\newblock \emph{Scandinavian Journal of Statistics}, \textbf{28}, 355--375.
+
+\bibitem[{Geweke(1992)}]{gewe:1992}
+Geweke J (1992).
+\newblock \enquote{Evaluating the Accuracy of Sampling-based Approaches to the
+  Calculation of Posterior Moments.}
+\newblock In JM~Bernardo, JO~Berger, AP~Dawid, AFM Smith (eds.), \emph{Bayesian
+  Statistics 4}. Oxford: Oxford University Press.
+
+\bibitem[{Hanson and Johnson(2002)}]{hans:2002}
+Hanson T, Johnson WO (2002).
+\newblock \enquote{Modeling Regression Error With a Mixture of P\'olya Trees.}
+\newblock \emph{Journal of the American Statistical Association}, \textbf{97},
+  1020--1033.
+
+\bibitem[{Holmes \emph{et~al.}(2015)Holmes, Caron, Griffin, and Stephens}]{holmes:etal}
+Holmes CC, Caron C, Griffin JE, and Stephens DA (2002).
+\newblock \enquote{Two-sample Bayesian Nonparametric Hypothesis Testing.}
+\newblock \emph{Bayesian Analysis}, \textbf{10}, 297-320.  
+  
+\bibitem[{Ishwaran and James(2001)}]{art:ishw:jame:2001}
+Ishwaran H, James Lancelot F (2001).
+\newblock \enquote{Gibbs Sampling Methods for Stick Breaking Priors.}
+\newblock \emph{Journal of the American Statistical Association},
+  \textbf{96}(453), 161--173.
+
+\bibitem[{Jara \emph{et~al.}(2011)Jara, Hanson, Quintana, Mueller, and
+  Rosner}]{pkg:jara}
+Jara A, Hanson T, Quintana FA, Mueller P, Rosner GL (2011).
+\newblock \enquote{\pkg{DPpackage}: Bayesian Semi- and Nonparametric Modeling in R.}
+\newblock \emph{Journal of Statistical Software}, \textbf{40}(5), 1--30.
+\newblock ISSN 1548-7660.
+\newblock \urlprefix\url{http://www.jstatsoft.org/v40/i05}.
+
+\bibitem[{Kalli \emph{et~al.}(2011)Kalli, Griffin, and Walker}]{kall:etal:2011}
+Kalli M, Griffin J, Walker S (2011).
+\newblock \enquote{Slice Sampling Mixture Models.}
+\newblock \emph{Statistics and Computing}, \textbf{21}(1), 93--105.
+\newblock ISSN 0960-3174.
+
+\bibitem[{Lavine(1992{\natexlab{a}})}]{lavi:1992a}
+Lavine M (1992{\natexlab{a}}).
+\newblock \enquote{{\mockalph{aaaaa}} Some Aspects of {P}olya Tree
+  Distributions for Statistical Modelling.}
+\newblock \emph{The Annals of Statistics}, \textbf{20}, 1222--1235.
+
+\bibitem[{Lavine(1992{\natexlab{b}})}]{lavi:1992b}
+Lavine M (1992{\natexlab{b}}).
+\newblock \enquote{{\mockalph{bbbbb}} More Aspects of {P}olya Tree
+  Distributions for Statistical Modelling.}
+\newblock \emph{The Annals of Statistics}, \textbf{22}, 1161--1176.
+
+\bibitem[{Lo(1984)}]{art:lo:1984}
+Lo AY (1984).
+\newblock \enquote{On a Class of {B}ayesian Nonparametric Estimates: {I}.
+  {D}ensity Estimates.}
+\newblock \emph{The Annals of Statistics}, \textbf{12}, 351--357.
+
+\bibitem[{Ma and Wong(2011)}]{ma:wong}
+Ma L, Wong WH (2011).
+\newblock \enquote{Coupling Optional P{\'o}lya Trees and the Two Sample Problem.}
+\newblock \emph{Journal of the American Statistical Association},
+\textbf{106}(496), 1553--1565.
+
+\bibitem[{MacEachern and M\"{u}ller(1998)}]{MacE:Mull:1998}
+MacEachern SN, M\"{u}ller P (1998).
+\newblock \enquote{Estimating Mixture of {D}irichlet Process Models.}
+\newblock \emph{Journal of Computational and Graphical Statistics}, \textbf{7},
+  223--238.
+
+\bibitem[{Mauldin \emph{et~al.}(1992)Mauldin, Sudderth, and
+  Williams}]{maul:etal:1992}
+Mauldin D, Sudderth WD, Williams SC (1992).
+\newblock \enquote{{P}olya Trees and Random Distributions.}
+\newblock \emph{The Annals of Statistics}, \textbf{20}, 1203--1203.
+
+\bibitem[{Hastings(1970)}]{metropolis}
+Hastings WK (1970).
+\newblock \enquote{Monte Carlo Sampling Methods Using Markov Chains and Their Applications.}
+\newblock \emph{Biometrika}, \textbf{57}, 97--109.
+
+\bibitem[{Petrone(1999{\natexlab{a}})}]{petr:1999a}
+Petrone S (1999{\natexlab{a}}).
+\newblock \enquote{Bayesian Density Estimation Using {B}ernstein polynomials.}
+\newblock \emph{Canadian Journal of Statistics}, \textbf{27}, 105--126.
+
+\bibitem[{Petrone(1999{\natexlab{b}})}]{petr:1999b}
+Petrone S (1999{\natexlab{b}}).
+\newblock \enquote{Random {B}ernstein Polynomials.}
+\newblock \emph{Scandinavian Journal of Statistics}, \textbf{26}, 373--393.
+
+\bibitem[{Plummer \emph{et~al.}(2006)}]{coda:pkg}
+Plummer M, Best N, Cowles J, Vines K (2006).
+\newblock \enquote{\pkg{coda}: Convergence Diagnosis and Output Analysis for {MCMC}.}
+\newblock \emph{R news}, \textbf{6}, 7--11.
+
+\bibitem[{Ritter and Tanner(1992)}]{ritt:tann:1992}
+Ritter C, Tanner MA (1992).
+\newblock \enquote{Facilitating the Gibbs Sampler: the Gibbs Stopper and the
+  Griddy-Gibbs Sampler.}
+\newblock \emph{Journal of the American Statistical Association},
+  \textbf{87}(419), 861--868.
+
+\bibitem[{Roeder(1990)}]{roed:1990}
+Roeder K (1990).
+\newblock \enquote{Density Estimation with Confidence Sets Exemplified by
+  Superclusters and Voids in Galaxies.}
+\newblock \emph{Journal of the American Statistical Association}, \textbf{85},
+  617--624.
+
+\bibitem[{Sethuraman(1994)}]{art:seth:1994}
+Sethuraman J (1994).
+\newblock \enquote{A Constructive Definition of {D}irichlet Priors.}
+\newblock \emph{Statistica Sinica}, \textbf{4}, 639--650.
+
+\bibitem[{Wang \emph{et~al.}(2016)Wang, Canale, and Dunson}]{wang:etal:2014}
+Wang Y, Canale A, Dunson DB (2016).
+\newblock \enquote{Scalable Multiscale Density Estimation.}
+\newblock \emph{AISTATS2016, Journal of Machine Learning Research - Workshop \& Proceedings}, \textbf{51},  857--865.
+
+\bibitem[{Wong and Ma(2010)}]{wong:ma}
+Wong WH, Ma L (2010).
+\newblock \enquote{Optional P{\'o}lya Tree and Bayesian Inference.}
+\newblock \emph{The Annals of Statistics}, \textbf{38}, 1433--1459.
+
+
+\end{thebibliography}
+
+
+\end{document}
