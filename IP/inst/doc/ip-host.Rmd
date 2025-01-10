@@ -1,0 +1,369 @@
+---
+title: "Domain Name Lookup with the IP Package"
+output: rmarkdown::html_vignette
+description: >
+  .
+vignette: >
+  %\VignetteIndexEntry{Domain Name Lookup with the IP Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+Besides IP addresses parsing and manipulation, the IP package also provides the following methods and function for querying information about hosts :
+
+- host(string) does domain name lookup
+- host(ip) does reverse domain name lookup
+- whois() does whois database query
+
+In addition, this vignette demonstrate how to use some of IP package built-in tables :
+
+- ipv4.addr.space() and ipv6.addr.space() : return the corresponding IP address space
+- ipv4.reserved() and ipv6.reserved() : return the corresponding IP reserved address space
+- ipv4.rir() and ipv6.rir() : returns the RIRs IP address spaces &mdash;which are derived from other tables&mdash;
+- ipv6.unicast() : IPv6 unicast addresses
+- ipv4.recovered() : pool of IPv4 addresses recovered by IANA from RIRs
+- rir.names() : Regional Internet Registry names
+
+as well as matching addresses and range addresses with the ip.match() methods.
+
+Please note that, depending on your platform, support for some functions may still be experimental or missing. In addition, this vignette was precomputed so that the results do match the text and results may differ if things changed in the meantime.
+
+# First Example
+
+Let's start with DN lookup :
+
+
+```r
+library(IP)
+rhost     <- host('r-project.org')
+rhost
+```
+
+```
+##   r-project.org 
+## "137.208.57.37"
+```
+
+```r
+class(rhost)
+```
+
+```
+## [1] "host"
+## attr(,"package")
+## [1] "IP"
+```
+
+In this case, there is only one IPv4 address. But in some case, some hosts may have either one or more IPv4 addressess or one or more IPv6 addressess 
+or both and this is why the host() methods does not return an IP object but a specialized host object.
+Therefore, we need to use the ipv4(), ipv6() and ip() methods the extract IP address &mdash;please refer to the second example below&mdash;.
+
+
+Now, let's perform reverse DN lookup on the returned IPv4 address : 
+
+
+```r
+rhost.hnm <- host(ipv4(rhost))
+rhost.hnm 
+```
+
+```
+##        r-project.org 
+## "cran.wu-wien.ac.at"
+```
+
+According to this, the server is located in Austria :
+
+
+```r
+fqdn(rhost.hnm)
+```
+
+```
+## [1] "ac.at"
+```
+
+But, matching this ip range to the RIR address space
+
+
+```r
+ipv4.rir()[ip.match(ipv4(rhost), ipv4.rir())]
+```
+
+```
+##          ARIN 
+## "137.0.0.0/8"
+```
+
+returns ARIN (echt?) which serves North America and not RIPE NCC which serves Europe. 
+Note that in this case ip.match() checks whether the addresses given falls within one of the RIR ranges. 
+If the second argument is a IP address, ip.match() looks for addresses that are equal to x in table.
+
+Now, according to this
+
+
+```r
+ip.match(ipv4(rhost), ipv4.recovered())
+```
+
+```
+## r-project.org 
+##            NA
+```
+this address was not recovered. Now, let's take a look at the whois tables :
+
+
+```r
+rdom.whois   <- whois('r-project.org', output=1)
+rdom.whois[['r-project.org']]['Registrant Country']
+```
+
+```
+## Registrant Country 
+##               "AT"
+```
+Österreich, alles klar. And
+
+
+```r
+rhost.whois <- whois(ipv4(rhost),verbose = 2, output=1)
+```
+
+```
+## whois: 137.208.57.37 NA 
+## refer:' whois.arin.net whois.arin.net '
+## refer:'whois.arin.net'
+## query:' n +  137.208.57.37 
+##  '
+```
+
+```r
+rhost.whois[['r-project.org']]['Organization']
+```
+
+```
+##                              Organization 
+## "RIPE Network Coordination Centre (RIPE)"
+```
+
+yields "RIPE Network Coordination Centre (RIPE)" as expected.
+
+The results of those queries may look a little bit confusing at first. The whois queries tells us that r-project.org site is hosted by the Wirtschaftsuniversität Wien in Austria (and so does the extension of the primary domain  &mdash; ".at") and that its address is accordingly managed by the RIPE-NCC. But RIR lookup on the address of the server tells us that its address falls within a range managed by ARIN which serves North America.  What's happening here is that some address ranges were assigned by ARIN in the 80's to European organizations such as universities before RIPE NCC began its operations in 1992. Those ranges were later transferred to the RIPE NCC as shown by
+
+
+```r
+rhost.whois[['r-project.org']]['NetType']
+```
+
+```
+##                                        NetType 
+## "Early Registrations, Transferred to RIPE NCC"
+```
+
+but this range still belongs to the ARIN address space.
+
+# Second Example : Multiple Addresses
+
+As stated before, host() queries may return one or more address for a single host :
+
+
+```r
+h <- host(dn <- c("r-project.org", "cloud.r-project.org" ))
+h
+```
+
+```
+##                                                                                                                                                                                                                                                                                                                                                  r-project.org 
+##                                                                                                                                                                                                                                                                                                                                                "137.208.57.37" 
+##                                                                                                                                                                                                                                                                                                                                            cloud.r-project.org 
+## "18.244.28.31,18.244.28.115,18.244.28.78,18.244.28.49--2600:9000:262b:2200:6:c2d3:f940:93a1,2600:9000:262b:1c00:6:c2d3:f940:93a1,2600:9000:262b:e00:6:c2d3:f940:93a1,2600:9000:262b:7400:6:c2d3:f940:93a1,2600:9000:262b:c200:6:c2d3:f940:93a1,2600:9000:262b:b800:6:c2d3:f940:93a1,2600:9000:262b:1000:6:c2d3:f940:93a1,2600:9000:262b:8800:6:c2d3:f940:93a1"
+```
+
+```r
+length(h)
+```
+
+```
+## [1] 2
+```
+
+But the returned object has the same length as the input vector so we can use in a data.frame :
+
+
+```r
+data.frame(dn, h)
+```
+
+```
+##                                      dn
+## r-project.org             r-project.org
+## cloud.r-project.org cloud.r-project.org
+##                                                                                                                                                                                                                                                                                                                                                                                h
+## r-project.org                                                                                                                                                                                                                                                                                                                                                      137.208.57.37
+## cloud.r-project.org 18.244.28.31,18.244.28.115,18.244.28.78,18.244.28.49--2600:9000:262b:2200:6:c2d3:f940:93a1,2600:9000:262b:1c00:6:c2d3:f940:93a1,2600:9000:262b:e00:6:c2d3:f940:93a1,2600:9000:262b:7400:6:c2d3:f940:93a1,2600:9000:262b:c200:6:c2d3:f940:93a1,2600:9000:262b:b800:6:c2d3:f940:93a1,2600:9000:262b:1000:6:c2d3:f940:93a1,2600:9000:262b:8800:6:c2d3:f940:93a1
+```
+
+Use the following methods to get the actual addresses :
+
+
+```r
+ipv4(h)
+```
+
+```
+##       r-project.org cloud.r-project.org cloud.r-project.org cloud.r-project.org 
+##     "137.208.57.37"      "18.244.28.31"     "18.244.28.115"      "18.244.28.78" 
+## cloud.r-project.org 
+##      "18.244.28.49"
+```
+
+```r
+ipv6(h)
+```
+
+```
+##                          r-project.org                    cloud.r-project.org 
+##                                     NA "2600:9000:262b:2200:6:c2d3:f940:93a1" 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## "2600:9000:262b:1c00:6:c2d3:f940:93a1"  "2600:9000:262b:e00:6:c2d3:f940:93a1" 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## "2600:9000:262b:7400:6:c2d3:f940:93a1" "2600:9000:262b:c200:6:c2d3:f940:93a1" 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## "2600:9000:262b:b800:6:c2d3:f940:93a1" "2600:9000:262b:1000:6:c2d3:f940:93a1" 
+##                    cloud.r-project.org 
+## "2600:9000:262b:8800:6:c2d3:f940:93a1"
+```
+
+```r
+ip(h)
+```
+
+```
+##                          r-project.org                    cloud.r-project.org 
+##                        "137.208.57.37"                         "18.244.28.31" 
+##                    cloud.r-project.org                    cloud.r-project.org 
+##                        "18.244.28.115"                         "18.244.28.78" 
+##                    cloud.r-project.org                          r-project.org 
+##                         "18.244.28.49"                                     NA 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## "2600:9000:262b:2200:6:c2d3:f940:93a1" "2600:9000:262b:1c00:6:c2d3:f940:93a1" 
+##                    cloud.r-project.org                    cloud.r-project.org 
+##  "2600:9000:262b:e00:6:c2d3:f940:93a1" "2600:9000:262b:7400:6:c2d3:f940:93a1" 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## "2600:9000:262b:c200:6:c2d3:f940:93a1" "2600:9000:262b:b800:6:c2d3:f940:93a1" 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## "2600:9000:262b:1000:6:c2d3:f940:93a1" "2600:9000:262b:8800:6:c2d3:f940:93a1"
+```
+
+As we have seen before, the r-project.org host has only one IPv4 address and no IPv6. 
+On the other end, the cloud.r-project.org host has four IPv4 addresses and height IPv6 addresses.
+
+RIR lookup returns ARIN again for all addresses
+
+
+```r
+ipv4.rir()[ip.match(ipv4(h),ipv4.rir())]
+```
+
+```
+##          ARIN          ARIN          ARIN          ARIN          ARIN 
+## "137.0.0.0/8"  "18.0.0.0/8"  "18.0.0.0/8"  "18.0.0.0/8"  "18.0.0.0/8"
+```
+
+But this times rightfully so for the cloud.r-project.org domain which is hosted by Amazon as shown by this whois query :
+
+
+```r
+w <- whois(ipv6(h)["cloud.r-project.org"][1])
+w[[1]]['OrgName']
+```
+
+```
+##            OrgName 
+## "Amazon.com, Inc."
+```
+
+# Domain Name Internationalization
+
+Per RFC, Domain names are limited to a subset of US-ASCII code points. 
+This basically means that you cannot use code points that represent, say, diacritical symbols or CJK characters in a DN. 
+But the thing is, since 2003, we can use _characters_ outside the authorized range by using a trick called pudny encoding. 
+Pudny encoding uses a one way invertible function that converts every non-ASCII character to ASCII in order to output a legal domain name. 
+And this string can be decoded to retreive the original DN.
+
+Let's see how this work :
+
+
+```r
+dn <- c("bücher.de")
+(dni <- toIdna(dn))
+```
+
+```
+##          bücher.de 
+## "xn--bcher-kva.de"
+```
+
+"bücher.de" becomes "xn--bcher-kva.de". And now, back to the original string :
+
+
+```r
+fromIdna(dni)
+```
+
+```
+## xn--bcher-kva.de 
+##      "bücher.de"
+```
+
+Unfortunately, this doesnot always work —believe it or not, this is an actual domain name— :
+
+
+```r
+dn <- c("💩.la")
+toIdna(dn)
+```
+
+```
+## Warning in toIdna(dn): String preparation failed for '💩.la'
+```
+
+```
+## 💩.la 
+##    NA
+```
+
+In that case, we need to use this flag :
+
+
+```r
+toIdna(dn,  "IDNA_ALLOW_UNASSIGNED")
+```
+
+```
+##         💩.la 
+## "xn--ls8h.la"
+```
+
+Now, let's see what happens when trying to get the hosts IP address :
+
+
+```r
+dn <- c("bücher.de", "💩.la")
+flags <-rep( c( "IDNA_DEFAULT" , "IDNA_ALLOW_UNASSIGNED"), each = length(dn))
+dni <- c(dn, toIdna( dn, flags))
+host(dni)
+```
+
+```
+##        bücher.de            💩.la xn--bcher-kva.de             <NA> 
+##               NA               NA    "45.87.158.7"               NA 
+## xn--bcher-kva.de      xn--ls8h.la 
+##    "45.87.158.7"  "38.103.165.38"
+```
+
+Note that starting with glibc 2.3.4, the underlying `getaddrinfo()` function has been extended to allow hostnames to be transparently converted. 
+In any other case —glibc<2.3.4, Windows,…—, internationalization must be done explicitly before calling the `host()` method at the moment. 
+
+
+

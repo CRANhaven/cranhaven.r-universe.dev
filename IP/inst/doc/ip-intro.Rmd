@@ -1,0 +1,636 @@
+---
+title: "Introduction to the IP Package"
+output: rmarkdown::html_vignette
+description: >
+  .
+vignette: >
+  %\VignetteIndexEntry{IP Package}
+  %\VignetteEngine{knitr::knitr}
+  \usepackage[utf8]{inputenc}
+---
+
+The IP package provides a wide array of methods for working with both IPv4 and IPv6 addresses and ranges :
+
+- IP addresses and range parsing and validation
+- vectorized operations such as arithmetic, logical and bitwise operations
+- IP matching and lookup
+- —reverse— DNS lookup and whois databases query
+
+An IP address is a numerical label assigned to each device connected to a computer network that uses the Internet Protocol for communication. The Internet Protocol uses those labels to identify nodes such as host or network interface for relaying datagrams between them across network boundaries. There are two versions of the Internet Protocol —version 4 and version 6— which differ in many respects.
+
+Code is mostly C for increased performances and is based on the ip4r PostgreSQL extension. IP objects were designed to behave as much as possible as R vectors but there are some pitfalls. Please read the caveat section at the end of this vignette.
+
+# Getting started
+
+The IP package provides six different IP classes :
+
+- the IPv4 class (for IP version 4 addresses)
+- the IPv4r class (for IP version 4 addresses ranges)
+- the IPv6r class (for IP version 6 addresses ranges)
+- the IP class (for both kind of addresses)
+- the IPr class (for IP both kind of addresses ranges)
+
+Let’s start with IPv4 input. Calling the ipv4() and ipv4r() functions creates IPv4 and IPv4r objects respectively from strings :
+
+
+```r
+##
+library(IP)
+## IPv4
+ipv4("192.168.0.0")
+```
+
+```
+## [1] "192.168.0.0"
+```
+
+```r
+## IPv4 range using CIDR notation
+ipv4r("192.168.0.0/16")
+```
+
+```
+## [1] "192.168.0.0/16"
+```
+
+```r
+## same thing using dash notation
+ipv4r("192.168.0.0-192.168.255.255")
+```
+
+```
+## [1] "192.168.0.0/16"
+```
+
+```r
+## same thing using an IPv4 object and an integer giving the number of addresses in the range
+ipv4r(ipv4("192.168.0.0"), as.integer(2L^16 -1) )
+```
+
+```
+## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+```
+
+```
+## [1] "192.168.0.0/16"
+```
+
+```r
+## or 
+ipv4r("192.168.0.0", as.integer(2L^16 -1) )
+```
+
+```
+## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+```
+
+```
+## [1] "192.168.0.0/16"
+```
+
+Likewise, the ipv6() and ipv6r() functions creates IPv6 and IPv6r objects :
+
+
+```r
+## IPv6
+ipv6("fe80::")
+```
+
+```
+## [1] "fe80::"
+```
+
+```r
+## IPv6 range using CIDR notation
+ipv6r("fe80::/10")
+```
+
+```
+## [1] "fe80::/10"
+```
+
+```r
+## same thing using dash notation
+ipv6r("fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
+```
+
+```
+## [1] "fe80::/10"
+```
+
+```r
+## this overflows for ranges greater or equal to 2^54
+try(ipv6r("fe80::", 2^118 -1 ))
+```
+
+```
+## Error in .local(.Object, ...) : ipv6s should have the same NA
+```
+
+```r
+## use this instead
+ipv6r(ipv6("fe80::") , ipv6("fe80::") + (ipv6(1L) %<<% 118L -1L))
+```
+
+```
+## arith: nna Rip_ipv6_op2_arith_addv6_0 1
+## bool: nna Rip_ipv6_op2_bool_gt_0 1 1
+```
+
+```
+## [1] "fe80::/10"
+```
+
+From the penultimate example, we can see that when input fails for any reason, the returned IP value is NA. In addition, numeric inputs are limited to values lesser than 2^54 because otherwise operations may result in a loss of precision since 2^54 is the size of mantissa of IEEE 754 floating point numbers. Please refer to the Arith-methods section of the manual for more information.
+
+And, IP and IPr objects are created as follow :
+
+
+```r
+## IP
+(x <- ip(c("192.168.0.0", "fe80::") ) )
+```
+
+```
+## [1] "192.168.0.0" "fe80::"
+```
+
+```r
+##
+ip.version(x)
+```
+
+```
+## [1] 4 6
+```
+
+```r
+##
+ip(ipv4(c("192.168.0.0", NA)), ipv6(c(NA, "fe80::")) )
+```
+
+```
+## [1] "192.168.0.0" "fe80::"
+```
+
+```r
+##
+ip(ipv4("192.168.0.0"), ipv6("fe80::"), append=T) 
+```
+
+```
+## [1] "192.168.0.0" "fe80::"
+```
+
+```r
+## IP range using CIDR notation
+ipr(c("192.168.0.0/16","fe80::/10") )
+```
+
+```
+## [1] "192.168.0.0/16" "fe80::/10"
+```
+
+```r
+## same thing using dash notation
+ipr(c( "192.168.0.0-192.168.255.255", "fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff") )
+```
+
+```
+## [1] "192.168.0.0/16" "fe80::/10"
+```
+
+The IP package also provides direct input from integers. Note that input values are treated as _unsigned_ integers :
+
+
+```r
+##
+ipv4(1L)
+```
+
+```
+## [1] "0.0.0.1"
+```
+
+```r
+## this is really 4294967295
+x<- ipv4(-1L)
+```
+
+```
+## Warning in ipv4(-1L): negative values
+```
+
+```r
+##  
+x > ipv4(0L)
+```
+
+```
+## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+```
+
+```
+## [1] TRUE
+```
+
+```r
+##
+ipv4(NA_integer_)
+```
+
+```
+## [1] NA
+```
+
+```r
+## same thing for IPv6
+ipv6(1L)
+```
+
+```
+## [1] "::1"
+```
+
+```r
+##
+x<- ipv6(-1L)
+##
+x > ipv6(0L)
+```
+
+```
+## bool: nna Rip_ipv6_op2_bool_gt_0 1 1
+```
+
+```
+## [1] TRUE
+```
+
+```r
+##
+ipv6(NA_integer_)
+```
+
+```
+## Warning in ipv6(NA_integer_): 1 NA introduced during input_int32 IPv6 operation
+```
+
+```
+## [1] NA
+```
+
+The dash notation for addresses ranges gives greater flexibility over CIDR notations as it enables input of arbitrary ranges :
+
+
+```r
+##
+ipv4r("192.168.0.0-192.168.0.9")
+```
+
+```
+## [1] "192.168.0.0-192.168.0.9"
+```
+
+```r
+##
+ipv4r("192.168.0.10-192.168.0.19")
+```
+
+```
+## [1] "192.168.0.10-192.168.0.19"
+```
+
+Also, some methods are specific to certain classes. For instance, the IP package defines getters for address ranges :
+
+
+```r
+## 
+x <- ipv4r("192.168.0.0/16")
+## this also works for IPv6r and IPr objects
+lo(x) ## low end
+```
+
+```
+## [1] "192.168.0.0"
+```
+
+```r
+hi(x) ## high end
+```
+
+```
+## [1] "192.168.255.255"
+```
+
+as well as for IP objects :
+
+
+```r
+##
+x <- ip(c("192.168.0.0", "fe80::") )
+##
+ipv4(x) ## IPv4 part
+```
+
+```
+## [1] "192.168.0.0" NA
+```
+
+```r
+ipv6(x) ## IPv6 part
+```
+
+```
+## [1] NA       "fe80::"
+```
+
+```r
+## keep the ipv4 or ipv6 part only
+ipv4(x, drop=T)
+```
+
+```
+## [1] "192.168.0.0"
+```
+
+```r
+ipv6(x, drop=T)
+```
+
+```
+## [1] "fe80::"
+```
+
+Note that some methods only work for IPv4 and IPv6 objects and not for IP objects. Partly because some methods have not been implemented yet but mostly by design. Despite their similarities, IPv4 and IPv6 are different protocols. Therefore, at some point or another you’ll have to deal with them separately for instance when masking, sorting or matching addresses. In addition IP methods are a bit slower. And, despite fifteen years of IPv6 deployment, what you still get today is mostly IPv4 addresses in many circumstances anyway.
+
+# Working with IP addresses
+
+IP* objects were designed to behave as much as possible like base R atomic vectors. Hence, you can input addresses from named vectors :
+
+
+```r
+x <- ipv4(c(
+  router = '192.168.0.0'
+  , host1  = '192.168.0.1'
+))
+x
+```
+
+```
+##        router         host1 
+## "192.168.0.0" "192.168.0.1"
+```
+
+```r
+names(x)
+```
+
+```
+## [1] "router" "host1"
+```
+
+Like any R vector, IP addresses supports vector slicing :
+
+
+```r
+x[1:2]
+```
+
+```
+##        router         host1 
+## "192.168.0.0" "192.168.0.1"
+```
+
+```r
+x[2:1]
+```
+
+```
+##         host1        router 
+## "192.168.0.1" "192.168.0.0"
+```
+
+and vector assignment :
+
+
+```r
+x[3:4] <- c( host2  = '192.168.0.2', host3  = '192.168.0.3' )
+x[5] <- c( host4  = -1062731772L)
+data.frame(n=names(x), x=x)
+```
+
+```
+##             n           x
+## router router 192.168.0.0
+## host1   host1 192.168.0.1
+## host2   host2 192.168.0.2
+## host3   host3 192.168.0.3
+## host4   host4 192.168.0.4
+```
+
+```r
+x <- c(x, x+5)
+names(x)[6:10] <- paste("host", 5:9, sep="")
+```
+
+Note that, when doing assignment, new values are automatically coerced. We can also grow vectors :
+
+
+```r
+ip0    <- ip()
+ip0[3] <- ipv4(3L)
+ip0[5] <- ipv6(5L)
+ip0  
+```
+
+```
+## [1] NA        NA        "0.0.0.3" NA        "::5"
+```
+
+```r
+## same thing with NA
+ip0    <- ip()
+ip0[2] <- NA
+ip0
+```
+
+```
+## [1] NA NA
+```
+
+In addition to vector slicing and assignment, the IP package also provides methods for
+
+- arithmetic : +, –
+- comparison : ==, >, <, >=, <=
+- bit manipulation : !, &, |, ^, %<<%, %>>%
+
+Multiplication, division and modulo are not implemented yet. The !, &, | and ^ operators behave differently from their base R counterparts in that they perform bitwise operations much like in the C language :
+
+- ! : bitwise NOT (like C ~)
+- & : bitwise AND
+- | : bitwise OR
+- ^ : bitwise XOR
+- %<<% : left shift
+- %>>% right shift
+
+In addition, the ipv4.netmask(n) and ipv4.hostmask(n) (and their corresponding IPv6 functions ipv6.netmask(n) and ipv6.hostmask(n)) returns a net and host mask respectively of size n.
+
+
+```r
+x <- ipv4('192.168.0.0') 
+((x + 1L) - ipv4(1L))==x
+```
+
+```
+## arith: nna Rip_ipv4_op2_arith_subv4_0 1
+## bool: nna Rip_ipv4_op2_bool_eq_0 1 1
+```
+
+```
+## [1] TRUE
+```
+
+```r
+## mask complement
+!ipv4.netmask(8)==ipv4.netmask(24)
+```
+
+```
+## bool: nna Rip_ipv4_op2_bool_eq_0 1 1
+```
+
+```
+## [1] TRUE
+```
+
+```r
+## generate high end of the range form a mask
+ipv4r(x, x|ipv4.hostmask(16) )==ipv4r('192.168.0.0/16')
+```
+
+```
+## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+## bool: nna Rip_ipv4r_op2_bool_eq_0 1 1
+```
+
+```
+## [1] TRUE
+```
+
+Same as any R vectors, binary operators apply to vectors of different length :
+
+
+```r
+## recycle
+ipv4(c(0L,1L)) + ipv4(0:5L)
+```
+
+```
+## arith: na Rip_ipv4_op2_arith_addv4_0
+```
+
+```
+## [1] "0.0.0.0" "0.0.0.2" "0.0.0.2" "0.0.0.4" "0.0.0.4" "0.0.0.6"
+```
+
+```r
+##
+ipv4(c(0L,1L)) < ipv4(0:5L)
+```
+
+```
+## bool: na Rip_ipv4_op2_bool_lt_0
+```
+
+```
+## [1] FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+```
+
+```r
+## even if dimensions don't match
+ipv4(c(0L,1L)) + ipv4(0:6L)
+```
+
+```
+## arith: na Rip_ipv4_op2_arith_addv4_0
+```
+
+```
+## [1] "0.0.0.0" "0.0.0.2" "0.0.0.2" "0.0.0.4" "0.0.0.4" "0.0.0.6" "0.0.0.6"
+```
+
+IP* arithmetic behaves like R integer arithmetic. Hence, overflow means NA :
+
+
+```r
+## note: beware of operators precedence here : `+` > `!`
+( !ipv4(0L) )+1L
+.Machine$integer.max+1L
+```
+
+and so does any operation with NA
+
+
+```r
+ipv4(c(NA,1L) ) == ipv4(1L)
+```
+
+```
+## bool: na Rip_ipv4_op2_bool_eq_0
+```
+
+```
+## [1]   NA TRUE
+```
+
+There are no Summary (min(), max(),…) methods yet. But table() works :
+
+
+```r
+x <- ipv4('192.168.0.0') + 0:4
+x <- x[sample.int(length(x),length(x)*9, replace=T)]
+table(x)
+```
+
+```
+## x
+## 192.168.0.0 192.168.0.1 192.168.0.2 192.168.0.3 192.168.0.4 
+##          10          10           6           9          10
+```
+
+IPv6 and IP objects behave similarly and most of what precedes works for them (with some obvious modifications). There are some exceptions for IP objects because a few methods are still missing or do not apply like when assigning to an IP vector :
+
+
+```r
+x=ip(c(
+    router = '192.168.0.0'
+    , host1  = '192.168.0.1'
+))
+## does not work yet
+try(x[3:4] <- c( host2  = '192.168.0.2', host3  = '192.168.0.3' ))
+```
+
+```
+## Error in `[<-`(`*tmp*`, 3:4, value = c(host2 = "192.168.0.2", host3 = "192.168.0.3" : 
+##   unimplemented assign method for IP object
+```
+
+```r
+##  we need to convert to IP first
+x[3:4] <- ip(c( host2  = '192.168.0.2', host3  = '192.168.0.3' ))
+## does not work because we cannot tell the IP version
+try(x[5] <- c( host4  = -1062731772L))
+```
+
+```
+## Error in `[<-`(`*tmp*`, 5, value = c(host4 = -1062731772L)) : 
+##   unimplemented assign method for IP object
+```
+
+The IP package also provides methods for IP* lookup and DNS resolution. But we’ll cover that in another vignette.
+
+# Caveat
+
+In order to make R believe that IP are regular vectors, every IP objects inherits from the integer class. This means that by virtue of method dispatching, if R does not find a method for an IP object but one exists for an integer vector, the latter will be called and this may not return an IP object or possibly have undesirable side effects that may cause an unpredictable behavior. For example, in an early version of the package, multiplication returned a potentially messed up IP object.
+Now, this has been fixed for the most common cases but it is virtually impossible to fully prevent it as it is a feature of R object-oriented programming. Therefore, if something strange happens, it might be the result of calling a method not defined by the IP package on an IP object.

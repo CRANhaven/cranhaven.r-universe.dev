@@ -1,0 +1,11 @@
+# Installing the IP package
+
+## IDN Support
+
+The IP package depends on the GNU idn library for IDN support. When installing from source using Autoconf, the configure script will check if libidn is installed. If not, it will disable IDN support.
+
+On Windows, pre-compiled static libraries are downloaded from [https://github.com/rwinlib](this) github repo.
+
+## Enabling AVX2 support
+
+When installing from source, AVX2 support can be enabled manually by passing the `--enable-avx2` configure arguments, -eg: `install.packages("IP", configure.args="--enable-avx2")` or `R CMD INSTALL ... --configure-args='--enable-avx2'`.

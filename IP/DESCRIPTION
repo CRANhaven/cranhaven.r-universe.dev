@@ -1,0 +1,26 @@
+Package: IP
+Type: Package
+Title: Classes and Methods for 'IP' Addresses
+Version: 0.1.4
+Authors@R: person( given = "Thomas" , family = "Soubiran" , email =
+        "thomas.soubiran@univ-lille.fr" , role = c("aut", "cre"))
+Author: Thomas Soubiran [aut, cre]
+Maintainer: Thomas Soubiran <thomas.soubiran@univ-lille.fr>
+Description: Provides S4 classes for Internet Protocol (IP) versions 4
+        and 6 addresses and efficient methods for 'IP' addresses
+        comparison, arithmetic, bit manipulation and lookup. Both
+        'IPv4' and 'IPv6' arbitrary ranges are also supported as well
+        as internationalized (IDN) domain lookup with and 'whois'
+        query.
+License: GPL (>= 2)
+SystemRequirements: libidn: libidn11-dev (deb)
+NeedsCompilation: yes
+Depends: R (>= 3.5.0), methods
+Imports: stringi
+Suggests: knitr
+VignetteBuilder: knitr
+Encoding: UTF-8
+Packaged: 2024-10-19 16:41:23 UTC; dilleo
+Repository: CRAN
+Date/Publication: 2024-10-20 19:10:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

@@ -1,0 +1,18 @@
+ifeq (,$(shell pkg-config --version 2>/dev/null))
+  PKG_LIBS = \
+    -lidn2 -lunistring -lRiconv -lcharset -lws2_32
+else
+  PKG_LIBS = $(shell pkg-config --libs libidn 2>/dev/null)
+  ifeq (,$(PKG_LIBS))
+    PKG_LIBS = $(shell pkg-config --libs libidn2)
+  else
+    PKG_CFLAGS = -D__RIP_IDN__
+  endif
+endif
+
+PKG_LIBS += -lws2_32
+
+all: clean 
+
+clean:
+	rm -f $(SHLIB) $(OBJECTS)

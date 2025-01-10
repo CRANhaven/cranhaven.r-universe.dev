@@ -1,0 +1,13 @@
+PKG_CFLAGS= \
+	-I../windows/libidn/include -D__RIP_IDN__
+
+PKG_LIBS= \
+  -L../windows/libidn/lib -lws2_32 -lidn -lintl -liconv
+
+all: clean winlibs
+
+clean:
+	rm -f $(SHLIB) $(OBJECTS)
+
+winlibs:
+	"${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" "../tools/winlibs.R"

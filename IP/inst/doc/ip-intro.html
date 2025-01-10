@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Introduction to the IP Package</title>
+<style type="text/css">
+/**
+ * Prism.s theme ported from highlight.js's xcode style
+ */
+pre code {
+  padding: 1em;
+}
+.token.comment {
+  color: #007400;
+}
+.token.punctuation {
+  color: #999;
+}
+.token.tag,
+.token.selector {
+  color: #aa0d91;
+}
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #1c00cf;
+}
+.token.property,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #c41a16;
+}
+.token.inserted {
+  background-color: #ccffd8;
+}
+.token.deleted {
+  background-color: #ffebe9;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #836c28;
+}
+.token.function,
+.token.class-name {
+  color: #DD4A68;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #5c2699;
+}
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+</style>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+body, .footnotes, code { font-size: .9em; }
+li li { font-size: .95em; }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+pre, img { max-width: 100%; }
+pre, pre:hover {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre) > code, code[class] { background-color: #F8F8F8; }
+code.language-undefined, pre > code:not([class]) {
+  background-color: inherit;
+  border: 1px solid #eee;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 0.5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC .numbered li { list-style: none; }
+#TOC .numbered { padding-left: 0; }
+#TOC .numbered ul { padding-left: 1em; }
+table, .body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.footnote-ref a::before { content: "["; }
+.footnote-ref a::after { content: "]"; }
+section.footnotes::before {
+  content: "";
+  display: block;
+  max-width: 20em;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  tr, img { page-break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  pre { white-space: pre; }
+}
+</style>
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1>Introduction to the IP Package</h1></div>
+<div class="author"><h2></h2></div>
+<div class="date"><h3></h3></div>
+</div>
+<div class="body">
+<p>The IP package provides a wide array of methods for working with both IPv4 and IPv6 addresses and ranges :</p>
+<ul>
+<li>IP addresses and range parsing and validation</li>
+<li>vectorized operations such as arithmetic, logical and bitwise operations</li>
+<li>IP matching and lookup</li>
+<li>—reverse— DNS lookup and whois databases query</li>
+</ul>
+<p>An IP address is a numerical label assigned to each device connected to a computer network that uses the Internet Protocol for communication. The Internet Protocol uses those labels to identify nodes such as host or network interface for relaying datagrams between them across network boundaries. There are two versions of the Internet Protocol —version 4 and version 6— which differ in many respects.</p>
+<p>Code is mostly C for increased performances and is based on the ip4r PostgreSQL extension. IP objects were designed to behave as much as possible as R vectors but there are some pitfalls. Please read the caveat section at the end of this vignette.</p>
+<h1 id="getting-started">Getting started</h1>
+<p>The IP package provides six different IP classes :</p>
+<ul>
+<li>the IPv4 class (for IP version 4 addresses)</li>
+<li>the IPv4r class (for IP version 4 addresses ranges)</li>
+<li>the IPv6r class (for IP version 6 addresses ranges)</li>
+<li>the IP class (for both kind of addresses)</li>
+<li>the IPr class (for IP both kind of addresses ranges)</li>
+</ul>
+<p>Let’s start with IPv4 input. Calling the ipv4() and ipv4r() functions creates IPv4 and IPv4r objects respectively from strings :</p>
+<pre><code class="language-r">##
+library(IP)
+## IPv4
+ipv4(&quot;192.168.0.0&quot;)
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0&quot;
+</code></pre>
+<pre><code class="language-r">## IPv4 range using CIDR notation
+ipv4r(&quot;192.168.0.0/16&quot;)
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0/16&quot;
+</code></pre>
+<pre><code class="language-r">## same thing using dash notation
+ipv4r(&quot;192.168.0.0-192.168.255.255&quot;)
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0/16&quot;
+</code></pre>
+<pre><code class="language-r">## same thing using an IPv4 object and an integer giving the number of addresses in the range
+ipv4r(ipv4(&quot;192.168.0.0&quot;), as.integer(2L^16 -1) )
+</code></pre>
+<pre><code>## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0/16&quot;
+</code></pre>
+<pre><code class="language-r">## or 
+ipv4r(&quot;192.168.0.0&quot;, as.integer(2L^16 -1) )
+</code></pre>
+<pre><code>## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0/16&quot;
+</code></pre>
+<p>Likewise, the ipv6() and ipv6r() functions creates IPv6 and IPv6r objects :</p>
+<pre><code class="language-r">## IPv6
+ipv6(&quot;fe80::&quot;)
+</code></pre>
+<pre><code>## [1] &quot;fe80::&quot;
+</code></pre>
+<pre><code class="language-r">## IPv6 range using CIDR notation
+ipv6r(&quot;fe80::/10&quot;)
+</code></pre>
+<pre><code>## [1] &quot;fe80::/10&quot;
+</code></pre>
+<pre><code class="language-r">## same thing using dash notation
+ipv6r(&quot;fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;)
+</code></pre>
+<pre><code>## [1] &quot;fe80::/10&quot;
+</code></pre>
+<pre><code class="language-r">## this overflows for ranges greater or equal to 2^54
+try(ipv6r(&quot;fe80::&quot;, 2^118 -1 ))
+</code></pre>
+<pre><code>## Error in .local(.Object, ...) : ipv6s should have the same NA
+</code></pre>
+<pre><code class="language-r">## use this instead
+ipv6r(ipv6(&quot;fe80::&quot;) , ipv6(&quot;fe80::&quot;) + (ipv6(1L) %&lt;&lt;% 118L -1L))
+</code></pre>
+<pre><code>## arith: nna Rip_ipv6_op2_arith_addv6_0 1
+## bool: nna Rip_ipv6_op2_bool_gt_0 1 1
+</code></pre>
+<pre><code>## [1] &quot;fe80::/10&quot;
+</code></pre>
+<p>From the penultimate example, we can see that when input fails for any reason, the returned IP value is NA. In addition, numeric inputs are limited to values lesser than 2^54 because otherwise operations may result in a loss of precision since 2^54 is the size of mantissa of IEEE 754 floating point numbers. Please refer to the Arith-methods section of the manual for more information.</p>
+<p>And, IP and IPr objects are created as follow :</p>
+<pre><code class="language-r">## IP
+(x &lt;- ip(c(&quot;192.168.0.0&quot;, &quot;fe80::&quot;) ) )
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0&quot; &quot;fe80::&quot;
+</code></pre>
+<pre><code class="language-r">##
+ip.version(x)
+</code></pre>
+<pre><code>## [1] 4 6
+</code></pre>
+<pre><code class="language-r">##
+ip(ipv4(c(&quot;192.168.0.0&quot;, NA)), ipv6(c(NA, &quot;fe80::&quot;)) )
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0&quot; &quot;fe80::&quot;
+</code></pre>
+<pre><code class="language-r">##
+ip(ipv4(&quot;192.168.0.0&quot;), ipv6(&quot;fe80::&quot;), append=T) 
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0&quot; &quot;fe80::&quot;
+</code></pre>
+<pre><code class="language-r">## IP range using CIDR notation
+ipr(c(&quot;192.168.0.0/16&quot;,&quot;fe80::/10&quot;) )
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0/16&quot; &quot;fe80::/10&quot;
+</code></pre>
+<pre><code class="language-r">## same thing using dash notation
+ipr(c( &quot;192.168.0.0-192.168.255.255&quot;, &quot;fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;) )
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0/16&quot; &quot;fe80::/10&quot;
+</code></pre>
+<p>The IP package also provides direct input from integers. Note that input values are treated as <em>unsigned</em> integers :</p>
+<pre><code class="language-r">##
+ipv4(1L)
+</code></pre>
+<pre><code>## [1] &quot;0.0.0.1&quot;
+</code></pre>
+<pre><code class="language-r">## this is really 4294967295
+x&lt;- ipv4(-1L)
+</code></pre>
+<pre><code>## Warning in ipv4(-1L): negative values
+</code></pre>
+<pre><code class="language-r">##  
+x &gt; ipv4(0L)
+</code></pre>
+<pre><code>## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+</code></pre>
+<pre><code>## [1] TRUE
+</code></pre>
+<pre><code class="language-r">##
+ipv4(NA_integer_)
+</code></pre>
+<pre><code>## [1] NA
+</code></pre>
+<pre><code class="language-r">## same thing for IPv6
+ipv6(1L)
+</code></pre>
+<pre><code>## [1] &quot;::1&quot;
+</code></pre>
+<pre><code class="language-r">##
+x&lt;- ipv6(-1L)
+##
+x &gt; ipv6(0L)
+</code></pre>
+<pre><code>## bool: nna Rip_ipv6_op2_bool_gt_0 1 1
+</code></pre>
+<pre><code>## [1] TRUE
+</code></pre>
+<pre><code class="language-r">##
+ipv6(NA_integer_)
+</code></pre>
+<pre><code>## Warning in ipv6(NA_integer_): 1 NA introduced during input_int32 IPv6 operation
+</code></pre>
+<pre><code>## [1] NA
+</code></pre>
+<p>The dash notation for addresses ranges gives greater flexibility over CIDR notations as it enables input of arbitrary ranges :</p>
+<pre><code class="language-r">##
+ipv4r(&quot;192.168.0.0-192.168.0.9&quot;)
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0-192.168.0.9&quot;
+</code></pre>
+<pre><code class="language-r">##
+ipv4r(&quot;192.168.0.10-192.168.0.19&quot;)
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.10-192.168.0.19&quot;
+</code></pre>
+<p>Also, some methods are specific to certain classes. For instance, the IP package defines getters for address ranges :</p>
+<pre><code class="language-r">## 
+x &lt;- ipv4r(&quot;192.168.0.0/16&quot;)
+## this also works for IPv6r and IPr objects
+lo(x) ## low end
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0&quot;
+</code></pre>
+<pre><code class="language-r">hi(x) ## high end
+</code></pre>
+<pre><code>## [1] &quot;192.168.255.255&quot;
+</code></pre>
+<p>as well as for IP objects :</p>
+<pre><code class="language-r">##
+x &lt;- ip(c(&quot;192.168.0.0&quot;, &quot;fe80::&quot;) )
+##
+ipv4(x) ## IPv4 part
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0&quot; NA
+</code></pre>
+<pre><code class="language-r">ipv6(x) ## IPv6 part
+</code></pre>
+<pre><code>## [1] NA       &quot;fe80::&quot;
+</code></pre>
+<pre><code class="language-r">## keep the ipv4 or ipv6 part only
+ipv4(x, drop=T)
+</code></pre>
+<pre><code>## [1] &quot;192.168.0.0&quot;
+</code></pre>
+<pre><code class="language-r">ipv6(x, drop=T)
+</code></pre>
+<pre><code>## [1] &quot;fe80::&quot;
+</code></pre>
+<p>Note that some methods only work for IPv4 and IPv6 objects and not for IP objects. Partly because some methods have not been implemented yet but mostly by design. Despite their similarities, IPv4 and IPv6 are different protocols. Therefore, at some point or another you’ll have to deal with them separately for instance when masking, sorting or matching addresses. In addition IP methods are a bit slower. And, despite fifteen years of IPv6 deployment, what you still get today is mostly IPv4 addresses in many circumstances anyway.</p>
+<h1 id="working-with-ip-addresses">Working with IP addresses</h1>
+<p>IP* objects were designed to behave as much as possible like base R atomic vectors. Hence, you can input addresses from named vectors :</p>
+<pre><code class="language-r">x &lt;- ipv4(c(
+  router = '192.168.0.0'
+  , host1  = '192.168.0.1'
+))
+x
+</code></pre>
+<pre><code>##        router         host1 
+## &quot;192.168.0.0&quot; &quot;192.168.0.1&quot;
+</code></pre>
+<pre><code class="language-r">names(x)
+</code></pre>
+<pre><code>## [1] &quot;router&quot; &quot;host1&quot;
+</code></pre>
+<p>Like any R vector, IP addresses supports vector slicing :</p>
+<pre><code class="language-r">x[1:2]
+</code></pre>
+<pre><code>##        router         host1 
+## &quot;192.168.0.0&quot; &quot;192.168.0.1&quot;
+</code></pre>
+<pre><code class="language-r">x[2:1]
+</code></pre>
+<pre><code>##         host1        router 
+## &quot;192.168.0.1&quot; &quot;192.168.0.0&quot;
+</code></pre>
+<p>and vector assignment :</p>
+<pre><code class="language-r">x[3:4] &lt;- c( host2  = '192.168.0.2', host3  = '192.168.0.3' )
+x[5] &lt;- c( host4  = -1062731772L)
+data.frame(n=names(x), x=x)
+</code></pre>
+<pre><code>##             n           x
+## router router 192.168.0.0
+## host1   host1 192.168.0.1
+## host2   host2 192.168.0.2
+## host3   host3 192.168.0.3
+## host4   host4 192.168.0.4
+</code></pre>
+<pre><code class="language-r">x &lt;- c(x, x+5)
+names(x)[6:10] &lt;- paste(&quot;host&quot;, 5:9, sep=&quot;&quot;)
+</code></pre>
+<p>Note that, when doing assignment, new values are automatically coerced. We can also grow vectors :</p>
+<pre><code class="language-r">ip0    &lt;- ip()
+ip0[3] &lt;- ipv4(3L)
+ip0[5] &lt;- ipv6(5L)
+ip0  
+</code></pre>
+<pre><code>## [1] NA        NA        &quot;0.0.0.3&quot; NA        &quot;::5&quot;
+</code></pre>
+<pre><code class="language-r">## same thing with NA
+ip0    &lt;- ip()
+ip0[2] &lt;- NA
+ip0
+</code></pre>
+<pre><code>## [1] NA NA
+</code></pre>
+<p>In addition to vector slicing and assignment, the IP package also provides methods for</p>
+<ul>
+<li>arithmetic : +, –</li>
+<li>comparison : ==, &gt;, &lt;, &gt;=, &lt;=</li>
+<li>bit manipulation : !, &amp;, |, ^, %&lt;&lt;%, %&gt;&gt;%</li>
+</ul>
+<p>Multiplication, division and modulo are not implemented yet. The !, &amp;, | and ^ operators behave differently from their base R counterparts in that they perform bitwise operations much like in the C language :</p>
+<ul>
+<li>! : bitwise NOT (like C ~)</li>
+<li>&amp; : bitwise AND</li>
+<li>| : bitwise OR</li>
+<li>^ : bitwise XOR</li>
+<li>%&lt;&lt;% : left shift</li>
+<li>%&gt;&gt;% right shift</li>
+</ul>
+<p>In addition, the ipv4.netmask(n) and ipv4.hostmask(n) (and their corresponding IPv6 functions ipv6.netmask(n) and ipv6.hostmask(n)) returns a net and host mask respectively of size n.</p>
+<pre><code class="language-r">x &lt;- ipv4('192.168.0.0') 
+((x + 1L) - ipv4(1L))==x
+</code></pre>
+<pre><code>## arith: nna Rip_ipv4_op2_arith_subv4_0 1
+## bool: nna Rip_ipv4_op2_bool_eq_0 1 1
+</code></pre>
+<pre><code>## [1] TRUE
+</code></pre>
+<pre><code class="language-r">## mask complement
+!ipv4.netmask(8)==ipv4.netmask(24)
+</code></pre>
+<pre><code>## bool: nna Rip_ipv4_op2_bool_eq_0 1 1
+</code></pre>
+<pre><code>## [1] TRUE
+</code></pre>
+<pre><code class="language-r">## generate high end of the range form a mask
+ipv4r(x, x|ipv4.hostmask(16) )==ipv4r('192.168.0.0/16')
+</code></pre>
+<pre><code>## bool: nna Rip_ipv4_op2_bool_gt_0 1 1
+## bool: nna Rip_ipv4r_op2_bool_eq_0 1 1
+</code></pre>
+<pre><code>## [1] TRUE
+</code></pre>
+<p>Same as any R vectors, binary operators apply to vectors of different length :</p>
+<pre><code class="language-r">## recycle
+ipv4(c(0L,1L)) + ipv4(0:5L)
+</code></pre>
+<pre><code>## arith: na Rip_ipv4_op2_arith_addv4_0
+</code></pre>
+<pre><code>## [1] &quot;0.0.0.0&quot; &quot;0.0.0.2&quot; &quot;0.0.0.2&quot; &quot;0.0.0.4&quot; &quot;0.0.0.4&quot; &quot;0.0.0.6&quot;
+</code></pre>
+<pre><code class="language-r">##
+ipv4(c(0L,1L)) &lt; ipv4(0:5L)
+</code></pre>
+<pre><code>## bool: na Rip_ipv4_op2_bool_lt_0
+</code></pre>
+<pre><code>## [1] FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+</code></pre>
+<pre><code class="language-r">## even if dimensions don't match
+ipv4(c(0L,1L)) + ipv4(0:6L)
+</code></pre>
+<pre><code>## arith: na Rip_ipv4_op2_arith_addv4_0
+</code></pre>
+<pre><code>## [1] &quot;0.0.0.0&quot; &quot;0.0.0.2&quot; &quot;0.0.0.2&quot; &quot;0.0.0.4&quot; &quot;0.0.0.4&quot; &quot;0.0.0.6&quot; &quot;0.0.0.6&quot;
+</code></pre>
+<p>IP* arithmetic behaves like R integer arithmetic. Hence, overflow means NA :</p>
+<pre><code class="language-r">## note: beware of operators precedence here : `+` &gt; `!`
+( !ipv4(0L) )+1L
+.Machine$integer.max+1L
+</code></pre>
+<p>and so does any operation with NA</p>
+<pre><code class="language-r">ipv4(c(NA,1L) ) == ipv4(1L)
+</code></pre>
+<pre><code>## bool: na Rip_ipv4_op2_bool_eq_0
+</code></pre>
+<pre><code>## [1]   NA TRUE
+</code></pre>
+<p>There are no Summary (min(), max(),…) methods yet. But table() works :</p>
+<pre><code class="language-r">x &lt;- ipv4('192.168.0.0') + 0:4
+x &lt;- x[sample.int(length(x),length(x)*9, replace=T)]
+table(x)
+</code></pre>
+<pre><code>## x
+## 192.168.0.0 192.168.0.1 192.168.0.2 192.168.0.3 192.168.0.4 
+##          10          10           6           9          10
+</code></pre>
+<p>IPv6 and IP objects behave similarly and most of what precedes works for them (with some obvious modifications). There are some exceptions for IP objects because a few methods are still missing or do not apply like when assigning to an IP vector :</p>
+<pre><code class="language-r">x=ip(c(
+    router = '192.168.0.0'
+    , host1  = '192.168.0.1'
+))
+## does not work yet
+try(x[3:4] &lt;- c( host2  = '192.168.0.2', host3  = '192.168.0.3' ))
+</code></pre>
+<pre><code>## Error in `[&lt;-`(`*tmp*`, 3:4, value = c(host2 = &quot;192.168.0.2&quot;, host3 = &quot;192.168.0.3&quot; : 
+##   unimplemented assign method for IP object
+</code></pre>
+<pre><code class="language-r">##  we need to convert to IP first
+x[3:4] &lt;- ip(c( host2  = '192.168.0.2', host3  = '192.168.0.3' ))
+## does not work because we cannot tell the IP version
+try(x[5] &lt;- c( host4  = -1062731772L))
+</code></pre>
+<pre><code>## Error in `[&lt;-`(`*tmp*`, 5, value = c(host4 = -1062731772L)) : 
+##   unimplemented assign method for IP object
+</code></pre>
+<p>The IP package also provides methods for IP* lookup and DNS resolution. But we’ll cover that in another vignette.</p>
+<h1 id="caveat">Caveat</h1>
+<p>In order to make R believe that IP are regular vectors, every IP objects inherits from the integer class. This means that by virtue of method dispatching, if R does not find a method for an IP object but one exists for an integer vector, the latter will be called and this may not return an IP object or possibly have undesirable side effects that may cause an unpredictable behavior. For example, in an early version of the package, multiplication returned a potentially messed up IP object.
+Now, this has been fixed for the most common cases but it is virtually impossible to fully prevent it as it is a feature of R object-oriented programming. Therefore, if something strange happens, it might be the result of calling a method not defined by the IP package on an IP object.</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</body>
+</html>

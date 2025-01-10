@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Domain Name Lookup with the IP Package</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Domain Name Lookup with the IP Package</h1>
+
+
+
+<p>Besides IP addresses parsing and manipulation, the IP package also provides the following methods and function for querying information about hosts :</p>
+<ul>
+<li>host(string) does domain name lookup</li>
+<li>host(ip) does reverse domain name lookup</li>
+<li>whois() does whois database query</li>
+</ul>
+<p>In addition, this vignette demonstrate how to use some of IP package built-in tables :</p>
+<ul>
+<li>ipv4.addr.space() and ipv6.addr.space() : return the corresponding IP address space</li>
+<li>ipv4.reserved() and ipv6.reserved() : return the corresponding IP reserved address space</li>
+<li>ipv4.rir() and ipv6.rir() : returns the RIRs IP address spaces —which are derived from other tables—</li>
+<li>ipv6.unicast() : IPv6 unicast addresses</li>
+<li>ipv4.recovered() : pool of IPv4 addresses recovered by IANA from RIRs</li>
+<li>rir.names() : Regional Internet Registry names</li>
+</ul>
+<p>as well as matching addresses and range addresses with the ip.match() methods.</p>
+<p>Please note that, depending on your platform, support for some functions may still be experimental or missing. In addition, this vignette was precomputed so that the results do match the text and results may differ if things changed in the meantime.</p>
+<div id="first-example" class="section level1">
+<h1>First Example</h1>
+<p>Let’s start with DN lookup :</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(IP)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>rhost     &lt;-<span class="st"> </span><span class="kw">host</span>(<span class="st">&#39;r-project.org&#39;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>rhost</span></code></pre></div>
+<pre><code>##   r-project.org 
+## &quot;137.208.57.37&quot;</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span>(rhost)</span></code></pre></div>
+<pre><code>## [1] &quot;host&quot;
+## attr(,&quot;package&quot;)
+## [1] &quot;IP&quot;</code></pre>
+<p>In this case, there is only one IPv4 address. But in some case, some hosts may have either one or more IPv4 addressess or one or more IPv6 addressess or both and this is why the host() methods does not return an IP object but a specialized host object. Therefore, we need to use the ipv4(), ipv6() and ip() methods the extract IP address —please refer to the second example below—.</p>
+<p>Now, let’s perform reverse DN lookup on the returned IPv4 address :</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>rhost.hnm &lt;-<span class="st"> </span><span class="kw">host</span>(<span class="kw">ipv4</span>(rhost))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>rhost.hnm </span></code></pre></div>
+<pre><code>##        r-project.org 
+## &quot;cran.wu-wien.ac.at&quot;</code></pre>
+<p>According to this, the server is located in Austria :</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">fqdn</span>(rhost.hnm)</span></code></pre></div>
+<pre><code>## [1] &quot;ac.at&quot;</code></pre>
+<p>But, matching this ip range to the RIR address space</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">ipv4.rir</span>()[<span class="kw">ip.match</span>(<span class="kw">ipv4</span>(rhost), <span class="kw">ipv4.rir</span>())]</span></code></pre></div>
+<pre><code>##          ARIN 
+## &quot;137.0.0.0/8&quot;</code></pre>
+<p>returns ARIN (echt?) which serves North America and not RIPE NCC which serves Europe. Note that in this case ip.match() checks whether the addresses given falls within one of the RIR ranges. If the second argument is a IP address, ip.match() looks for addresses that are equal to x in table.</p>
+<p>Now, according to this</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">ip.match</span>(<span class="kw">ipv4</span>(rhost), <span class="kw">ipv4.recovered</span>())</span></code></pre></div>
+<pre><code>## r-project.org 
+##            NA</code></pre>
+<p>this address was not recovered. Now, let’s take a look at the whois tables :</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>rdom.whois   &lt;-<span class="st"> </span><span class="kw">whois</span>(<span class="st">&#39;r-project.org&#39;</span>, <span class="dt">output=</span><span class="dv">1</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>rdom.whois[[<span class="st">&#39;r-project.org&#39;</span>]][<span class="st">&#39;Registrant Country&#39;</span>]</span></code></pre></div>
+<pre><code>## Registrant Country 
+##               &quot;AT&quot;</code></pre>
+<p>Österreich, alles klar. And</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>rhost.whois &lt;-<span class="st"> </span><span class="kw">whois</span>(<span class="kw">ipv4</span>(rhost),<span class="dt">verbose =</span> <span class="dv">2</span>, <span class="dt">output=</span><span class="dv">1</span>)</span></code></pre></div>
+<pre><code>## whois: 137.208.57.37 NA 
+## refer:&#39; whois.arin.net whois.arin.net &#39;
+## refer:&#39;whois.arin.net&#39;
+## query:&#39; n +  137.208.57.37 
+##  &#39;</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a>rhost.whois[[<span class="st">&#39;r-project.org&#39;</span>]][<span class="st">&#39;Organization&#39;</span>]</span></code></pre></div>
+<pre><code>##                              Organization 
+## &quot;RIPE Network Coordination Centre (RIPE)&quot;</code></pre>
+<p>yields “RIPE Network Coordination Centre (RIPE)” as expected.</p>
+<p>The results of those queries may look a little bit confusing at first. The whois queries tells us that r-project.org site is hosted by the Wirtschaftsuniversität Wien in Austria (and so does the extension of the primary domain — “.at”) and that its address is accordingly managed by the RIPE-NCC. But RIR lookup on the address of the server tells us that its address falls within a range managed by ARIN which serves North America. What’s happening here is that some address ranges were assigned by ARIN in the 80’s to European organizations such as universities before RIPE NCC began its operations in 1992. Those ranges were later transferred to the RIPE NCC as shown by</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a>rhost.whois[[<span class="st">&#39;r-project.org&#39;</span>]][<span class="st">&#39;NetType&#39;</span>]</span></code></pre></div>
+<pre><code>##                                        NetType 
+## &quot;Early Registrations, Transferred to RIPE NCC&quot;</code></pre>
+<p>but this range still belongs to the ARIN address space.</p>
+</div>
+<div id="second-example-multiple-addresses" class="section level1">
+<h1>Second Example : Multiple Addresses</h1>
+<p>As stated before, host() queries may return one or more address for a single host :</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a>h &lt;-<span class="st"> </span><span class="kw">host</span>(dn &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;r-project.org&quot;</span>, <span class="st">&quot;cloud.r-project.org&quot;</span> ))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>h</span></code></pre></div>
+<pre><code>##                                                                                                                                                                                                                                                                                                                                                  r-project.org 
+##                                                                                                                                                                                                                                                                                                                                                &quot;137.208.57.37&quot; 
+##                                                                                                                                                                                                                                                                                                                                            cloud.r-project.org 
+## &quot;18.244.28.31,18.244.28.115,18.244.28.78,18.244.28.49--2600:9000:262b:2200:6:c2d3:f940:93a1,2600:9000:262b:1c00:6:c2d3:f940:93a1,2600:9000:262b:e00:6:c2d3:f940:93a1,2600:9000:262b:7400:6:c2d3:f940:93a1,2600:9000:262b:c200:6:c2d3:f940:93a1,2600:9000:262b:b800:6:c2d3:f940:93a1,2600:9000:262b:1000:6:c2d3:f940:93a1,2600:9000:262b:8800:6:c2d3:f940:93a1&quot;</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="kw">length</span>(h)</span></code></pre></div>
+<pre><code>## [1] 2</code></pre>
+<p>But the returned object has the same length as the input vector so we can use in a data.frame :</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="kw">data.frame</span>(dn, h)</span></code></pre></div>
+<pre><code>##                                      dn
+## r-project.org             r-project.org
+## cloud.r-project.org cloud.r-project.org
+##                                                                                                                                                                                                                                                                                                                                                                                h
+## r-project.org                                                                                                                                                                                                                                                                                                                                                      137.208.57.37
+## cloud.r-project.org 18.244.28.31,18.244.28.115,18.244.28.78,18.244.28.49--2600:9000:262b:2200:6:c2d3:f940:93a1,2600:9000:262b:1c00:6:c2d3:f940:93a1,2600:9000:262b:e00:6:c2d3:f940:93a1,2600:9000:262b:7400:6:c2d3:f940:93a1,2600:9000:262b:c200:6:c2d3:f940:93a1,2600:9000:262b:b800:6:c2d3:f940:93a1,2600:9000:262b:1000:6:c2d3:f940:93a1,2600:9000:262b:8800:6:c2d3:f940:93a1</code></pre>
+<p>Use the following methods to get the actual addresses :</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="kw">ipv4</span>(h)</span></code></pre></div>
+<pre><code>##       r-project.org cloud.r-project.org cloud.r-project.org cloud.r-project.org 
+##     &quot;137.208.57.37&quot;      &quot;18.244.28.31&quot;     &quot;18.244.28.115&quot;      &quot;18.244.28.78&quot; 
+## cloud.r-project.org 
+##      &quot;18.244.28.49&quot;</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a><span class="kw">ipv6</span>(h)</span></code></pre></div>
+<pre><code>##                          r-project.org                    cloud.r-project.org 
+##                                     NA &quot;2600:9000:262b:2200:6:c2d3:f940:93a1&quot; 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## &quot;2600:9000:262b:1c00:6:c2d3:f940:93a1&quot;  &quot;2600:9000:262b:e00:6:c2d3:f940:93a1&quot; 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## &quot;2600:9000:262b:7400:6:c2d3:f940:93a1&quot; &quot;2600:9000:262b:c200:6:c2d3:f940:93a1&quot; 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## &quot;2600:9000:262b:b800:6:c2d3:f940:93a1&quot; &quot;2600:9000:262b:1000:6:c2d3:f940:93a1&quot; 
+##                    cloud.r-project.org 
+## &quot;2600:9000:262b:8800:6:c2d3:f940:93a1&quot;</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true"></a><span class="kw">ip</span>(h)</span></code></pre></div>
+<pre><code>##                          r-project.org                    cloud.r-project.org 
+##                        &quot;137.208.57.37&quot;                         &quot;18.244.28.31&quot; 
+##                    cloud.r-project.org                    cloud.r-project.org 
+##                        &quot;18.244.28.115&quot;                         &quot;18.244.28.78&quot; 
+##                    cloud.r-project.org                          r-project.org 
+##                         &quot;18.244.28.49&quot;                                     NA 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## &quot;2600:9000:262b:2200:6:c2d3:f940:93a1&quot; &quot;2600:9000:262b:1c00:6:c2d3:f940:93a1&quot; 
+##                    cloud.r-project.org                    cloud.r-project.org 
+##  &quot;2600:9000:262b:e00:6:c2d3:f940:93a1&quot; &quot;2600:9000:262b:7400:6:c2d3:f940:93a1&quot; 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## &quot;2600:9000:262b:c200:6:c2d3:f940:93a1&quot; &quot;2600:9000:262b:b800:6:c2d3:f940:93a1&quot; 
+##                    cloud.r-project.org                    cloud.r-project.org 
+## &quot;2600:9000:262b:1000:6:c2d3:f940:93a1&quot; &quot;2600:9000:262b:8800:6:c2d3:f940:93a1&quot;</code></pre>
+<p>As we have seen before, the r-project.org host has only one IPv4 address and no IPv6. On the other end, the cloud.r-project.org host has four IPv4 addresses and height IPv6 addresses.</p>
+<p>RIR lookup returns ARIN again for all addresses</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true"></a><span class="kw">ipv4.rir</span>()[<span class="kw">ip.match</span>(<span class="kw">ipv4</span>(h),<span class="kw">ipv4.rir</span>())]</span></code></pre></div>
+<pre><code>##          ARIN          ARIN          ARIN          ARIN          ARIN 
+## &quot;137.0.0.0/8&quot;  &quot;18.0.0.0/8&quot;  &quot;18.0.0.0/8&quot;  &quot;18.0.0.0/8&quot;  &quot;18.0.0.0/8&quot;</code></pre>
+<p>But this times rightfully so for the cloud.r-project.org domain which is hosted by Amazon as shown by this whois query :</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true"></a>w &lt;-<span class="st"> </span><span class="kw">whois</span>(<span class="kw">ipv6</span>(h)[<span class="st">&quot;cloud.r-project.org&quot;</span>][<span class="dv">1</span>])</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true"></a>w[[<span class="dv">1</span>]][<span class="st">&#39;OrgName&#39;</span>]</span></code></pre></div>
+<pre><code>##            OrgName 
+## &quot;Amazon.com, Inc.&quot;</code></pre>
+</div>
+<div id="domain-name-internationalization" class="section level1">
+<h1>Domain Name Internationalization</h1>
+<p>Per RFC, Domain names are limited to a subset of US-ASCII code points. This basically means that you cannot use code points that represent, say, diacritical symbols or CJK characters in a DN. But the thing is, since 2003, we can use <em>characters</em> outside the authorized range by using a trick called pudny encoding. Pudny encoding uses a one way invertible function that converts every non-ASCII character to ASCII in order to output a legal domain name. And this string can be decoded to retreive the original DN.</p>
+<p>Let’s see how this work :</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true"></a>dn &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;bücher.de&quot;</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true"></a>(dni &lt;-<span class="st"> </span><span class="kw">toIdna</span>(dn))</span></code></pre></div>
+<pre><code>##          bücher.de 
+## &quot;xn--bcher-kva.de&quot;</code></pre>
+<p>“bücher.de” becomes “xn–bcher-kva.de”. And now, back to the original string :</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true"></a><span class="kw">fromIdna</span>(dni)</span></code></pre></div>
+<pre><code>## xn--bcher-kva.de 
+##      &quot;bücher.de&quot;</code></pre>
+<p>Unfortunately, this doesnot always work —believe it or not, this is an actual domain name— :</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true"></a>dn &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;💩.la&quot;</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true"></a><span class="kw">toIdna</span>(dn)</span></code></pre></div>
+<pre><code>## Warning in toIdna(dn): String preparation failed for &#39;💩.la&#39;</code></pre>
+<pre><code>## 💩.la 
+##    NA</code></pre>
+<p>In that case, we need to use this flag :</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true"></a><span class="kw">toIdna</span>(dn,  <span class="st">&quot;IDNA_ALLOW_UNASSIGNED&quot;</span>)</span></code></pre></div>
+<pre><code>##         💩.la 
+## &quot;xn--ls8h.la&quot;</code></pre>
+<p>Now, let’s see what happens when trying to get the hosts IP address :</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true"></a>dn &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;bücher.de&quot;</span>, <span class="st">&quot;💩.la&quot;</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true"></a>flags &lt;-<span class="kw">rep</span>( <span class="kw">c</span>( <span class="st">&quot;IDNA_DEFAULT&quot;</span> , <span class="st">&quot;IDNA_ALLOW_UNASSIGNED&quot;</span>), <span class="dt">each =</span> <span class="kw">length</span>(dn))</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true"></a>dni &lt;-<span class="st"> </span><span class="kw">c</span>(dn, <span class="kw">toIdna</span>( dn, flags))</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true"></a><span class="kw">host</span>(dni)</span></code></pre></div>
+<pre><code>##        bücher.de            💩.la xn--bcher-kva.de             &lt;NA&gt; 
+##               NA               NA    &quot;45.87.158.7&quot;               NA 
+## xn--bcher-kva.de      xn--ls8h.la 
+##    &quot;45.87.158.7&quot;  &quot;38.103.165.38&quot;</code></pre>
+<p>Note that starting with glibc 2.3.4, the underlying <code>getaddrinfo()</code> function has been extended to allow hostnames to be transparently converted. In any other case —glibc&lt;2.3.4, Windows,…—, internationalization must be done explicitly before calling the <code>host()</code> method at the moment.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
