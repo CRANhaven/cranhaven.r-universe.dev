@@ -1,0 +1,144 @@
+---
+title: "stopdetection-vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{stopdetection-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Importance of stop detection
+This vignette shows how the stopdetection package can be used to segment timestamped trajectories into sequences of stops and tracks (alternatively known as stay points and trajectories). 
+
+Living beings tend to have movement behavior that intersperses time spent in motion with time spent at rest. Often it's interesting to distinguish between the the two states of "moving" and "stopped," because we want to investigate only one or the other, we want to aggregate over the state, or because we want to calculate some statistics for these states independently. 
+
+Humans tend to be quite good at subjectively distinguishing between states. You can probably list the different places you've been today without much difficulty, for example, because you are able to combine the aspects of space, time and motive. Raw location data, on the other hand, must be in some way analyzed in order to differentiate between these states. This package uses a very simple algorithm to cluster trajectories. 
+
+## Stop detection parameters
+
+### Distance ($\theta_{D}$)
+
+We can think of a stop as a place where our location didn't change very much for a certain length of time. How much and how long depend very much on the goals of the researcher. While the same concepts apply across varied disciplines, this vignette is written from the context of human mobility studies on transportation.  If a person is at home for many hours, his or her location may differ slightly from hour to hour, but their subjective place, home, has not changed. Because an object's location may change while the stop of interest remains the same, we uncover the first necessary parameter in our algorithm, $\theta_{D}$. This reflects the distance (in meters) that someone may range from a stop point before they are considered to be no longer at that stop. 
+
+The smaller $\theta_{D}$ is, the more closely locations must be grouped together to be called a stop. Below is an example of stop clustering under a $\theta_{D}$ of 100 (red), 200 (blue) or 500 (green) meters. 
+
+
+```{r echo=FALSE, fig.height=5, fig.width=5, message=FALSE, warning=FALSE}
+library(stopdetection)
+data("loc_data_2019")
+sm <- data.table::setDT(loc_data_2019)[1:500]
+# sm <- loc_data_2019[1:500]
+data.table::set(sm,
+    j = c("lon1", "lat1"),
+    value = list(
+      sm[["longitude"]][1],
+      sm[["latitude"]][1]))
+# sm[, lon1 := longitude[1]]
+# sm[, lat1 := latitude[1]]
+sm[, dist := geodist::geodist_vec(x1 = lon1, y1 = lat1, x2 = longitude, y2 = latitude, measure = "geodesic", paired = TRUE, pad = TRUE)]
+with(sm, {
+  plot(longitude, latitude, asp=1, main = "Impact of deltaD parameter", sub = "Red: 100m, blue: 200m, green: 500m", type = "b")
+  points(longitude[dist < 100], latitude[dist < 100], col = "red")
+  points(lon1[1], lat1[1], col = "red", cex = 15)
+  points(longitude[dist > 100 & dist < 200], latitude[dist > 100 & dist < 200], col = "blue")
+  points(lon1[1], lat1[1], col = "blue", cex = 28)
+  points(longitude[dist > 200 & dist < 500], latitude[dist > 200 & dist < 500], col = "darkgreen")
+  points(lon1[1], lat1[1], col = "darkgreen", cex = 50)
+})
+# rm(sm)
+# rm(loc_data_2019)
+```
+
+### Time ($\theta_{T}$)
+
+Now consider person who is walking from their home to the grocery store. They are in the "moving" state, but come to a stop light where they must wait to cross the street. During this time, their location does not change, or changes very little, but in our context, we would not consider this person to be at a "stop." This demonstrates the need for the second parameter in the algorithm, $\theta_{T}$. This we use to place a lower limit on the length of time that someone must stay within $\theta_{D}$ meters of an initiating location before it will be considered a stop. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sm2 <- sm[400:500]
+stopFinder(sm2, 200, thetaT = 60*3)
+sm2[, threeminstateid := ifelse(state == "stopped", state_id, 99)]
+stopFinder(sm2, 200, thetaT = 60*5)
+sm2[, fiveminstateid := ifelse(state == "stopped", state_id, 99)]
+with(sm2, {
+  plot(timestamp, latitude, type = "b", cex = 1, main = "thetaT of 3 minutes", sub = "Filled points are stops, unfilled are tracks")
+  points(timestamp, latitude,
+         col = ifelse(threeminstateid == 1, "red", ifelse(threeminstateid == 3, "blue", "black")),
+         pch = ifelse(threeminstateid %in% c(1, 3), 16, 1))
+    plot(timestamp, latitude, type = "b", cex = 1, main = "thetaT of 5 minutes", sub = "Filled points are stops, unfilled are tracks")
+  points(timestamp, latitude,
+         col = ifelse(fiveminstateid == 1, "red", "black"),
+         pch = ifelse(fiveminstateid == 1, 16, 1))
+})
+
+rm(sm)
+rm(loc_data_2019)
+```
+
+## Using stopdetection
+
+### Data
+
+Timestamped trajectories of latitude and longitude coordinates can come from many sources, but the stop detection algorithm in this package has been built to function best on streams of location data coming from individual persons. 
+
+The following data set contains daily movement behavior for one person over a span of two weeks time. It contains WGS84 latitude and longitude coordinates collected every few minutes.
+
+```{r data}
+data("loc_data_2019")
+```
+
+Importantly, this package works with the library `data.table`. This has been done in order to improve performance when working with large data sets, or when calling the functions in this package repeatedly, as one might within a simulation study. 
+
+It's easy to go from a data.frame object to a data.table object using \link{\code{data.table::setDT()}}. 
+
+```{r datatable}
+library(data.table)
+setDT(loc_data_2019)
+loc_data_2019
+```
+
+### stopFinder
+
+Initial stop clusters can be identified using \code{stopFinder}. This requires named parameters thetaD and thetaT, as described above. The data.table supplied as the first argument will be modified by reference, and columns will be added for the state and state_id. 
+
+```{r stopfinder}
+stopFinder(loc_data_2019, thetaD = 200, thetaT = 300)[]
+```
+
+### returnStateEvents
+
+Once the initial stops have been generated, it is possible to use the function \code{returnStateEvents} to extract a data.table containing one row per event. For both stop and move events, these are annotated with the state and state_id, begin_time and end_time and number of locations belonging to the state. For move states, the raw distance traveled is included (sum of all distances between points). For stop states, the mean latitude and longitude coordinates are included. 
+
+```{r returnstateevents}
+events <- returnStateEvents(loc_data_2019)
+events[]
+```
+
+### Merging close stops
+
+It may be useful to merge successive locations that have been clustered into stops. Consider the situation in which multiple stops have been identified within a building with the same semantic meaning. This parameter is another distance parameter and reflects how far away the centroids of the stops may be while being merged. This doesn't have to be the same as the distance parameter set during the stop detection algorithm.
+
+### Merging or excluding short tracks and errors
+
+Often tracks consisting of only one point, lasting for only a few seconds, or covering very little distance are actually errors, rather than tracks, and interrupt what would otherwise be a single contiguous stop. These sets of locations can be handled either by merging them with a stop, or by excluding them. Short tracks may be excluded on the basis of time, using the `max_time` parameter, distance (in meters) using the `max_dist` parameter, or total number of locations involved, using the `max_locs` parameter.
+
+Most often, these steps will be carried out together, as removing or merging short tracks will tend to create two subsequent stops with very close centroids.
+
+```{r}
+mergingCycle(loc_data_2019,
+             thetaD = 200,
+             small_track_action = "exclude",
+             max_time = 600,
+             max_dist = 2000,
+             max_locs = 20)
+returnStateEvents(loc_data_2019)[]
+```
+
+
+

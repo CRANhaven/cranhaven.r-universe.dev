@@ -1,0 +1,44 @@
+Package: stopdetection
+Title: Stop Detection in Timestamped Trajectory Data using
+        Spatiotemporal Clustering
+Version: 0.1.2
+Authors@R: person("McCool", "Danielle", , "d.m.mccool@uu.nl", role =
+        c("aut", "cre"), comment = c(ORCID =
+        "https://orcid.org/0000-0002-7055-7539"))
+Description: Trajectory data formed by human or animal movement is
+        often marked by periods of movement interspersed with periods
+        of standing still. It is often of interest to researchers to
+        separate geolocation trajectories of latitude/longitude points
+        by clustering consecutive locations to produce a model of this
+        behavior. This package implements the Stay Point detection
+        algorithm originally described in Ye (2009)
+        <doi:10.1109/MDM.2009.11> that uses time and distance
+        thresholds to characterize spatial regions as 'stops'. This
+        package also implements the concept of merging described in
+        Montoliu (2013) <doi:10.1007/s11042-011-0982-z> as stay point
+        region estimation, which allows for clustering of temporally
+        adjacent stops for which distance between the midpoints is less
+        than the provided threshold. GPS-like data from various sources
+        can be used, but the temporal thresholds must be considered
+        with respect to the sampling interval, and the spatial
+        thresholds must be considered with respect to the measurement
+        error.
+License: GPL (>= 3)
+Encoding: UTF-8
+RoxygenNote: 7.2.1
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: data.table, geodist, lubridate, stats
+Depends: R (>= 2.10)
+LazyData: true
+VignetteBuilder: knitr
+URL: https://github.com/daniellemccool/stopdetection
+BugReports: https://github.com/daniellemccool/stopdetection/issues
+NeedsCompilation: no
+Packaged: 2023-04-18 10:41:08 UTC; Mccoo002
+Author: McCool Danielle [aut, cre]
+        (<https://orcid.org/0000-0002-7055-7539>)
+Maintainer: McCool Danielle <d.m.mccool@uu.nl>
+Repository: CRAN
+Date/Publication: 2023-04-18 11:00:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

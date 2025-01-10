@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>stopdetection-vignette</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">stopdetection-vignette</h1>
+
+
+
+<div id="importance-of-stop-detection" class="section level2">
+<h2>Importance of stop detection</h2>
+<p>This vignette shows how the stopdetection package can be used to
+segment timestamped trajectories into sequences of stops and tracks
+(alternatively known as stay points and trajectories).</p>
+<p>Living beings tend to have movement behavior that intersperses time
+spent in motion with time spent at rest. Often it’s interesting to
+distinguish between the the two states of “moving” and “stopped,”
+because we want to investigate only one or the other, we want to
+aggregate over the state, or because we want to calculate some
+statistics for these states independently.</p>
+<p>Humans tend to be quite good at subjectively distinguishing between
+states. You can probably list the different places you’ve been today
+without much difficulty, for example, because you are able to combine
+the aspects of space, time and motive. Raw location data, on the other
+hand, must be in some way analyzed in order to differentiate between
+these states. This package uses a very simple algorithm to cluster
+trajectories.</p>
+</div>
+<div id="stop-detection-parameters" class="section level2">
+<h2>Stop detection parameters</h2>
+<div id="distance-theta_d" class="section level3">
+<h3>Distance (<span class="math inline">\(\theta_{D}\)</span>)</h3>
+<p>We can think of a stop as a place where our location didn’t change
+very much for a certain length of time. How much and how long depend
+very much on the goals of the researcher. While the same concepts apply
+across varied disciplines, this vignette is written from the context of
+human mobility studies on transportation. If a person is at home for
+many hours, his or her location may differ slightly from hour to hour,
+but their subjective place, home, has not changed. Because an object’s
+location may change while the stop of interest remains the same, we
+uncover the first necessary parameter in our algorithm, <span class="math inline">\(\theta_{D}\)</span>. This reflects the distance
+(in meters) that someone may range from a stop point before they are
+considered to be no longer at that stop.</p>
+<p>The smaller <span class="math inline">\(\theta_{D}\)</span> is, the
+more closely locations must be grouped together to be called a stop.
+Below is an example of stop clustering under a <span class="math inline">\(\theta_{D}\)</span> of 100 (red), 200 (blue) or
+500 (green) meters.</p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="time-theta_t" class="section level3">
+<h3>Time (<span class="math inline">\(\theta_{T}\)</span>)</h3>
+<p>Now consider person who is walking from their home to the grocery
+store. They are in the “moving” state, but come to a stop light where
+they must wait to cross the street. During this time, their location
+does not change, or changes very little, but in our context, we would
+not consider this person to be at a “stop.” This demonstrates the need
+for the second parameter in the algorithm, <span class="math inline">\(\theta_{T}\)</span>. This we use to place a lower
+limit on the length of time that someone must stay within <span class="math inline">\(\theta_{D}\)</span> meters of an initiating
+location before it will be considered a stop.</p>
+<p><img src="data:image/png;base64,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" /><!-- --><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div id="using-stopdetection" class="section level2">
+<h2>Using stopdetection</h2>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>Timestamped trajectories of latitude and longitude coordinates can
+come from many sources, but the stop detection algorithm in this package
+has been built to function best on streams of location data coming from
+individual persons.</p>
+<p>The following data set contains daily movement behavior for one
+person over a span of two weeks time. It contains WGS84 latitude and
+longitude coordinates collected every few minutes.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;loc_data_2019&quot;</span>)</span></code></pre></div>
+<p>Importantly, this package works with the library
+<code>data.table</code>. This has been done in order to improve
+performance when working with large data sets, or when calling the
+functions in this package repeatedly, as one might within a simulation
+study.</p>
+<p>It’s easy to go from a data.frame object to a data.table object using
+.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setDT</span>(loc_data_2019)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>loc_data_2019</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        latitude longitude           timestamp</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           &lt;num&gt;     &lt;num&gt;              &lt;POSc&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     1: 52.07211  5.123721 2019-11-01 00:02:46</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     2: 52.07211  5.123721 2019-11-01 00:04:59</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     3: 52.07211  5.123721 2019-11-01 00:08:02</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     4: 52.07211  5.123721 2019-11-01 00:10:15</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     5: 52.07211  5.123721 2019-11-01 00:13:07</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    ---                                       </span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21907: 52.07212  5.123699 2019-11-14 23:48:23</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21908: 52.07212  5.123699 2019-11-14 23:50:28</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21909: 52.07212  5.123699 2019-11-14 23:53:23</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21910: 52.07212  5.123699 2019-11-14 23:56:23</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21911: 52.07212  5.123699 2019-11-14 23:59:23</span></span></code></pre></div>
+</div>
+<div id="stopfinder" class="section level3">
+<h3>stopFinder</h3>
+<p>Initial stop clusters can be identified using . This requires named
+parameters thetaD and thetaT, as described above. The data.table
+supplied as the first argument will be modified by reference, and
+columns will be added for the state and state_id.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopFinder</span>(loc_data_2019, <span class="at">thetaD =</span> <span class="dv">200</span>, <span class="at">thetaT =</span> <span class="dv">300</span>)[]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        latitude longitude           timestamp stop_initiation_idx  timedif</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           &lt;num&gt;     &lt;num&gt;              &lt;POSc&gt;               &lt;int&gt;    &lt;num&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     1: 52.07211  5.123721 2019-11-01 00:02:46                   1  66.5265</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     2: 52.07211  5.123721 2019-11-01 00:04:59                   1 158.2015</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     3: 52.07211  5.123721 2019-11-01 00:08:02                   1 157.9520</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     4: 52.07211  5.123721 2019-11-01 00:10:15                   1 152.5980</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     5: 52.07211  5.123721 2019-11-01 00:13:07                   1 163.8395</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    ---                                                                    </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21907: 52.07212  5.123699 2019-11-14 23:48:23               21707 138.6700</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21908: 52.07212  5.123699 2019-11-14 23:50:28               21707 150.0025</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21909: 52.07212  5.123699 2019-11-14 23:53:23               21707 177.5640</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21910: 52.07212  5.123699 2019-11-14 23:56:23               21707 180.0490</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21911: 52.07212  5.123699 2019-11-14 23:59:23               21707  90.0665</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        state_id   state</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           &lt;int&gt;  &lt;char&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     1:        1 stopped</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     2:        1 stopped</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     3:        1 stopped</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     4:        1 stopped</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     5:        1 stopped</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    ---                 </span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21907:      285 stopped</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21908:      285 stopped</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21909:      285 stopped</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21910:      285 stopped</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21911:      285 stopped</span></span></code></pre></div>
+</div>
+<div id="returnstateevents" class="section level3">
+<h3>returnStateEvents</h3>
+<p>Once the initial stops have been generated, it is possible to use the
+function to extract a data.table containing one row per event. For both
+stop and move events, these are annotated with the state and state_id,
+begin_time and end_time and number of locations belonging to the state.
+For move states, the raw distance traveled is included (sum of all
+distances between points). For stop states, the mean latitude and
+longitude coordinates are included.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>events <span class="ot">&lt;-</span> <span class="fu">returnStateEvents</span>(loc_data_2019)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>events[]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      state_id   state  meanlat  meanlon          begin_time            end_time</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         &lt;int&gt;  &lt;char&gt;    &lt;num&gt;    &lt;num&gt;              &lt;POSc&gt;              &lt;POSc&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   1:        1 stopped 52.07212 5.123761 2019-11-01 00:02:46 2019-11-01 08:05:39</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   2:        2  moving       NA       NA 2019-11-01 08:05:55 2019-11-01 08:06:27</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   3:        3 stopped 52.07788 5.122714 2019-11-01 08:06:42 2019-11-01 08:11:29</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   4:        4  moving       NA       NA 2019-11-01 08:12:00 2019-11-01 08:15:24</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   5:        5 stopped 52.08902 5.109717 2019-11-01 08:15:40 2019-11-01 08:24:10</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  ---                                                                           </span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 281:      281 stopped 52.07211 5.123767 2019-11-14 16:45:02 2019-11-14 19:02:28</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 282:      282  moving       NA       NA 2019-11-14 19:02:43 2019-11-14 19:11:46</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 283:      283 stopped 52.08177 5.138043 2019-11-14 19:12:02 2019-11-14 19:57:11</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 284:      284  moving       NA       NA 2019-11-14 19:57:40 2019-11-14 20:08:32</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 285:      285 stopped 52.07213 5.123719 2019-11-14 20:08:47 2019-11-14 23:59:23</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      raw_travel_dist stop_id move_id n_locations</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                &lt;num&gt;   &lt;int&gt;   &lt;int&gt;       &lt;int&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   1:              NA       1      NA         471</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   2:        158.2833      NA       1           2</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   3:              NA       2      NA          21</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   4:       1253.8918      NA       2          13</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   5:              NA       3      NA          36</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  ---                                            </span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 281:              NA     180      NA         115</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 282:       2171.3438      NA     102          33</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 283:              NA     181      NA          65</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 284:       1911.7921      NA     103          38</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 285:              NA     182      NA         205</span></span></code></pre></div>
+</div>
+<div id="merging-close-stops" class="section level3">
+<h3>Merging close stops</h3>
+<p>It may be useful to merge successive locations that have been
+clustered into stops. Consider the situation in which multiple stops
+have been identified within a building with the same semantic meaning.
+This parameter is another distance parameter and reflects how far away
+the centroids of the stops may be while being merged. This doesn’t have
+to be the same as the distance parameter set during the stop detection
+algorithm.</p>
+</div>
+<div id="merging-or-excluding-short-tracks-and-errors" class="section level3">
+<h3>Merging or excluding short tracks and errors</h3>
+<p>Often tracks consisting of only one point, lasting for only a few
+seconds, or covering very little distance are actually errors, rather
+than tracks, and interrupt what would otherwise be a single contiguous
+stop. These sets of locations can be handled either by merging them with
+a stop, or by excluding them. Short tracks may be excluded on the basis
+of time, using the <code>max_time</code> parameter, distance (in meters)
+using the <code>max_dist</code> parameter, or total number of locations
+involved, using the <code>max_locs</code> parameter.</p>
+<p>Most often, these steps will be carried out together, as removing or
+merging short tracks will tend to create two subsequent stops with very
+close centroids.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mergingCycle</span>(loc_data_2019,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">thetaD =</span> <span class="dv">200</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">small_track_action =</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">max_time =</span> <span class="dv">600</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">max_dist =</span> <span class="dv">2000</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">max_locs =</span> <span class="dv">20</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">returnStateEvents</span>(loc_data_2019)[]</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      state_id    state  meanlat  meanlon          begin_time</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         &lt;int&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;              &lt;POSc&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   1:        1  stopped 52.07212 5.123760 2019-11-01 00:02:46</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   2:       NA excluded       NA       NA 2019-11-01 08:05:55</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   3:       NA excluded       NA       NA 2019-11-01 08:05:55</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   4:        2  stopped 52.07798 5.122445 2019-11-01 08:06:42</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   5:        3  stopped 52.08889 5.109546 2019-11-01 08:15:40</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  ---                                                        </span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 196:      194  stopped 52.07211 5.123737 2019-11-13 18:20:59</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 197:      195   moving       NA       NA 2019-11-14 19:02:43</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 198:      196  stopped 52.08177 5.138043 2019-11-14 19:12:02</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 199:      197   moving       NA       NA 2019-11-14 19:57:40</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 200:      198  stopped 52.07213 5.123719 2019-11-14 20:08:47</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 end_time raw_travel_dist stop_id move_id n_locations</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   &lt;POSc&gt;           &lt;num&gt;   &lt;int&gt;   &lt;int&gt;       &lt;int&gt;</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   1: 2019-11-01 08:05:39              NA       1      NA         471</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   2: 2019-11-14 16:44:47              NA      NA      NA         255</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   3: 2019-11-14 16:44:47              NA      NA      27         255</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   4: 2019-11-01 08:11:29              NA       2      NA          21</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   5: 2019-11-01 08:24:10              NA       3      NA          36</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  ---                                                                </span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 196: 2019-11-14 19:02:28              NA     142      NA        1300</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 197: 2019-11-14 19:11:46        2171.344      NA      53          33</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 198: 2019-11-14 19:57:11              NA     143      NA          65</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 199: 2019-11-14 20:08:32        1911.792      NA      54          38</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 200: 2019-11-14 23:59:23              NA     144      NA         205</span></span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
