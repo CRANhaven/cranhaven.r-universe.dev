@@ -1,0 +1,12 @@
+0832e61bc97f6853d34b149eb935847b *DESCRIPTION
+96a2330debebd05168115018f1e38c96 *LICENSE
+eca01b2e0f37e346a0ce653453efc28f *NAMESPACE
+bf6ac2da0d0c9a0d2ab1131bbab6272a *R/zerotradeflow.R
+954f42072a39fd639f797404944ba401 *README.md
+45f0825baaa328844e47f771a2044a67 *data/comtrade.rda
+5cd204f76dcb33de07ee7c461b223da1 *data/distinct.rda
+8a00a957f5495d80ff0e8461248cb02c *data/same.rda
+eea73cfdbe8f3283ca85169741d68b39 *man/comtrade.Rd
+65268eb398b4293b427516844b228b62 *man/distinct.Rd
+83a6798c9c2a36dda96bbfd41651c090 *man/get_zerotradeflow.Rd
+c064fe87ec8afbadbb683728e95929e7 *man/same.Rd
