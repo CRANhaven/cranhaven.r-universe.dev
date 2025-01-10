@@ -1,0 +1,25 @@
+Package: htmldf
+Title: Simple Scraping and Tidy Webpage Summaries
+Version: 0.6.0
+Author: Alastair Rushworth
+Maintainer: Alastair Rushworth <alastairmrushworth@gmail.com>
+Description: Simple tools for scraping webpages, extracting common html
+        tags and parsing contents to a tidy, tabular format.  Tools
+        help with extraction of page titles, links, images, rss feeds,
+        social media handles and page metadata.
+License: GPL-2
+Imports: cld3, dplyr, httr, lubridate, magrittr, processx, progress,
+        R.utils, ranger, rvest, stringr, tibble, tidyr, tools,
+        urltools, xml2
+Depends: R (>= 3.5.0)
+Encoding: UTF-8
+Language: en_GB
+URL: https://github.com/alastairrushworth/htmldf/
+BugReports: https://github.com/alastairrushworth/htmldf/issues
+RoxygenNote: 7.1.2
+Suggests: testthat
+NeedsCompilation: no
+Packaged: 2022-07-09 16:07:49 UTC; alastairrushworth
+Repository: CRAN
+Date/Publication: 2022-07-09 16:30:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
