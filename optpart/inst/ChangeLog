@@ -1,0 +1,64 @@
+optpart 3.0-2
+
+This is fairly major upgrade to optpart.  
+
+1) The Fortran code was converted to f90, Several new routines were
+added
+
+2) several new routines were added
+
+   2.1) optimclass - find best partition solution by indicator species
+   2.2) gensilwidth - generalized mean silhouette width routine
+   2.3) gamma - Goodman's gamma clustering validity
+   2.4) flexbeta - flexible beta clustering
+
+optpart 2.3-0
+
+changes a number of REAL*4 constants to REAL*8 (and other
+simple changes) to avoid warnings from gfortan -pedantic
+
+
+optpart 2.1-1
+
+fixed a (benign) out of bounds error in maxpact
+
+optpart 2.1-0
+
+1) updated optpart to NAMESPACE format
+
+2) added several new utility functions to manage clusters
+
+   2.1) bestfit - Find the Representative Elements of a Cluster
+   2.2) compare - Compare the Constancy of Specific Types
+   2.3) consider - Suggestions for Possibly Merging Clusters
+   2.4) mergeclust - Merge Clusters
+   2.5) reordclust - Reorder Cluster Numbers
+   2.6) typal - Find the Typal Members of Each Cluster
+
+   3) cleaned up the documentation for several functions
+
+optpart 1.2-1
+
+changed testpart to have class 'testpart' and improved the print function.
+It now reports class fractions of misfits as well as individual misfit
+plots, and allows setting a threshold misfit value for inclusion in the 
+output (default=0.0)
+
+
+optpart 1.1-0
+
+There are several interesting changes to 1.1-0.
+
+1) there are now four different iterative re-assignment classification
+algorithms:
+
+   1.1) optpart - to optimize the partana statistic
+   1.2) optsil - to optimize silhouette widths
+   1.3) optindval - to optimize Dufrene and Legendre indicator values
+   1.4) opttdev - to optimize table deviance
+
+2) the iterative re-assigmnent algorithms now all have multiple inheritance.
+   2.1) their own specific class, and 
+   2.2) clustering - which is shared with several other simpler algorithms
+
+
