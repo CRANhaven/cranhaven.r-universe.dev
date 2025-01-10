@@ -1,0 +1,49 @@
+import(methods)
+importFrom(copula, indepCopula, normalCopula, tCopula, claytonCopula,
+           frankCopula, gofTstat, gumbelCopula, archmCopula,
+           indepTest, indepTestSim, iTau, loglikCopula, fitCopula,
+           rCopula, pCopula)
+importFrom(vines, vineOrder, vineFit, rvine)
+importFrom(mvtnorm, rmvnorm)
+importFrom(truncnorm, ptruncnorm, qtruncnorm)
+importFrom(stats, bw.nrd0, cor, dist, dnorm, median, optimize, pnorm,
+           quantile, runif, sd)
+importFrom(utils, write.table)
+
+
+exportClasses(EDA)
+exportClasses(CEDA)
+exportClasses(VEDA)
+
+exportClasses(EDAResult, EDAResults)
+
+exportMethods(edaSeed)
+exportMethods(edaSelect)
+exportMethods(edaLearn)
+exportMethods(edaSample)
+exportMethods(edaReplace)
+exportMethods(edaOptimize)
+exportMethods(edaTerminate)
+exportMethods(edaReport)
+
+exportMethods(show, summary)
+
+
+export(CEDA)
+export(VEDA)
+export(edaRun)
+export(edaIndepRuns)
+export(edaCriticalPopSize)
+
+exportPattern("^edaSeed[A-Z]")
+exportPattern("^edaSelect[A-Z]")
+exportPattern("^edaLearn[A-Z]")
+exportPattern("^edaSample[A-Z]")
+exportPattern("^edaRepair[A-Z]")
+exportPattern("^edaReplace[A-Z]")
+exportPattern("^edaOptimize[A-Z]")
+exportPattern("^edaTerminate[A-Z]")
+exportPattern("^edaReport[A-Z]")
+
+exportPattern("^f[A-Z]") # Benchmark problems.
+exportPattern("^[fpq][a-z]") # Marginal distributions.
