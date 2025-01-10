@@ -1,0 +1,26 @@
+Package: CauchyCP
+Type: Package
+Title: Powerful Test for Survival Data under Non-Proportional Hazards
+Version: 0.1.1
+Author: Hong Zhang
+Maintainer: Hong Zhang <hzhang@wpi.edu>
+Description: An omnibus test of change-point Cox regression models to
+        improve the statistical power of detecting signals of
+        non-proportional hazards patterns. The technical details can be
+        found in Hong Zhang, Qing Li, Devan Mehrotra and Judong Shen
+        (2021) <arXiv:2101.00059>. Extensive simulation studies
+        demonstrate that, compared to existing tests under
+        non-proportional hazards, the proposed CauchyCP test 1)
+        controls the type I error better at small alpha levels; 2)
+        increases the power of detecting time-varying effects; and 3)
+        is more computationally efficient.
+License: GPL-2
+Imports: stats, survival
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
+NeedsCompilation: no
+Packaged: 2022-08-12 01:39:59 UTC; consi
+Repository: CRAN
+Date/Publication: 2022-08-12 06:10:06 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
