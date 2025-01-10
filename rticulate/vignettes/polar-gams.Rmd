@@ -1,0 +1,161 @@
+---
+title: "Using generalised additive models (GAM) with polar coordinates for assessing tongue contours"
+author: "Stefano Coretta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using generalised additive models (GAM) with polar coordinates for assessing tongue contours}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width=7, fig.height=5
+)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+library(rticulate)
+```
+
+# Read data
+
+The package `rticulate` comes with a dataset containing spline data from two speakers of Italian.
+
+```{r load-data}
+library(rticulate)
+data(tongue)
+tongue
+```
+
+# Fit a polar GAM
+
+The spline data is in cartesian coordinates. The function `polar_gam()` converts the coordinates to polar and fits a GAM to the data.
+Note that, unless you have a working method to normalise between speakers, it is recommended to fit separate models for each speaker.
+
+The polar coordinates are calculated based on the origin of the probe, which is estimated if `origin = NULL` using the fan lines specified with the argument `fan_lines` (the defaults are `c(10, 25)`).
+
+If you get an error relating to `lm.fit`, try to change the `fan_lines` to values different from the default.
+
+```{r polar-place}
+tongue_it05 <- filter(tongue, speaker == "it05", vowel == "a", fan_line < 38) %>% droplevels()
+
+polar_place <- polar_gam(
+  Y ~
+    s(X, by = c2_place),
+  data = tongue_it05
+)
+summary(polar_place)
+```
+
+The output model is in polar coordinates but it contains the origin coordinates so that plotting can be done in cartesian coordinates.
+
+We can now plot the results from the model with `plot_polar_smooths()`.
+
+```{r plot-smooths}
+plot_polar_smooths(
+  polar_place,
+  X,
+  c2_place
+) +
+  theme(legend.position = "top")
+```
+
+# Multiple predictors
+
+It is possible to specify multiple predictors in the model and then facet the plots.
+
+```{r polar-multi}
+tongue_it05 <- filter(tongue, speaker == "it05", fan_line < 38) %>% droplevels()
+
+polar_multi <- polar_gam(
+  Y ~
+    s(X, by = c2_place) +
+    s(X, by = vowel),
+  data = tongue_it05
+)
+summary(polar_multi)
+```
+
+Th argument `facet_terms` can be used to specify the terms for the facets.
+If you desire to facet by more then one term, just add multiple terms separated by `+` (for example, `facet_terms = vowel + voicing`; only terms that have been included in the model can be used for faceting, for more examples see the vignettes of the tidymv package).
+
+```{r plot-smooths-2}
+plot_polar_smooths(
+  polar_multi,
+  X,
+  c2_place,
+  facet_terms = vowel
+) +
+  theme(legend.position = "top")
+```
+
+# Extract all predicted values
+
+If your model includes other smooths, or you want to have more control over the plotting, you can use the function `predict_polar_gam()`. This function is based on `tidymv::predict_gam()`, and I suggest the reader to familiarise themselves with `vignette("predict-gam", package = "tidymv")`.
+
+For example, let's add a smooth to the model we used above and an interaction of this smooth with the one over `X`. For illustrative purposes, we will set up a smooth over `TR_abs_velocity`, which is the absolute velocity of the tongue root at the time point the tongue contour was extracted (note that this analysis might not make sense, and it is given here only to show how to extract the predictions). We also include a random smooth for word, which we will exclude later when we extract the predictions.
+
+```{r polar-place-2}
+polar_2 <- polar_gam(
+  Y ~
+    s(X) +
+    s(X, by = c2_place) +
+    s(TR_abs_velocity, k = 6) +
+    ti(X, TR_abs_velocity, k = c(9, 6)) +
+    s(X, word, bs = "fs"),
+  data = tongue_it05
+)
+summary(polar_2)
+```
+
+We can now obtain the predicted tongue contours. We set specific values for `TR_abs_velocity` using the `values` argument. Since we included a random smooth, which we want to remove now, we can do so by using `exclude_terms`. To learn how this argument works in detail, see `vignette("predict-gam", package = "tidymv")`. Note that you have to filter the output to remove repeated data (which arise because we are excluding a term, i.e. we set its coefficient to 0).
+
+```{r place-pred}
+polar_pred <- predict_polar_gam(
+  polar_2,
+  values = list(TR_abs_velocity = seq(2, 24, 5)),
+  exclude_terms = "s(X,word)"
+) %>%
+  filter(word == "paca") # filter data by choosing any value for word
+
+polar_pred
+```
+
+And now we can plot using standard `ggplot2` functions.
+
+```{r place-pred-plot, fig.width=7, fig.height=5}
+polar_pred %>%
+  ggplot(aes(X, Y, colour = as.factor(TR_abs_velocity), linetype = as.factor(TR_abs_velocity))) +
+  geom_path() +
+  facet_grid(c2_place ~ .)
+```
+
+## Plotting the curve with confidence intervals
+
+If you want to add confidence intervals to the fitted curve, you have to get both the coordinates of the fitted curves using `predict_polar_gam(model)` and the coordinates of the confidence intervals with `predict_polar_gam(model, return_ci = TRUE)`.
+
+```{r ci-data}
+polar_multi_p <- predict_polar_gam(
+  polar_multi
+)
+
+ci_data <- predict_polar_gam(
+  polar_multi,
+  return_ci = TRUE,
+)
+```
+
+Now you can use the prediction dataset as the global data and the CI data with `geom_polygon()`.
+
+```{r place-pred-ci}
+polar_multi_p %>%
+  ggplot(aes(X, Y)) +
+  geom_polygon(data = ci_data, aes(CI_X, CI_Y, group = c2_place), alpha = 0.1) +
+  geom_path(aes(colour = c2_place)) +
+  facet_grid(. ~ vowel) +
+  theme(legend.position = "top")
+```

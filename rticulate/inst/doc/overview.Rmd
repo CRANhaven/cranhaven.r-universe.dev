@@ -1,0 +1,25 @@
+---
+title: "Package overview"
+author: "Stefano Coretta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Package overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+rticulate offers a few helper functions to work with ultrasound tongue imaging data, exported from Articulate Assistant Advanced™ or other systems.
+
+The following vignettes give details on specific topics:
+
+- `vignette("tongue-imaging", package = "rticulate")`: You should start here to learn how to import UTI data and plot tongue contours.
+- `vignette("polar-gams", package = "rticulate")`: This vignette describes the function `polar_gam()` which can be used to model tongue contours with GAMs using polar coordinates.
+- `vignette("transform-coord", package = "rticulate")`: In most cases, you won't need to convert to polar coordinates explicitly, but in case you want to do that, you can look at this vignette to learn how to use `transform_coord()`.

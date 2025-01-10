@@ -1,0 +1,13 @@
+item,word,ipa,c1,c1_phonation,vowel,anteropost,height,c2,c2_phonation,c2_place
+1,pata,pata,p,voiceless,a,central,low,t,voiceless,coronal
+2,pada,pada,p,voiceless,a,central,low,d,voiced,coronal
+3,paca,paka,p,voiceless,a,central,low,k,voiceless,velar
+4,paga,paga,p,voiceless,a,central,low,g,voiced,velar
+5,poto,poto,p,voiceless,o,back,mid,t,voiceless,coronal
+6,podo,podo,p,voiceless,o,back,mid,d,voiced,coronal
+7,poco,poko,p,voiceless,o,back,mid,k,voiceless,velar
+8,pogo,pogo,p,voiceless,o,back,mid,g,voiced,velar
+9,putu,putu,p,voiceless,u,back,high,t,voiceless,coronal
+10,pudu,pudu,p,voiceless,u,back,high,d,voiced,coronal
+11,pucu,puku,p,voiceless,u,back,high,k,voiceless,velar
+12,pugu,pugu,p,voiceless,u,back,high,g,voiced,velar

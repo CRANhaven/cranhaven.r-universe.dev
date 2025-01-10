@@ -1,0 +1,142 @@
+---
+title: "Import and plot spline data from AAA"
+author: "Stefano Coretta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Import and plot spline data from AAA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(out.width = "300px", fig.align = "center", dpi = 300)
+library(readr)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+theme_set(theme_bw())
+library(rticulate)
+```
+
+The package `rticulate` facilitates UTI data import and plotting with spline data exported from Articulate Assistant Advanced (AAA). To use the package, load it as usual.
+
+```{r load, eval=FALSE}
+library(rticulate)
+```
+
+# Import spline data
+
+The function `read_aaa()` can quickly import spline data and transform it into the long format (where each observation is a point on a fan line and the coordinates values are two variables, `X` and `Y`, see `?tongue` for more details).
+
+To correctly import AAA data, it is required that the file exported from AAA does not contain the header. This must be supplied as an argument to the `read_aaa()` function. We thus create a character vector with a concatenation of column names as strings.
+
+```{r columns}
+columns <- c(
+    "speaker",
+    "seconds",
+    "rec_date",
+    "prompt",
+    "label",
+    "TT_displacement",
+    "TT_velocity",
+    "TT_abs_velocity",
+    "TD_displacement",
+    "TD_velocity",
+    "TD_abs_velocity"
+)
+```
+
+Now we can use `read_aaa()` to import the spline data as a tibble. The function requires a string with the file path and name, and a vector with the names of the columns.
+
+```{r read-aaa}
+# system.file() is needed here because the example files reside in the package.
+# You can just include the file path directly in read_aaa, like 
+# read_aaa("~/Desktop/splines.tsv", columns)
+file_path <- system.file("extdata", "it01.tsv", package = "rticulate")
+
+tongue <- read_aaa(file_path, columns)
+```
+
+To check the head of the tibble, just do:
+
+```{r tibble}
+tongue
+```
+
+Sometimes is useful to add extra information for each prompt (like vowel, consonant place, phonation, etc.). We can do so by using functions from the `dplyr` package (`word()` is from the `stringr` package).
+
+```{r join}
+stimuli <- read_csv(system.file("extdata", "stimuli.csv", package = "rticulate"))
+
+tongue <- mutate(tongue, word = word(prompt, 2)) %>%
+    left_join(y = stimuli) %>%
+    mutate_if(is.character, as.factor)
+```
+
+Let's check `tongue` again.
+
+```{r tibble-2}
+tongue
+```
+
+# Plot splines
+
+To plot splines from a spline data frame, use `plot_tongue()`. This function is a wrapper of a `ggplot` call (from the `ggplot2` package). The coordinates must be in two variables named `X` and `Y`. `read_aaa()` creates them automatically while importing the raw data.
+
+```{r plot-splines}
+plot_tongue(tongue)
+```
+
+You can also easily filter the tibble with the `filter()` function from `dplyr`.
+
+```{r filter-plot}
+filter(tongue, label == "max_TD") %>%
+    plot_tongue()
+```
+
+You can specify `geom` options and aesthetics in the usual `ggplot` way (remember to load the package with `library(ggplot2)` if you need this). `geom` options are arguments of `plot_tongue()`, while aesthetics can be called with `aes()`.
+
+```{r plot-options}
+plot_tongue(tongue, alpha = 0.5) +
+    aes(group = rec_date, colour = c2_place) +
+    theme(legend.position = "bottom")
+```
+
+To plot points instead of splines, use `plot_tongue(geom = "point")`.
+
+```{r plot-geom}
+plot_tongue(tongue, geom = "point", alpha = 0.5) +
+    aes(group = rec_date, colour = c2_place) +
+    theme(legend.position = "bottom")
+```
+
+Finally, if you want to plot the palate profile, you can do so by specifying a data frame with the coordinates for the palate spline.
+
+```{r plot-palate}
+palate <- read_aaa(system.file("extdata", "it01-palate.tsv", package = "rticulate"), columns)
+
+filter(tongue, label == "max_TD") %>%
+    plot_tongue(palate = palate, alpha = 0.5) + aes(group = rec_date)
+```
+
+# Import multiple files
+
+To import multiple files with AAA data, simply use a list of paths with `read_aaa`, for example using `list.files`.
+
+```{r read-multiple}
+tongue2 <- list.files(
+    path = system.file("extdata", package = "rticulate"),
+    pattern = "*\\d.tsv",
+    full.names = TRUE
+    ) %>%
+    read_aaa(., columns)
+```
+
+We can now plot splines for both speakers.
+
+```{r plot-speakers}
+plot_tongue(tongue2, alpha = 0.5) +
+    aes(group = rec_date) +
+    facet_grid(. ~ speaker)
+```

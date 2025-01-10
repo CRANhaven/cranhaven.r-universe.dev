@@ -1,0 +1,75 @@
+---
+title: "Transform spline coordinates between cartesian and polar"
+author: "Stefano Coretta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Transform spline coordinates between cartesian and polar}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "300px", fig.align = "center", dpi = 300
+)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+library(rticulate)
+```
+
+It is possible to transform the coordinates of your spline data from cartesian to polar and vice versa, with `transform_coord()`.
+Let's attach the package `rticulate` and load the data set `tongue`.
+
+```{r load-data}
+library(rticulate)
+data(tongue)
+tongue
+```
+
+Now let's convert the cartesian coordinates to polar.
+`transform_coord()` converts to polar coordinates by default.
+Your data set must contain columns named `X` and `Y` with, respectively, the *x* and *y* coordinates (if the columns are named differently, you will have to rename them).
+The function extracts `xy` data from two fan lines (the defaults are `10`, and `25`), and it uses these data to find the origin.
+By default, a column named `fan_line` is used for the fan lines number, but it can be supplied by the user with the argument `fan_line_col` as a string.
+
+If you have imported data using `read_aaa()`, the defaults will work, so you can just use `transform_coord(your-data)`.
+
+```{r}
+polar <- tongue %>%
+    filter(speaker == "it01") %>%
+    transform_coord()
+```
+
+The function returns a data set with two new columns: `radius` and `theta`.
+It also prints the calculated origin.
+
+If you get an error relating to `lm.fit`, try to change the `fan_lines` to values different from the default.
+
+We can now plot the contours using polar coordinates in a cartesian system.
+Notice that the tip of the tongue is on the left (rather than the right, as in the original data).
+
+```{r}
+polar %>%
+    ggplot(aes(angle, radius, colour = c2_place)) +
+    geom_point() +
+    scale_colour_discrete(name = "Place of C2") +
+    theme(legend.position = "top")
+```
+
+Plotting in polar coordinates gives a sense of the actual shape of the tongue, but it is a bit trickier and it does not look very nice... (the tip is again on the left).
+
+```{r}
+polar %>%
+    ggplot(aes(angle, radius, colour = c2_place)) +
+    geom_point(alpha = 0.5) +
+    scale_colour_discrete(name = "Place of C2") +
+    coord_polar(start = pi) +
+    xlim(min(polar$angle) - pi / 2, max(polar$angle) + pi / 2) +
+    ylim(0, max(polar$radius)) +
+    theme_void() +
+    theme(legend.position = "top")
+```
