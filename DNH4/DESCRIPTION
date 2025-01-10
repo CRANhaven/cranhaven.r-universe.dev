@@ -1,0 +1,28 @@
+Package: DNH4
+Type: Package
+Title: Crawling for Daum News Text
+Version: 0.1.12
+Date: 2022-03-06
+Authors@R: person(given = "Chanyub", family = "Park", role =
+        c("aut","cre"), email = "mrchypark@gmail.com", comment =
+        c(ORCID = "0000-0001-6474-2570") )
+Description: Provides some utils to get Korean text sample from news
+        articles in Daum which is popular news portal service in Korea.
+URL: https://forkonlp.github.io/DNH4/,
+        https://github.com/forkonlp/DNH4/
+BugReports: https://github.com/forkonlp/DNH4/issues
+RoxygenNote: 7.1.2
+Language: r(>=3.3.0)
+Encoding: UTF-8
+Imports: httr, rvest, tidyr, tibble
+Suggests: httptest, testthat
+License: MIT + file LICENSE
+Depends: R (>= 2.10)
+NeedsCompilation: no
+Packaged: 2022-03-06 12:33:08 UTC; mrchypark
+Author: Chanyub Park [aut, cre]
+        (<https://orcid.org/0000-0001-6474-2570>)
+Maintainer: Chanyub Park <mrchypark@gmail.com>
+Repository: CRAN
+Date/Publication: 2022-03-09 08:20:16 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
