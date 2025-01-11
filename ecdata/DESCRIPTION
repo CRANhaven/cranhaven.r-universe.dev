@@ -1,0 +1,45 @@
+Package: ecdata
+Title: Loads Data from the Executive Communications Dataset
+Version: 1.1.1
+Authors@R: c( person(given = "Joshua", family = "Allen" , email =
+        "joshua.f.allen@gmail.com", role = c("aut", "cre", 'cph'),
+        comment = c(ORCID = "0000-0003-0554-1191")), person( given =
+        "Ryan", family = "Carlin" , email = 'rcarlin@gsu.edu', role =
+        c('ctb')), person(given = 'Juan', family =
+        'Gomez-Gómez-Cruces', email = 'juan.gomezcruces@hpi.de' , role
+        = c('ctb')), person(given ="Will", family = 'Horne', email =
+        "rwhorne@clemson.edu", role = c('aut', 'ctb')), person(given =
+        'Jamie', family ='Lindh', email = "jlindh@unc.edu" ,role =
+        c('ctb')), person(given = 'Cecilia',family
+        ='Martinez-Gallardo', email = "cmg@email.unc.edu", role =
+        c('ctb')), person(given = 'Miles', family = 'Massesy' , email =
+        'milesmcma@gmail.com' ,role = c('ctb')))
+Description: A minimal package for downloading data from 'GitHub'
+        repositories of the Executive Communications Database.
+License: CC BY 4.0
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+LazyData: true
+URL:
+        https://github.com/Executive-Communications-Dataset/ecdata,https://executive-communications-dataset.github.io/ecdata/
+BugReports:
+        https://github.com/Executive-Communications-Dataset/ecdata/issues
+Depends: R (>= 4.0)
+Imports: arrow (>= 16.1.0), cli (>= 3.6.3), rlang (>= 1.1.0), glue (>=
+        1.4.0), piggyback (>= 0.1.5), utils, tools, cachem (>= 1.0.0),
+        memoise (>= 2.0.0), vctrs, curl
+Suggests: duckplyr, testthat (>= 3.0.0), data.table, dplyr, altdoc,
+        knitr, rmarkdown
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2024-11-18 18:12:34 UTC; josh
+Author: Joshua Allen [aut, cre, cph]
+        (<https://orcid.org/0000-0003-0554-1191>), Ryan Carlin [ctb],
+        Juan Gomez-Gómez-Cruces [ctb], Will Horne [aut, ctb], Jamie
+        Lindh [ctb], Cecilia Martinez-Gallardo [ctb], Miles Massesy
+        [ctb]
+Maintainer: Joshua Allen <joshua.f.allen@gmail.com>
+Repository: CRAN
+Date/Publication: 2024-11-19 12:00:10 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

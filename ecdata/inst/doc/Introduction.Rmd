@@ -1,0 +1,105 @@
+---
+title: "Introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ecdata)
+
+```
+
+The Executive Communcations Dataset (ECD) is a dataset comprised of executive communications across 41 differenct countries. The `ecdata` package is a minimal package to download data from the ecd repositories. It includes caching and data dicitionaries. 
+
+## `load_ecd`
+
+The default function for loading the ECD is `load_ecd`. This function will download data from our repositories and load them into memory. You can load the full ECD by setting `load_ecd(full_ecd = TRUE)` This can take awhile because you are downloading a `1.9GB` parquet file.  
+
+
+```{r load-full-ecd, eval = FALSE}
+
+full_ecd = load_ecd(full_ecd = TRUE) 
+
+
+
+```
+
+
+If you want a specific country or countries you can feed a character vector to the `country` argument. 
+
+
+```{r country-example, eval = FALSE}
+
+load_ecd(country = 'Greece')
+
+```
+
+The country argument tolerates some typos, common abbreviations, and common country names. If you want to load data based on the language of the statement you can provide a character string or character vector of languages to the `language` argument.
+
+
+```{r lang-example, eval=FALSE}
+
+english = load_ecd(language = 'English')
+
+polyglot = load_ecd(language = c('French', 'Italian', 'Korean'))
+
+```
+
+ For a full list of accepted country names and abbreviations you can call `ecd_country_dictionary`
+
+
+
+```{r}
+
+ecd_country_dictionary |>
+  head()
+```
+
+
+Note that the time to download and load a file will vary a lot due to various file sizes. 
+
+## `lazy_load_ecd`
+
+We also have a "lazy" option which will download the files and then use `arrow::open_dataset` to open the dataset out of memory. 
+
+
+```{r eval = FALSE}
+
+nigeria = lazy_load_ecd(country = 'Nigeria')
+
+
+
+```
+
+
+To bring the dataset into memory you simply need to call. 
+
+```{r eval = FALSE}
+
+nigeria |>
+  dplyr::collect()
+
+```
+
+This has some speed benefits when data wrangling. One thing to be aware of is that if you lazy load a dataset previously it may bring in additional files. To prevent this behavior run 
+
+
+
+```{r eval = FALSE}
+
+clear_cache()
+
+```
+
+Then restart your R session.
