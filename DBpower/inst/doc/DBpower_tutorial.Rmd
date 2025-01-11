@@ -1,0 +1,235 @@
+---
+title: "DBpower Tutorial"
+author: "Ryan Sun"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{Tutorial}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+## Introduction 
+The DBpower package implements power calculations for detection boundary tests including the
+Berk-Jones (BJ), Generalized Berk-Jones (GBJ), and innovated Berk-Jones (iBJ). 
+These tests are commonly used to conduct set-based inference in genetics settings.
+Two primary use cases for this package are study design for genetic association studies
+and post-hoc power calculation for such studies.
+
+More specifically, this package can help determine whether an innovated type test (like the iBJ)
+or generalized type test (like GBJ) will have more power for a given hypothesis testing situation.
+The relative operating characteristics of these tests are known to vary widely (see our submitted
+manuscript for details), and so the choice of test is very important, as we generally do not
+want to apply multiple tests for one set (due to an increased multiple testing burden).
+
+## Set-based testing 
+Set-based association methods aggregate many individual hypothesis tests, usually under biologically
+interpretable groupings.
+These methods possess many natural advantages over individual tests, for example they can reduce the 
+multiple testing burden, combine smaller effects into a more detectable signal, and provide more interpretable results.
+As a concrete example, in eQTL analysis, we can test if a set of genetic risk variants around a particular risk
+gene is associated with the expression values of that gene.
+Significant association provides evidence that the gene expression mediates the relationship between
+causal variants and disease.
+This association may not detectable when associating individual variants with gene expression.
+
+We may also want to test the association between an individual variant and a group of risk
+gene expression values.
+Significant association provides evidence that the individual variant possess functional behavior
+related to regulating the expression values of risk genes.
+Thus the variant is a better candidate for translational follow-up compared to non-functional
+variants that may simply lie in linkage disequilibrium with the true causal variants.
+
+Detection boundary tests are popular in these settings because they reach a so-called rare-weak
+detection boundary.
+In a certain sense, these tests are able to detect the sparsest and smallest signals detectable
+by any statistical test.
+Because effects in genetic association studies are often assumed to be sparse and weak, the detection
+boundary tests are a good choice to perform set-based inference.
+
+As the detection boundary tests were initially developed for sets of independent elements,
+modifications are needed to apply them to correlated genetics settings.
+Two approaches are the innovated approach and the generalized approach.
+The innovated approach (e.g. iBJ) decorrelates the set of test statistics first before applying the 
+standard detection boundary approach.
+The generalized approach (e.g. GBJ) modifies the detection boundary method to explicitly 
+allow for correlated elements in a set.
+These tests demonstrate distinct finite sample power properties.
+
+## Use
+
+DBpower assumes that a set of test statistics generated under the alternative are multivariate
+normal with some nonzero mean and covariance matrix that can be estimated consistently.
+The package first calculates the rejection regions needed to perform power calculations.
+These rejection regions depend on the covariance matrix and the choice of test.
+Given the rejection region and the distribution of the test statistics under the alternative, 
+the package then provides lower and upper bounds on the exact power of the test.
+Bounds are provided because the exact power of detection boundary tests is incredibly computationally
+expensive to calculate.
+The calculation is not possible for sets of practical sizes.
+This package does include a function to calculate exact power, but it should be only used for sets with
+five elements or less.
+
+## Worked Example 
+
+Suppose we would like to reproduce one of the power calculations from Figure 2 of Sun, Shi, \& Lin (submitted).
+Let us focus on the calulations for Signal Location 1 in panel 1A.
+In this setting, we have five genotypes that we would like to test for association with a single outcome.
+In the true model, the effect sizes of these genotypes are (0.25, 0, 0, 0, 0). 
+The variance of the outcome is 1.
+The minor allele frequencies of the genotypes is 0.3, there are 400 subjects, and we do not fit any other
+covariates in the model except for the genotypes.
+The first three genotypes are correlated at $\rho_{1} = 0.3$, the last two genotypes are correlated at
+$\rho_{2} = 0.3$, and the correlation between the two blocks is $\rho_{3} = 0.1$
+We test at $\alpha = 0.01$.
+
+First we need to calculate the rejection region for this setting:
+
+```{r}
+library(DBpower)
+library(magrittr)
+set.seed(0)
+
+# make the correlation matrix of the genotypes
+corMat <- matrix(data=NA, nrow=5, ncol=5)
+corMat[1:2, 1:2] <- 0.3
+corMat[3:5, 3:5] <- 0.3
+corMat[1:2, 3:5] <- 0.1
+corMat[3:5, 1:2] <- 0.1
+diag(corMat) <- 1
+
+# calculate rejection region for this setting.
+# the iBJ bounds are the same as the BJ bounds, because iBJ decorrelates
+# the test statistics first and then applies the standard BJ assuming independence.
+bjBounds <- set_BJ_bounds(alpha = 0.01, J=5)
+bjBounds
+gbjBounds <- set_GBJ_bounds(alpha = 0.01, J=5, sig_vec = corMat[lower.tri(corMat)])
+gbjBounds
+```
+
+Next we need to calculate the distribution of the test statistics under the alternative:
+
+```{r}
+
+# eigendecomposition of the correlation matrix
+eVals <- eigen(corMat)$values
+eVecs <- eigen(corMat)$vectors
+
+# calculate the distributions of the test statistics under the alternative
+effectSizes <- c(0.25, 0, 0, 0, 0)
+MAF <- 0.3
+n <- 400
+sigSqY <- 1
+Wg <- diag(rep(sqrt(2 * MAF * (1 - MAF)), 5))
+
+# these are the approximate means of the generalized and innovated test statistics
+genMean <- as.numeric( sqrt(n / sigSqY) * corMat %*% Wg %*% effectSizes )
+genMean
+innMean <- as.numeric( sqrt(n / sigSqY) * diag(sqrt(eVals)) %*% t(eVecs) %*% Wg %*% effectSizes )
+innMean
+```
+
+And now we can calculate lower and upper bounds on power:
+
+```{r}
+
+# upper and lower bounds on power for iBJ
+innBounds <- calcb2(lower = TRUE, upper = TRUE, muVec = innMean, sigMat = diag(rep(1, 5)), bounds = bjBounds)
+c(innBounds$lowerProb, innBounds$upperProb)
+
+# upper and lower bounds on power for GBJ
+genBounds <- calcb2(lower = TRUE, upper = TRUE, muVec = genMean, sigMat = corMat, bounds = gbjBounds)
+# clearly we should use the GBJ in this situation
+c(genBounds$lowerProb, genBounds$upperProb)
+
+```
+
+Additionally, we can also calculate the exact power when the size of the set is five elements or less
+(otherwise it will be too computationally expensive):
+```{r}
+
+# note that the exact power does indeed fall within the bounds
+innPower <- calc_exact_power(bounds = bjBounds, sig_mat = diag(rep(1, 5)), muVec = innMean)
+innPower$power
+genPower <- calc_exact_power(bounds = gbjBounds, sig_mat = corMat, muVec = genMean)
+genPower$power
+
+```
+
+We can also perform simulations to confirm that our calculations are correct:
+```{r}
+
+# these functions simulate the probability of falling in the simplified rejection regions
+# used to calculate the lower and upper bounds - note how they match the lower and upper bounds
+# calculated above.
+simBoundsInn <- sim_b2(lower=TRUE, upper=TRUE, n = 30000, muVec = innMean, sigMat = diag(rep(1, 5)), 
+                             bounds = bjBounds)
+simBoundsInn
+simBoundsGen <- sim_b2(lower=TRUE, upper=TRUE, n = 30000, muVec = genMean, sigMat = corMat, bounds = gbjBounds)
+simBoundsGen
+
+# these functions simulate the exact power - note how they match the exact power calculations
+simPowerInn <- sim_power_mvn(n = 30000, muVec = innMean, sigMat = diag(rep(1, 5)), bounds=bjBounds, test=NULL, alpha = alpha)
+simPowerInn$boundsPower
+simPowerGen <- sim_power_mvn(n = 30000, muVec = genMean, sigMat = corMat, bounds=gbjBounds, test=NULL, alpha = alpha)
+simPowerGen$boundsPower
+```
+
+We can also simulate to confirm that we calculated the correct distribution of test
+statistics under the alternative:
+```{r}
+
+# simulate test statistics
+gMat <- bindata::rmvbin(n=n, margprob = rep(MAF, 5), bincorr = corMat) +
+        bindata::rmvbin(n=n, margprob = rep(MAF, 5), bincorr = corMat)
+xMat <- matrix(data=1, nrow=n, ncol=1)
+
+# note the good correspondence
+simStatsOutput <- sim_stats_mef(B=10000, sigSq = sigSqY, xMat = xMat, decompTrue = eigen(corMat),
+                                gMat = gMat, alphaVec = c(0), betaVec = effectSizes, checkpoint = FALSE)
+apply(simStatsOutput$zMat, 2 , mean)
+genMean
+apply(simStatsOutput$iMat, 2 , mean)
+innMean
+
+```
+      
+If we want to test another SNP set (e.g. another gene) or try a different specification of the alternative,
+just input those new parameters and calculate the bounds again.
+
+```{r}
+
+# new correlation matrix 
+corMatNew <- matrix(data=NA, nrow=5, ncol=5)
+corMatNew[1:2, 1:2] <- 0.7
+corMatNew[3:5, 3:5] <- 0.7
+corMatNew[1:2, 3:5] <- 0.5
+corMatNew[3:5, 1:2] <- 0.5
+diag(corMatNew) <- 1
+
+# new effect sizes
+effectSizesNew <- c(0, 0.25, 0, 0, 0)
+
+# new rejection regions
+bjBoundsNew <- set_BJ_bounds(alpha = 0.01, J=5)
+bjBoundsNew
+gbjBoundsNew <- set_GBJ_bounds(alpha = 0.01, J=5, sig_vec = corMatNew[lower.tri(corMatNew)])
+gbjBoundsNew
+
+# eigendecomposition of the correlation matrix
+eValsNew <- eigen(corMatNew)$values
+eVecsNew <- eigen(corMatNew)$vectors
+  
+# these are the approximate means of the generalized and innovated test statistics
+genMeanNew <- as.numeric(sqrt(n / sigSqY) * corMatNew %*% Wg %*% effectSizesNew)
+innMeanNew <- as.numeric(sqrt(n / sigSqY) * diag(sqrt(eValsNew)) %*% t(eVecsNew) %*% Wg %*% effectSizesNew)
+
+# calculate lower and upper bounds on power
+innBoundsNew <- calcb2(lower = TRUE, upper = TRUE, muVec = innMeanNew, sigMat = diag(rep(1, 5)), bounds = bjBoundsNew)
+c(innBoundsNew$lowerProb, innBoundsNew$upperProb)
+genBoundsNew <- calcb2(lower = TRUE, upper = TRUE, muVec = genMeanNew, sigMat = corMatNew, bounds = gbjBoundsNew)
+c(genBoundsNew$lowerProb, genBoundsNew$upperProb)
+
+```
+
+Questions or novel applications? Please let me know!  Contact information can be found in the package description.

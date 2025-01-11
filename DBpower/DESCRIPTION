@@ -1,0 +1,25 @@
+Package: DBpower
+Type: Package
+Title: Finite Sample Power Calculations for Detection Boundary Tests
+Version: 0.1.0
+Authors@R: person("Ryan", "Sun", email = "ryansun.work@gmail.com", role
+        = c("aut", "cre"))
+Description: Calculates lower bound on power, upper bound on power, and
+        exact power (small sets only) for detection boundary tests
+        (e.g. Berk-Jones, Generalized Berk-Jones, innovated Berk-Jones)
+        used in set-based inference studies. These detection boundary
+        tests are described in Sun et al., (2019)
+        <doi:10.1080/01621459.2019.1660170>.
+License: GPL-3
+Encoding: UTF-8
+RoxygenNote: 7.1.1
+Imports: dplyr, magrittr, stats, mvtnorm, combinat, GBJ, kit,
+Suggests: knitr, bindata, rmarkdown
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2022-02-09 17:30:51 UTC; rsun3
+Author: Ryan Sun [aut, cre]
+Maintainer: Ryan Sun <ryansun.work@gmail.com>
+Repository: CRAN
+Date/Publication: 2022-02-10 19:10:05 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

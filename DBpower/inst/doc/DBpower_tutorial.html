@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Ryan Sun" />
+
+<meta name="date" content="2022-02-09" />
+
+<title>DBpower Tutorial</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">DBpower Tutorial</h1>
+<h4 class="author">Ryan Sun</h4>
+<h4 class="date">2022-02-09</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The DBpower package implements power calculations for detection boundary tests including the Berk-Jones (BJ), Generalized Berk-Jones (GBJ), and innovated Berk-Jones (iBJ). These tests are commonly used to conduct set-based inference in genetics settings. Two primary use cases for this package are study design for genetic association studies and post-hoc power calculation for such studies.</p>
+<p>More specifically, this package can help determine whether an innovated type test (like the iBJ) or generalized type test (like GBJ) will have more power for a given hypothesis testing situation. The relative operating characteristics of these tests are known to vary widely (see our submitted manuscript for details), and so the choice of test is very important, as we generally do not want to apply multiple tests for one set (due to an increased multiple testing burden).</p>
+</div>
+<div id="set-based-testing" class="section level2">
+<h2>Set-based testing</h2>
+<p>Set-based association methods aggregate many individual hypothesis tests, usually under biologically interpretable groupings. These methods possess many natural advantages over individual tests, for example they can reduce the multiple testing burden, combine smaller effects into a more detectable signal, and provide more interpretable results. As a concrete example, in eQTL analysis, we can test if a set of genetic risk variants around a particular risk gene is associated with the expression values of that gene. Significant association provides evidence that the gene expression mediates the relationship between causal variants and disease. This association may not detectable when associating individual variants with gene expression.</p>
+<p>We may also want to test the association between an individual variant and a group of risk gene expression values. Significant association provides evidence that the individual variant possess functional behavior related to regulating the expression values of risk genes. Thus the variant is a better candidate for translational follow-up compared to non-functional variants that may simply lie in linkage disequilibrium with the true causal variants.</p>
+<p>Detection boundary tests are popular in these settings because they reach a so-called rare-weak detection boundary. In a certain sense, these tests are able to detect the sparsest and smallest signals detectable by any statistical test. Because effects in genetic association studies are often assumed to be sparse and weak, the detection boundary tests are a good choice to perform set-based inference.</p>
+<p>As the detection boundary tests were initially developed for sets of independent elements, modifications are needed to apply them to correlated genetics settings. Two approaches are the innovated approach and the generalized approach. The innovated approach (e.g. iBJ) decorrelates the set of test statistics first before applying the standard detection boundary approach. The generalized approach (e.g. GBJ) modifies the detection boundary method to explicitly allow for correlated elements in a set. These tests demonstrate distinct finite sample power properties.</p>
+</div>
+<div id="use" class="section level2">
+<h2>Use</h2>
+<p>DBpower assumes that a set of test statistics generated under the alternative are multivariate normal with some nonzero mean and covariance matrix that can be estimated consistently. The package first calculates the rejection regions needed to perform power calculations. These rejection regions depend on the covariance matrix and the choice of test. Given the rejection region and the distribution of the test statistics under the alternative, the package then provides lower and upper bounds on the exact power of the test. Bounds are provided because the exact power of detection boundary tests is incredibly computationally expensive to calculate. The calculation is not possible for sets of practical sizes. This package does include a function to calculate exact power, but it should be only used for sets with five elements or less.</p>
+</div>
+<div id="worked-example" class="section level2">
+<h2>Worked Example</h2>
+<p>Suppose we would like to reproduce one of the power calculations from Figure 2 of Sun, Shi, &amp; Lin (submitted). Let us focus on the calulations for Signal Location 1 in panel 1A. In this setting, we have five genotypes that we would like to test for association with a single outcome. In the true model, the effect sizes of these genotypes are (0.25, 0, 0, 0, 0). The variance of the outcome is 1. The minor allele frequencies of the genotypes is 0.3, there are 400 subjects, and we do not fit any other covariates in the model except for the genotypes. The first three genotypes are correlated at <span class="math inline">\(\rho_{1} = 0.3\)</span>, the last two genotypes are correlated at <span class="math inline">\(\rho_{2} = 0.3\)</span>, and the correlation between the two blocks is <span class="math inline">\(\rho_{3} = 0.1\)</span> We test at <span class="math inline">\(\alpha = 0.01\)</span>.</p>
+<p>First we need to calculate the rejection region for this setting:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(DBpower)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(magrittr)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">set.seed</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co"># make the correlation matrix of the genotypes</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">corMat &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data=</span><span class="ot">NA</span>, <span class="dt">nrow=</span><span class="dv">5</span>, <span class="dt">ncol=</span><span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">corMat[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">0.3</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">corMat[<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">3</span><span class="op">:</span><span class="dv">5</span>] &lt;-<span class="st"> </span><span class="fl">0.3</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">corMat[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dv">3</span><span class="op">:</span><span class="dv">5</span>] &lt;-<span class="st"> </span><span class="fl">0.1</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">corMat[<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">0.1</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="kw">diag</span>(corMat) &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># calculate rejection region for this setting.</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># the iBJ bounds are the same as the BJ bounds, because iBJ decorrelates</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># the test statistics first and then applies the standard BJ assuming independence.</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16">bjBounds &lt;-<span class="st"> </span><span class="kw">set_BJ_bounds</span>(<span class="dt">alpha =</span> <span class="fl">0.01</span>, <span class="dt">J=</span><span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">bjBounds</a></code></pre></div>
+<pre><code>## [1] 1.791455 1.791455 1.791455 2.347593 3.352179</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">gbjBounds &lt;-<span class="st"> </span><span class="kw">set_GBJ_bounds</span>(<span class="dt">alpha =</span> <span class="fl">0.01</span>, <span class="dt">J=</span><span class="dv">5</span>, <span class="dt">sig_vec =</span> corMat[<span class="kw">lower.tri</span>(corMat)])</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">gbjBounds</a></code></pre></div>
+<pre><code>## [1] 1.913604 1.913604 1.913604 2.466072 3.338019</code></pre>
+<p>Next we need to calculate the distribution of the test statistics under the alternative:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># eigendecomposition of the correlation matrix</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">eVals &lt;-<span class="st"> </span><span class="kw">eigen</span>(corMat)<span class="op">$</span>values</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">eVecs &lt;-<span class="st"> </span><span class="kw">eigen</span>(corMat)<span class="op">$</span>vectors</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># calculate the distributions of the test statistics under the alternative</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">effectSizes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.25</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">MAF &lt;-<span class="st"> </span><span class="fl">0.3</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">n &lt;-<span class="st"> </span><span class="dv">400</span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">sigSqY &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10">Wg &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="kw">rep</span>(<span class="kw">sqrt</span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>MAF <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>MAF)), <span class="dv">5</span>))</a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co"># these are the approximate means of the generalized and innovated test statistics</span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13">genMean &lt;-<span class="st"> </span><span class="kw">as.numeric</span>( <span class="kw">sqrt</span>(n <span class="op">/</span><span class="st"> </span>sigSqY) <span class="op">*</span><span class="st"> </span>corMat <span class="op">%*%</span><span class="st"> </span>Wg <span class="op">%*%</span><span class="st"> </span>effectSizes )</a>
+<a class="sourceLine" id="cb5-14" data-line-number="14">genMean</a></code></pre></div>
+<pre><code>## [1] 3.2403703 0.9721111 0.3240370 0.3240370 0.3240370</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">innMean &lt;-<span class="st"> </span><span class="kw">as.numeric</span>( <span class="kw">sqrt</span>(n <span class="op">/</span><span class="st"> </span>sigSqY) <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="kw">sqrt</span>(eVals)) <span class="op">%*%</span><span class="st"> </span><span class="kw">t</span>(eVecs) <span class="op">%*%</span><span class="st"> </span>Wg <span class="op">%*%</span><span class="st"> </span>effectSizes )</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">innMean</a></code></pre></div>
+<pre><code>## [1] -1.476050  2.155522  0.000000 -1.369555  1.341387</code></pre>
+<p>And now we can calculate lower and upper bounds on power:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># upper and lower bounds on power for iBJ</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">innBounds &lt;-<span class="st"> </span><span class="kw">calcb2</span>(<span class="dt">lower =</span> <span class="ot">TRUE</span>, <span class="dt">upper =</span> <span class="ot">TRUE</span>, <span class="dt">muVec =</span> innMean, <span class="dt">sigMat =</span> <span class="kw">diag</span>(<span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">5</span>)), <span class="dt">bounds =</span> bjBounds)</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="kw">c</span>(innBounds<span class="op">$</span>lowerProb, innBounds<span class="op">$</span>upperProb)</a></code></pre></div>
+<pre><code>## [1] 0.3301290 0.4088431</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># upper and lower bounds on power for GBJ</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">genBounds &lt;-<span class="st"> </span><span class="kw">calcb2</span>(<span class="dt">lower =</span> <span class="ot">TRUE</span>, <span class="dt">upper =</span> <span class="ot">TRUE</span>, <span class="dt">muVec =</span> genMean, <span class="dt">sigMat =</span> corMat, <span class="dt">bounds =</span> gbjBounds)</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co"># clearly we should use the GBJ in this situation</span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="kw">c</span>(genBounds<span class="op">$</span>lowerProb, genBounds<span class="op">$</span>upperProb)</a></code></pre></div>
+<pre><code>## [1] 0.4928451 0.5032327</code></pre>
+<p>Additionally, we can also calculate the exact power when the size of the set is five elements or less (otherwise it will be too computationally expensive):</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># note that the exact power does indeed fall within the bounds</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">innPower &lt;-<span class="st"> </span><span class="kw">calc_exact_power</span>(<span class="dt">bounds =</span> bjBounds, <span class="dt">sig_mat =</span> <span class="kw">diag</span>(<span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">5</span>)), <span class="dt">muVec =</span> innMean)</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">innPower<span class="op">$</span>power</a></code></pre></div>
+<pre><code>## [1] 0.408814</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">genPower &lt;-<span class="st"> </span><span class="kw">calc_exact_power</span>(<span class="dt">bounds =</span> gbjBounds, <span class="dt">sig_mat =</span> corMat, <span class="dt">muVec =</span> genMean)</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">genPower<span class="op">$</span>power</a></code></pre></div>
+<pre><code>## [1] 0.5032047</code></pre>
+<p>We can also perform simulations to confirm that our calculations are correct:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="co"># these functions simulate the probability of falling in the simplified rejection regions</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co"># used to calculate the lower and upper bounds - note how they match the lower and upper bounds</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="co"># calculated above.</span></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">simBoundsInn &lt;-<span class="st"> </span><span class="kw">sim_b2</span>(<span class="dt">lower=</span><span class="ot">TRUE</span>, <span class="dt">upper=</span><span class="ot">TRUE</span>, <span class="dt">n =</span> <span class="dv">30000</span>, <span class="dt">muVec =</span> innMean, <span class="dt">sigMat =</span> <span class="kw">diag</span>(<span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">5</span>)), </a>
+<a class="sourceLine" id="cb17-5" data-line-number="5">                             <span class="dt">bounds =</span> bjBounds)</a>
+<a class="sourceLine" id="cb17-6" data-line-number="6">simBoundsInn</a></code></pre></div>
+<pre><code>## $lowerBound
+## [1] 0.3274667
+## 
+## $upperBound
+## [1] 0.4042667</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">simBoundsGen &lt;-<span class="st"> </span><span class="kw">sim_b2</span>(<span class="dt">lower=</span><span class="ot">TRUE</span>, <span class="dt">upper=</span><span class="ot">TRUE</span>, <span class="dt">n =</span> <span class="dv">30000</span>, <span class="dt">muVec =</span> genMean, <span class="dt">sigMat =</span> corMat, <span class="dt">bounds =</span> gbjBounds)</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">simBoundsGen</a></code></pre></div>
+<pre><code>## $lowerBound
+## [1] 0.4940333
+## 
+## $upperBound
+## [1] 0.5044</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co"># these functions simulate the exact power - note how they match the exact power calculations</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">simPowerInn &lt;-<span class="st"> </span><span class="kw">sim_power_mvn</span>(<span class="dt">n =</span> <span class="dv">30000</span>, <span class="dt">muVec =</span> innMean, <span class="dt">sigMat =</span> <span class="kw">diag</span>(<span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">5</span>)), <span class="dt">bounds=</span>bjBounds, <span class="dt">test=</span><span class="ot">NULL</span>, <span class="dt">alpha =</span> alpha)</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">simPowerInn<span class="op">$</span>boundsPower</a></code></pre></div>
+<pre><code>## [1] 0.4121</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">simPowerGen &lt;-<span class="st"> </span><span class="kw">sim_power_mvn</span>(<span class="dt">n =</span> <span class="dv">30000</span>, <span class="dt">muVec =</span> genMean, <span class="dt">sigMat =</span> corMat, <span class="dt">bounds=</span>gbjBounds, <span class="dt">test=</span><span class="ot">NULL</span>, <span class="dt">alpha =</span> alpha)</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">simPowerGen<span class="op">$</span>boundsPower</a></code></pre></div>
+<pre><code>## [1] 0.4992333</code></pre>
+<p>We can also simulate to confirm that we calculated the correct distribution of test statistics under the alternative:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co"># simulate test statistics</span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">gMat &lt;-<span class="st"> </span>bindata<span class="op">::</span><span class="kw">rmvbin</span>(<span class="dt">n=</span>n, <span class="dt">margprob =</span> <span class="kw">rep</span>(MAF, <span class="dv">5</span>), <span class="dt">bincorr =</span> corMat) <span class="op">+</span></a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="st">        </span>bindata<span class="op">::</span><span class="kw">rmvbin</span>(<span class="dt">n=</span>n, <span class="dt">margprob =</span> <span class="kw">rep</span>(MAF, <span class="dv">5</span>), <span class="dt">bincorr =</span> corMat)</a>
+<a class="sourceLine" id="cb25-4" data-line-number="4">xMat &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data=</span><span class="dv">1</span>, <span class="dt">nrow=</span>n, <span class="dt">ncol=</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb25-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb25-6" data-line-number="6"><span class="co"># note the good correspondence</span></a>
+<a class="sourceLine" id="cb25-7" data-line-number="7">simStatsOutput &lt;-<span class="st"> </span><span class="kw">sim_stats_mef</span>(<span class="dt">B=</span><span class="dv">10000</span>, <span class="dt">sigSq =</span> sigSqY, <span class="dt">xMat =</span> xMat, <span class="dt">decompTrue =</span> <span class="kw">eigen</span>(corMat),</a>
+<a class="sourceLine" id="cb25-8" data-line-number="8">                                <span class="dt">gMat =</span> gMat, <span class="dt">alphaVec =</span> <span class="kw">c</span>(<span class="dv">0</span>), <span class="dt">betaVec =</span> effectSizes, <span class="dt">checkpoint =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb25-9" data-line-number="9"><span class="kw">apply</span>(simStatsOutput<span class="op">$</span>zMat, <span class="dv">2</span> , mean)</a></code></pre></div>
+<pre><code>## [1] 3.1086862 1.1812643 0.3346979 0.3148885 0.4615489</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">genMean</a></code></pre></div>
+<pre><code>## [1] 3.2403703 0.9721111 0.3240370 0.3240370 0.3240370</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw">apply</span>(simStatsOutput<span class="op">$</span>iMat, <span class="dv">2</span> , mean)</a></code></pre></div>
+<pre><code>## [1] -1.5494919  2.1634601  0.1308509 -1.1855516  1.1175763</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">innMean</a></code></pre></div>
+<pre><code>## [1] -1.476050  2.155522  0.000000 -1.369555  1.341387</code></pre>
+<p>If we want to test another SNP set (e.g. another gene) or try a different specification of the alternative, just input those new parameters and calculate the bounds again.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co"># new correlation matrix </span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2">corMatNew &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data=</span><span class="ot">NA</span>, <span class="dt">nrow=</span><span class="dv">5</span>, <span class="dt">ncol=</span><span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb33-3" data-line-number="3">corMatNew[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">0.7</span></a>
+<a class="sourceLine" id="cb33-4" data-line-number="4">corMatNew[<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">3</span><span class="op">:</span><span class="dv">5</span>] &lt;-<span class="st"> </span><span class="fl">0.7</span></a>
+<a class="sourceLine" id="cb33-5" data-line-number="5">corMatNew[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dv">3</span><span class="op">:</span><span class="dv">5</span>] &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb33-6" data-line-number="6">corMatNew[<span class="dv">3</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb33-7" data-line-number="7"><span class="kw">diag</span>(corMatNew) &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb33-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb33-9" data-line-number="9"><span class="co"># new effect sizes</span></a>
+<a class="sourceLine" id="cb33-10" data-line-number="10">effectSizesNew &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb33-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb33-12" data-line-number="12"><span class="co"># new rejection regions</span></a>
+<a class="sourceLine" id="cb33-13" data-line-number="13">bjBoundsNew &lt;-<span class="st"> </span><span class="kw">set_BJ_bounds</span>(<span class="dt">alpha =</span> <span class="fl">0.01</span>, <span class="dt">J=</span><span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb33-14" data-line-number="14">bjBoundsNew</a></code></pre></div>
+<pre><code>## [1] 1.791455 1.791455 1.791455 2.347593 3.352179</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">gbjBoundsNew &lt;-<span class="st"> </span><span class="kw">set_GBJ_bounds</span>(<span class="dt">alpha =</span> <span class="fl">0.01</span>, <span class="dt">J=</span><span class="dv">5</span>, <span class="dt">sig_vec =</span> corMatNew[<span class="kw">lower.tri</span>(corMatNew)])</a>
+<a class="sourceLine" id="cb35-2" data-line-number="2">gbjBoundsNew</a></code></pre></div>
+<pre><code>## [1] 2.415717 2.415717 2.415717 2.804292 3.273987</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="co"># eigendecomposition of the correlation matrix</span></a>
+<a class="sourceLine" id="cb37-2" data-line-number="2">eValsNew &lt;-<span class="st"> </span><span class="kw">eigen</span>(corMatNew)<span class="op">$</span>values</a>
+<a class="sourceLine" id="cb37-3" data-line-number="3">eVecsNew &lt;-<span class="st"> </span><span class="kw">eigen</span>(corMatNew)<span class="op">$</span>vectors</a>
+<a class="sourceLine" id="cb37-4" data-line-number="4">  </a>
+<a class="sourceLine" id="cb37-5" data-line-number="5"><span class="co"># these are the approximate means of the generalized and innovated test statistics</span></a>
+<a class="sourceLine" id="cb37-6" data-line-number="6">genMeanNew &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">sqrt</span>(n <span class="op">/</span><span class="st"> </span>sigSqY) <span class="op">*</span><span class="st"> </span>corMatNew <span class="op">%*%</span><span class="st"> </span>Wg <span class="op">%*%</span><span class="st"> </span>effectSizesNew)</a>
+<a class="sourceLine" id="cb37-7" data-line-number="7">innMeanNew &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">sqrt</span>(n <span class="op">/</span><span class="st"> </span>sigSqY) <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="kw">sqrt</span>(eValsNew)) <span class="op">%*%</span><span class="st"> </span><span class="kw">t</span>(eVecsNew) <span class="op">%*%</span><span class="st"> </span>Wg <span class="op">%*%</span><span class="st"> </span>effectSizesNew)</a>
+<a class="sourceLine" id="cb37-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb37-9" data-line-number="9"><span class="co"># calculate lower and upper bounds on power</span></a>
+<a class="sourceLine" id="cb37-10" data-line-number="10">innBoundsNew &lt;-<span class="st"> </span><span class="kw">calcb2</span>(<span class="dt">lower =</span> <span class="ot">TRUE</span>, <span class="dt">upper =</span> <span class="ot">TRUE</span>, <span class="dt">muVec =</span> innMeanNew, <span class="dt">sigMat =</span> <span class="kw">diag</span>(<span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">5</span>)), <span class="dt">bounds =</span> bjBoundsNew)</a>
+<a class="sourceLine" id="cb37-11" data-line-number="11"><span class="kw">c</span>(innBoundsNew<span class="op">$</span>lowerProb, innBoundsNew<span class="op">$</span>upperProb)</a></code></pre></div>
+<pre><code>## [1] 0.3731720 0.4236479</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1">genBoundsNew &lt;-<span class="st"> </span><span class="kw">calcb2</span>(<span class="dt">lower =</span> <span class="ot">TRUE</span>, <span class="dt">upper =</span> <span class="ot">TRUE</span>, <span class="dt">muVec =</span> genMeanNew, <span class="dt">sigMat =</span> corMatNew, <span class="dt">bounds =</span> gbjBoundsNew)</a>
+<a class="sourceLine" id="cb39-2" data-line-number="2"><span class="kw">c</span>(genBoundsNew<span class="op">$</span>lowerProb, genBoundsNew<span class="op">$</span>upperProb)</a></code></pre></div>
+<pre><code>## [1] 0.5500517 0.5669133</code></pre>
+<p>Questions or novel applications? Please let me know! Contact information can be found in the package description.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
