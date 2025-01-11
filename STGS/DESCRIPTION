@@ -1,0 +1,32 @@
+Package: STGS
+Type: Package
+Title: Genomic Selection using Single Trait
+Version: 0.1.0
+Author: Neeraj Budhlakoti, D C Mishra, Anil Rai, K K Chaturvedi
+Maintainer: Neeraj Budhlakoti <neeraj35669@gmail.com>
+Description: Genomic Selection (GS) is a latest development in animal
+        and plant breeding where whole genome markers information is
+        used to predict genetic merit of an individuals in a practical
+        breeding programme. GS is one of the promising tool for
+        improving genetic gain in animal and plants in today’s
+        scenario. This package is basically developed for genomic
+        predictions by estimating marker effects. These marker effects
+        further used for calculation of genotypic merit of individual
+        i.e. genome estimated breeding values (GEBVs). Genomic
+        selection may be based on single trait or multi traits
+        information. This package performs genomic selection only for
+        single traits hence named as STGS i.e. single trait genomic
+        selection. STGS is a comprehensive package which gives single
+        step solution for genomic selection based on most commonly used
+        statistical methods.
+License: GPL-3
+Depends: R (>= 3.6)
+Imports: glmnet, brnn, kernlab, randomForest, rrBLUP
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+NeedsCompilation: no
+Packaged: 2019-10-18 01:47:13 UTC; Neeraj
+Repository: CRAN
+Date/Publication: 2019-10-24 16:00:05 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

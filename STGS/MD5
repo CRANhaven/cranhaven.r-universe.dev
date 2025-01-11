@@ -1,0 +1,16 @@
+596ab42d1d46fe868fe6b9ec1b890be5 *DESCRIPTION
+f8e647ec89c9bab1ebb0ceb127885c71 *NAMESPACE
+9aedb80cef0e7757ee1755763761cb51 *R/ann.R
+c4e3064a299fe7f1e2821e3c32609819 *R/blup.R
+1dafc14348243384bcf389392032cbfc *R/lasso.R
+b54276f832e9fd537c205d780a6e0fe1 *R/rf.R
+69f488b158372d469e4aaa6eb3878a99 *R/rr.R
+e494fc669ead76cb84286cc0dfee4bfe *R/svm.R
+d7c2a7793d498f51eaf75a84e35c7b67 *data/wheat_data.RData
+d96f0322b2e7b8df2caa286299961f3c *man/ann.Rd
+99c42cd21eb5620ab54b1c6bf342f3f4 *man/blup.Rd
+76ba97221a33d7e50c3d266da660577f *man/data.Rd
+ff6b950e6f77e863a99c3d20cee28baa *man/lasso.Rd
+7ae0e1965849134572a0b09619c41d40 *man/rf.Rd
+d084083349c738546fc49af5825d9324 *man/rr.Rd
+b9143d79f3f2ec5e57cae121b198be0d *man/svm.Rd

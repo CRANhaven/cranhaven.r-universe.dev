@@ -1,0 +1,7 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("stats", "predict", "sd","cor","var")
+import(glmnet)
+import(kernlab)
+import(randomForest)
+import(rrBLUP)
+import(brnn)
