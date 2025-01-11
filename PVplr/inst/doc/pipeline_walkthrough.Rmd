@@ -1,0 +1,237 @@
+---
+title: "Pipeline Walkthrough"
+author: "Tyler Burleyson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+latex_engine: xelatex
+vignette: >
+  %\VignetteIndexEntry{pipeline_walkthrough}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+options(rmarkdown.html_vignette.check_title = FALSE)
+
+```
+
+This package provides the functions used in the Solar Durability and Lifetime Extension (SDLE) center for the analysis of Performance Loss Rates (PLR) in photovoltaic systems. Interesting and unique aspects of the pipeline are discussed in the following sections, which document a typical workflow following data ingestion. 
+This package was created based off of work featured in a recent PVSC proceedings paper by Alan J. Curran et. al.[1]. 
+The example dataused for the vignettes is an inverter from Navada which is part of the the DOE RTC Baseline testing series [2]. 
+It has been reduced to 15 minute interval to save space. 
+
+## Data Cleaning ##
+After importing data to R as a dataframe, several steps must be taken in order to make the data work well with package functions. Firstly, obtain a variable list for the data.
+
+Use the plr_build_var_list function. This function allows the user to set their own column names in accordance with their data. Specify exactly the columns of your data corresponding to time, power output, irradiance, temperature, and wind, if available (if not, use NA). 
+
+This is where a user would specify the specific variables they want to use for their analysis. By changing the names in the var_list object, one can easily change the variables that are used for modeling, such as module or ambient temperature, plane of array, global horizantal or reference cell irradiance, AC or DC power, etc. This also makes it easy to incorporate any variable name, reducing the amount of pre-processing of data. 
+
+```{r}
+
+library(PVplr)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(broom)
+library(purrr)
+library(tidyr)
+
+# build variable list based on column names in example data
+var_list <- plr_build_var_list(time_var = "timestamp",
+                               power_var = "power",
+                               irrad_var = "g_poa",
+                               temp_var = "mod_temp",
+                               wind_var = NA)
+
+```
+
+The variable list is used by many functions in order to read and manipulate common variables such as time, power, irradiance, and windspeed. The column names for the dataframe used to generate the variable list are matched with the names used internally to reference time, power, etc. variables. Its first use is in the main data cleaning function:
+
+```{r}
+test_dfc <- plr_cleaning(test_df, var_list, irrad_thresh = 100, low_power_thresh = 0.01, high_power_cutoff = NA)
+```
+
+Several things go on within this function.
+
+Firstly, it converts all columns that should be numeric to numeric (using the internal function, plr_convert_columns). Each column is checked to see if all values are NA; if not, then NA values are removed and the column is coerced to numeric.
+
+```{r eval = TRUE, warning = TRUE}
+# an example
+a <- c(1,"two","three","four")
+b <- c(1,2,NA,4)
+c <- c(1,2,3,4)
+
+# force numeric
+d <- as.numeric(as.character(a))
+e <- as.numeric(as.character(b))
+f <- as.numeric(as.character(c))
+
+# printed results show introduction of NA's, which would indicate non-numeric columns
+print(d)
+print(e)
+print(f)
+```
+
+R automatically generates warnings stating "NAs introduced by coercion" in the above example. These are suppressed in the method itself, since in this case it is intentional.
+
+It is important to note that the function also removes "" and "-", since SDLE data sources often use these to mark missing data. If NA's appear, then there must be non-numeric entries, in which case the column is not made numeric. All columns are tested in this way, and numeric columns are converted. This takes the majority of the compute time of the function.
+
+Continuing, timestamps are formatted to POSIXct objects with the specified format. This step also adds week, day, and psuedo-month (30 day periods) columns to the dataframe. 
+
+Finally, data are filtered according to irradiance and power readings. Irradiance below the irradiance threshold indicate to be indicative of night time readings; power below the power threshold indicates system failures; and power values above the cutoff indicate possible system errors.
+
+### Method Efficiency ###
+
+The method is currently quite slow. Since the slow-down comes from the column conversions, future versions may include a quicker option that simply checks a selection of values in the column for non-numerics and then forces numeric on identified columns. However, the current methodology is preferred in order to keep as much data as possible and avoid misidentifying columns.
+
+## Power Predictive Modeling ##
+
+Power outputs of different PV systems are not directly comparable due to the influence of many climate factors. Therefore, in order to make PLR values meaningful, one must control for these effects.
+
+A full discussion of the power predictive models on offer is contained in the [model comparison](model_comparison.html) vignette. Here, it will suffice to summarize them as using various linear regression formulas to control for the influence of irradiance, temperature, and wind speed. 
+
+### X-by-X Power Prediction ###
+
+Selecting a time period to subset by is an important step; choose to model over days, weeks, or months based on the data being modeled as well as what modeling will be performed on the overall data set. This is what is called the "X-by-X" method: creating models by a certain time period, and analyzing PLR across those models. Below is an example using one of the power predictive models, the data-driven XbX model, on a week-by-week basis.
+
+```{r}
+test_xbx_wbw_res <- plr_xbx_model(test_dfc, var_list, by = "week", data_cutoff = 30, predict_data = NULL)
+
+# Generate Table
+knitr::kable(test_xbx_wbw_res[1:5, ], caption = "XbX Model: Week-by-Week Implementation")
+```
+
+The data is subset by week, using the columns created during the cleaning step. Each week is fitted to a  least-squares linear regression model. These weekly models are checked to see if they have a minimum number of data points; here, we specified to filter them out if there are 30 or fewer. 
+
+### Representative Conditions ###
+
+The weekly models are then fitted to predicted representative conditions. This can be passed to the function as predict_data. If not, the function calculates values based on the data as follows: Daily max irradiance is found, from which the the lowest value over 300 watts/meter squared is used; temperature is averaged over all of the data; and wind speed is averaged over all of the data. It is from this that the power and std_error columns are calculated (excluding the 6k; see [model comparison](model_comparison.html)). The sigma column is the standard deviation, calculated from the standard error.
+
+### Outlier Removal ###
+
+Finally, entries are marked as outliers in the last column using Tukey's fences. It is often desirable to remove these outliers; to do so, use the plr_remove_outliers method.
+This is a simple operation but common enough that a function was made for it. 
+
+```{r}
+test_xbx_wbw_res_no_outliers <- plr_remove_outliers(test_xbx_wbw_res)
+
+rows_before <- nrow(test_xbx_wbw_res)
+rows_after <- nrow(test_xbx_wbw_res_no_outliers)
+number_outliers <- rows_before - rows_after
+```
+
+## PLR Determination ##
+
+Performance Loss Rates can now be calculated from the data meaningfully. To do this, we use two different regression schemes: predicted power vs. time regression, and year-on-year regression.
+
+### Standard (un)weighted Regression ###
+
+In the more standard regression scheme, a linear model of predicted power and time is fit to the data. PLR is calculated using the formula $$PLR = \frac{m}{b} (py) (100)$$, where $m$ is the slope and $b$ is the intercept of the regression line, and $py$ is the conversion between the modeled time period and years. In the case of day-by-day power prediction, for example, $py = 365$. In the function call, this appears as per_year. It functions similarly to the 'by' parameter in other functions, but takes numeric values instead so as to offer greater flexibility (for reference, there's 12 months, 52 weeks, or 365 days in a year).
+
+```{r}
+# example weighted regression
+xbx_wbw_plr <- plr_weighted_regression(test_xbx_wbw_res_no_outliers, power_var = 'power_var', time_var = 'time_var', model = "xbx", per_year = 52, weight_var = 'sigma')
+
+xbx_wbw_plr
+```
+
+In this example, the regression is weighted by sigma, the standard deviation of each point. Weighted regression has a number of problems - outliers and points with very high or low uncertainty can lead to skewed regressions, for example, and seasonal patterns such as high numbers of accurate readings in the summer can also cause biases in the results. If you prefer to calculate PLR without weightings, simply input NA for weight_var.
+
+```{r}
+# example unweighted regression
+xbx_wbw_plr_unweighted <- plr_weighted_regression(test_xbx_wbw_res_no_outliers, power_var = 'power_var', time_var = 'time_var', model = "xbx", per_year = 52, weight_var = NA)
+
+xbx_wbw_plr
+```
+
+Uncertainty for linear model evaluated PLR is calculated using the variance of the fitting coefficients and converting it to a PLR range. A helper function has been included for this. 
+
+```{r}
+mod <- lm(power_var ~ time_var, data = test_xbx_wbw_res_no_outliers)
+
+plr_sd <- plr_var(mod, per_year = 52)
+```
+
+### Year-on-Year Regression ###
+
+The other option given by the package is year-on-year regression, a technique that examines points exactly one year apart to determine PLR's. 
+This method was developed by E. Hasselbrink et. al.[3]. 
+The median of these yearly PLR's is identified as the total system PLR. This method avoids issues with outliers and seasonality that the previous method encounters, at the cost of needing long-term data in order to be meaningful. 
+
+```{r}
+# example YoY regression
+xbx_wbw_yoy_plr <- plr_yoy_regression(test_xbx_wbw_res_no_outliers, power_var = 'power_var', time_var = 'time_var', model = "xbx", per_year = 52, return_PLR = TRUE)
+
+xbx_wbw_yoy_plr
+```
+
+Note that the example data included in this package is not well-suited at all to year-on-year regression - it is a randomly taken 1% sample of a larger data file, so few points are exactly one year apart from each other.
+
+## Bootstrap Error Calculations ##
+
+A final step in the pipeline is evaluating uncertainty of the PLR calculation via bootstrapping: taking repeated samples of the data, and calculating mean PLR and standard error. These methods either sample directly from the power predicted data or the final data after regression, and calculate mean and standard deviation for both regression schemes. The samples are gathered in day, week, or month long chunks in accordance with the power predictive model used.
+
+### Bootstrap Uncertainty ###
+
+The following method samples from the data before putting it through a power predictive model and PLR Regressions. It is written so that it can be used flexibly with data that may have been put through other power predictive models, so time_var and power_var parameters are requested. Within this package, those will always be 'time_var' and '.fitted', respectively. If desired, predicted data and nameplate power for the 6k model can be passed as well.
+
+```{r, warning=FALSE}
+# samples data before applying PLR regression
+xbx_wbw_plr_uncertainty <- plr_bootstrap_uncertainty(test_dfc, n = 2, fraction = 0.65, by = 'week', power_var = 'power_var', time_var = 'time_var', var_list = var_list, model = "xbx", data_cutoff = 10, np = NA, pred = NULL)
+
+knitr::kable(xbx_wbw_plr_uncertainty, caption = "XbX Week-by-Week Bootstrapped Uncertainty")
+```
+
+Note that the number of samples, n, is set rather low here. That is so the vignette can be processed by R more quickly; in practical use, it is best to set n to much higher values, e.g. 1000. Increasing the sample count makes the mean and standard error more precise and meaningful.
+
+A helper function is included to resample data from each individual time segment, either days, weeks, or months. Resampling from the enitre dataset would bias certain time segments with more or less data than others. 
+
+```{r}
+dfc_resampled <- mbm_resample(test_dfc, fraction = 0.65, by = "week")
+```
+
+### Bootstrap Output ###
+
+An alternative method, plr_bootstrap_output, first puts the data through both PLR regression schemes, then bootstraps from the output.
+
+```{r, warning=FALSE}
+xbx_wbw_plr_output_uncertainty <- plr_bootstrap_output(test_dfc, var_list, model = "xbx", fraction = 0.65, n = 10, power_var = 'power_var', time_var = 'time_var', ref_irrad = 900, irrad_range = 10, by = "week", np = NA, pred = NULL)
+
+knitr::kable(xbx_wbw_plr_output_uncertainty, caption = "XbX Week-by-Week Bootstrapped Output Uncertainty")
+```
+
+This method will typically give more meaningful results for Year-on-Year regression: that method can be biased by random sampling prior to regression, since it relies on data points exactly a year apart.
+
+### Bootstrap after Modeling ###
+
+The methods above both incorporate power prediction, but sometimes it is preferred to bootstrap data that has already been through power prediction. In this case, make use of plr_bootstrap_output_from_results.K
+
+```{r, warning=FALSE}
+xbx_wbw_plr_result_uncertainty <- plr_bootstrap_output_from_results(test_xbx_wbw_res_no_outliers, power_var = 'power_var', time_var = 'time_var', weight_var = 'sigma', by = "week", model = 'xbx', fraction = 0.65, n = 10)
+
+knitr::kable(xbx_wbw_plr_result_uncertainty, caption = "XbX Week-by-Week Bootstrapped Output Uncertainty From Results")
+```
+
+Note that here, defining power_var, time_var, and weight_var takes on extra importance since the data has already been through power prediction. If you're unsure, examine the colnames of your data. The model parameter should be a string, and is only passed through to the result for the purposes of consistency; it does not impact the function at all.
+
+Sources
+------------
+
+1.   Alan J. Curran, et al. Performance Loss Rate Consistency and Uncertainty Across Multiple Methods and Filtering Criteria. IEEE PVSC 46, Chicago, IL, USA. 
+
+2. M. S. Lave, J. Stein, and L. Burnham, “Performance Comparison of
+Stion CIGS Modules to Baseline Monocrystalline Modules at the New
+Mexico Florida and Vermont Regional Test Centers: January 2015-
+December 2016.” Sandia National Lab. (SNL-CA), Livermore, CA
+(United States); Sandia National Lab. (SNL-NM), Albuquerque, NM
+(United States), Tech. Rep. SAND2017-0957, Jan. 2017.
+
+3. Ernest Hasselbrink, et al. “Validation of the PVLife Model Using 3 Million Module-Years of Live Site Data.” IEEE 39th Photovoltaic Specialists Conference (PVSC), IEEE, 2013, pp. 0007–0012.
+
+

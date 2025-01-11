@@ -1,0 +1,59 @@
+Package: PVplr
+Type: Package
+Title: Performance Loss Rate Analysis Pipeline
+Version: 0.1.2
+Authors@R: c( person("Alan", "Curran", email = "alan.curran@case.edu",
+        role = c("aut"), comment = c(ORCID = "0000-0002-4505-8359")),
+        person("Tyler", "Burleyson", email =
+        "tyler.burleyson@case.edu", role = "aut", comment = c(ORCID =
+        "0000-0002-6356-5354")), person("William", "Oltjen", email =
+        "william.oltjen@case.edu", role = c("aut"), comment = c(ORCID =
+        "0000-0003-0380-1033")), person("Sascha", "Lindig", email =
+        "Sascha.Lindig@eurac.edu", role = "aut", comment = c(ORCID =
+        "0000-0001-5421-8265")), person("David", "Moser", email =
+        "david.moser@eurac.edu", role = "aut", comment = c(ORCID =
+        "0000-0002-4895-8862")), person("Roger", "French", email =
+        "roger.french@case.edu", role = c("aut", "cre"), comment =
+        c(ORCID = "0000-0002-6162-0532")), person(given = "Solar
+        Durability and Lifetime Extension research center", role =
+        c("cph", "fnd")))
+Description: The pipeline contained in this package provides tools used
+        in the Solar Durability and Lifetime Extension Center (SDLE)
+        for the analysis of Performance Loss Rates (PLR) in real world
+        photovoltaic systems. Functions included allow for data
+        cleaning, feature correction, power predictive modeling, PLR
+        determination, and uncertainty bootstrapping through various
+        methods <doi:10.1109/PVSC40753.2019.8980928>. The vignette
+        "Pipeline Walkthrough" gives an explicit run through of typical
+        package usage. This material is based upon work supported by
+        the U.S Department of Energy's Office of Energy Efficiency and
+        Renewable Energy (EERE) under Solar Energy Technologies Office
+        (SETO) Agreement Number DE-EE-0008172. This work made use of
+        the High Performance Computing Resource in the Core Facility
+        for Advanced Research Computing at Case Western Reserve
+        University.
+Depends: R (>= 2.10)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: dplyr (>= 0.7.8), magrittr (>= 1.5), broom (>= 0.5.1), ggplot2
+        (>= 3.1.0), stlplus (>= 0.5.1), cluster (>= 2.0.7-1), purrr (>=
+        0.3.3), tidyr (>= 1.1.1), minpack.lm (>= 1.2-1), rlang (>=
+        0.3.1), segmented, forecast, scales, zoo
+RoxygenNote: 7.2.3
+Suggests: testthat, knitr, rmarkdown
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2023-02-14 17:29:21 UTC; wco3
+Author: Alan Curran [aut] (<https://orcid.org/0000-0002-4505-8359>),
+        Tyler Burleyson [aut]
+        (<https://orcid.org/0000-0002-6356-5354>), William Oltjen [aut]
+        (<https://orcid.org/0000-0003-0380-1033>), Sascha Lindig [aut]
+        (<https://orcid.org/0000-0001-5421-8265>), David Moser [aut]
+        (<https://orcid.org/0000-0002-4895-8862>), Roger French [aut,
+        cre] (<https://orcid.org/0000-0002-6162-0532>), Solar
+        Durability and Lifetime Extension research center [cph, fnd]
+Maintainer: Roger French <roger.french@case.edu>
+Repository: CRAN
+Date/Publication: 2023-02-14 18:00:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

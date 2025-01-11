@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Tyler Burleyson" />
+
+<meta name="date" content="2023-02-14" />
+
+<title>Pipeline Walkthrough</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Pipeline Walkthrough</h1>
+<h4 class="author">Tyler Burleyson</h4>
+<h4 class="date">2023-02-14</h4>
+
+
+
+<p>This package provides the functions used in the Solar Durability and
+Lifetime Extension (SDLE) center for the analysis of Performance Loss
+Rates (PLR) in photovoltaic systems. Interesting and unique aspects of
+the pipeline are discussed in the following sections, which document a
+typical workflow following data ingestion. This package was created
+based off of work featured in a recent PVSC proceedings paper by Alan J.
+Curran et. al.[1]. The example dataused for the vignettes is an inverter
+from Navada which is part of the the DOE RTC Baseline testing series
+[2]. It has been reduced to 15 minute interval to save space.</p>
+<div id="data-cleaning" class="section level2">
+<h2>Data Cleaning</h2>
+<p>After importing data to R as a dataframe, several steps must be taken
+in order to make the data work well with package functions. Firstly,
+obtain a variable list for the data.</p>
+<p>Use the plr_build_var_list function. This function allows the user to
+set their own column names in accordance with their data. Specify
+exactly the columns of your data corresponding to time, power output,
+irradiance, temperature, and wind, if available (if not, use NA).</p>
+<p>This is where a user would specify the specific variables they want
+to use for their analysis. By changing the names in the var_list object,
+one can easily change the variables that are used for modeling, such as
+module or ambient temperature, plane of array, global horizantal or
+reference cell irradiance, AC or DC power, etc. This also makes it easy
+to incorporate any variable name, reducing the amount of pre-processing
+of data.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(PVplr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># build variable list based on column names in example data</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>var_list <span class="ot">&lt;-</span> <span class="fu">plr_build_var_list</span>(<span class="at">time_var =</span> <span class="st">&quot;timestamp&quot;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                               <span class="at">power_var =</span> <span class="st">&quot;power&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                               <span class="at">irrad_var =</span> <span class="st">&quot;g_poa&quot;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                               <span class="at">temp_var =</span> <span class="st">&quot;mod_temp&quot;</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                               <span class="at">wind_var =</span> <span class="cn">NA</span>)</span></code></pre></div>
+<p>The variable list is used by many functions in order to read and
+manipulate common variables such as time, power, irradiance, and
+windspeed. The column names for the dataframe used to generate the
+variable list are matched with the names used internally to reference
+time, power, etc. variables. Its first use is in the main data cleaning
+function:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>test_dfc <span class="ot">&lt;-</span> <span class="fu">plr_cleaning</span>(test_df, var_list, <span class="at">irrad_thresh =</span> <span class="dv">100</span>, <span class="at">low_power_thresh =</span> <span class="fl">0.01</span>, <span class="at">high_power_cutoff =</span> <span class="cn">NA</span>)</span></code></pre></div>
+<p>Several things go on within this function.</p>
+<p>Firstly, it converts all columns that should be numeric to numeric
+(using the internal function, plr_convert_columns). Each column is
+checked to see if all values are NA; if not, then NA values are removed
+and the column is coerced to numeric.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># an example</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="st">&quot;two&quot;</span>,<span class="st">&quot;three&quot;</span>,<span class="st">&quot;four&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="cn">NA</span>,<span class="dv">4</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>c <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># force numeric</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(a))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: NAs introduced by coercion</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(b))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(c))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># printed results show introduction of NA&#39;s, which would indicate non-numeric columns</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(d)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1]  1 NA NA NA</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(e)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1]  1  2 NA  4</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(f)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1 2 3 4</span></span></code></pre></div>
+<p>R automatically generates warnings stating “NAs introduced by
+coercion” in the above example. These are suppressed in the method
+itself, since in this case it is intentional.</p>
+<p>It is important to note that the function also removes “” and “-”,
+since SDLE data sources often use these to mark missing data. If NA’s
+appear, then there must be non-numeric entries, in which case the column
+is not made numeric. All columns are tested in this way, and numeric
+columns are converted. This takes the majority of the compute time of
+the function.</p>
+<p>Continuing, timestamps are formatted to POSIXct objects with the
+specified format. This step also adds week, day, and psuedo-month (30
+day periods) columns to the dataframe.</p>
+<p>Finally, data are filtered according to irradiance and power
+readings. Irradiance below the irradiance threshold indicate to be
+indicative of night time readings; power below the power threshold
+indicates system failures; and power values above the cutoff indicate
+possible system errors.</p>
+<div id="method-efficiency" class="section level3">
+<h3>Method Efficiency</h3>
+<p>The method is currently quite slow. Since the slow-down comes from
+the column conversions, future versions may include a quicker option
+that simply checks a selection of values in the column for non-numerics
+and then forces numeric on identified columns. However, the current
+methodology is preferred in order to keep as much data as possible and
+avoid misidentifying columns.</p>
+</div>
+</div>
+<div id="power-predictive-modeling" class="section level2">
+<h2>Power Predictive Modeling</h2>
+<p>Power outputs of different PV systems are not directly comparable due
+to the influence of many climate factors. Therefore, in order to make
+PLR values meaningful, one must control for these effects.</p>
+<p>A full discussion of the power predictive models on offer is
+contained in the <a href="model_comparison.html">model comparison</a>
+vignette. Here, it will suffice to summarize them as using various
+linear regression formulas to control for the influence of irradiance,
+temperature, and wind speed.</p>
+<div id="x-by-x-power-prediction" class="section level3">
+<h3>X-by-X Power Prediction</h3>
+<p>Selecting a time period to subset by is an important step; choose to
+model over days, weeks, or months based on the data being modeled as
+well as what modeling will be performed on the overall data set. This is
+what is called the “X-by-X” method: creating models by a certain time
+period, and analyzing PLR across those models. Below is an example using
+one of the power predictive models, the data-driven XbX model, on a
+week-by-week basis.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>test_xbx_wbw_res <span class="ot">&lt;-</span> <span class="fu">plr_xbx_model</span>(test_dfc, var_list, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>, <span class="at">data_cutoff =</span> <span class="dv">30</span>, <span class="at">predict_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Table</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(test_xbx_wbw_res[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">caption =</span> <span class="st">&quot;XbX Model: Week-by-Week Implementation&quot;</span>)</span></code></pre></div>
+<table>
+<caption>XbX Model: Week-by-Week Implementation</caption>
+<thead>
+<tr class="header">
+<th align="right">time_var</th>
+<th align="right">power_var</th>
+<th align="right">std_error</th>
+<th align="right">sigma</th>
+<th align="left">outlier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2699.661</td>
+<td align="right">4.313960</td>
+<td align="right">64.56543</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2686.040</td>
+<td align="right">2.263415</td>
+<td align="right">33.34219</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">2711.840</td>
+<td align="right">2.296031</td>
+<td align="right">33.58805</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">2709.884</td>
+<td align="right">2.298589</td>
+<td align="right">34.55537</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">2697.696</td>
+<td align="right">3.253278</td>
+<td align="right">49.33841</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
+<p>The data is subset by week, using the columns created during the
+cleaning step. Each week is fitted to a least-squares linear regression
+model. These weekly models are checked to see if they have a minimum
+number of data points; here, we specified to filter them out if there
+are 30 or fewer.</p>
+</div>
+<div id="representative-conditions" class="section level3">
+<h3>Representative Conditions</h3>
+<p>The weekly models are then fitted to predicted representative
+conditions. This can be passed to the function as predict_data. If not,
+the function calculates values based on the data as follows: Daily max
+irradiance is found, from which the the lowest value over 300
+watts/meter squared is used; temperature is averaged over all of the
+data; and wind speed is averaged over all of the data. It is from this
+that the power and std_error columns are calculated (excluding the 6k;
+see <a href="model_comparison.html">model comparison</a>). The sigma
+column is the standard deviation, calculated from the standard
+error.</p>
+</div>
+<div id="outlier-removal" class="section level3">
+<h3>Outlier Removal</h3>
+<p>Finally, entries are marked as outliers in the last column using
+Tukey’s fences. It is often desirable to remove these outliers; to do
+so, use the plr_remove_outliers method. This is a simple operation but
+common enough that a function was made for it.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>test_xbx_wbw_res_no_outliers <span class="ot">&lt;-</span> <span class="fu">plr_remove_outliers</span>(test_xbx_wbw_res)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>rows_before <span class="ot">&lt;-</span> <span class="fu">nrow</span>(test_xbx_wbw_res)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>rows_after <span class="ot">&lt;-</span> <span class="fu">nrow</span>(test_xbx_wbw_res_no_outliers)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>number_outliers <span class="ot">&lt;-</span> rows_before <span class="sc">-</span> rows_after</span></code></pre></div>
+</div>
+</div>
+<div id="plr-determination" class="section level2">
+<h2>PLR Determination</h2>
+<p>Performance Loss Rates can now be calculated from the data
+meaningfully. To do this, we use two different regression schemes:
+predicted power vs. time regression, and year-on-year regression.</p>
+<div id="standard-unweighted-regression" class="section level3">
+<h3>Standard (un)weighted Regression</h3>
+<p>In the more standard regression scheme, a linear model of predicted
+power and time is fit to the data. PLR is calculated using the formula
+<span class="math display">\[PLR = \frac{m}{b} (py) (100)\]</span>,
+where <span class="math inline">\(m\)</span> is the slope and <span class="math inline">\(b\)</span> is the intercept of the regression
+line, and <span class="math inline">\(py\)</span> is the conversion
+between the modeled time period and years. In the case of day-by-day
+power prediction, for example, <span class="math inline">\(py =
+365\)</span>. In the function call, this appears as per_year. It
+functions similarly to the ‘by’ parameter in other functions, but takes
+numeric values instead so as to offer greater flexibility (for
+reference, there’s 12 months, 52 weeks, or 365 days in a year).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># example weighted regression</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>xbx_wbw_plr <span class="ot">&lt;-</span> <span class="fu">plr_weighted_regression</span>(test_xbx_wbw_res_no_outliers, <span class="at">power_var =</span> <span class="st">&#39;power_var&#39;</span>, <span class="at">time_var =</span> <span class="st">&#39;time_var&#39;</span>, <span class="at">model =</span> <span class="st">&quot;xbx&quot;</span>, <span class="at">per_year =</span> <span class="dv">52</span>, <span class="at">weight_var =</span> <span class="st">&#39;sigma&#39;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>xbx_wbw_plr</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            plr    error model   method</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; tvar -1.050375 0.353685   xbx weighted</span></span></code></pre></div>
+<p>In this example, the regression is weighted by sigma, the standard
+deviation of each point. Weighted regression has a number of problems -
+outliers and points with very high or low uncertainty can lead to skewed
+regressions, for example, and seasonal patterns such as high numbers of
+accurate readings in the summer can also cause biases in the results. If
+you prefer to calculate PLR without weightings, simply input NA for
+weight_var.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># example unweighted regression</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>xbx_wbw_plr_unweighted <span class="ot">&lt;-</span> <span class="fu">plr_weighted_regression</span>(test_xbx_wbw_res_no_outliers, <span class="at">power_var =</span> <span class="st">&#39;power_var&#39;</span>, <span class="at">time_var =</span> <span class="st">&#39;time_var&#39;</span>, <span class="at">model =</span> <span class="st">&quot;xbx&quot;</span>, <span class="at">per_year =</span> <span class="dv">52</span>, <span class="at">weight_var =</span> <span class="cn">NA</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>xbx_wbw_plr</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            plr    error model   method</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; tvar -1.050375 0.353685   xbx weighted</span></span></code></pre></div>
+<p>Uncertainty for linear model evaluated PLR is calculated using the
+variance of the fitting coefficients and converting it to a PLR range. A
+helper function has been included for this.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(power_var <span class="sc">~</span> time_var, <span class="at">data =</span> test_xbx_wbw_res_no_outliers)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>plr_sd <span class="ot">&lt;-</span> <span class="fu">plr_var</span>(mod, <span class="at">per_year =</span> <span class="dv">52</span>)</span></code></pre></div>
+</div>
+<div id="year-on-year-regression" class="section level3">
+<h3>Year-on-Year Regression</h3>
+<p>The other option given by the package is year-on-year regression, a
+technique that examines points exactly one year apart to determine
+PLR’s. This method was developed by E. Hasselbrink et. al.[3]. The
+median of these yearly PLR’s is identified as the total system PLR. This
+method avoids issues with outliers and seasonality that the previous
+method encounters, at the cost of needing long-term data in order to be
+meaningful.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># example YoY regression</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>xbx_wbw_yoy_plr <span class="ot">&lt;-</span> <span class="fu">plr_yoy_regression</span>(test_xbx_wbw_res_no_outliers, <span class="at">power_var =</span> <span class="st">&#39;power_var&#39;</span>, <span class="at">time_var =</span> <span class="st">&#39;time_var&#39;</span>, <span class="at">model =</span> <span class="st">&quot;xbx&quot;</span>, <span class="at">per_year =</span> <span class="dv">52</span>, <span class="at">return_PLR =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>xbx_wbw_yoy_plr</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          plr   plr_sd model       method</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 -0.7995984 1.992959   xbx year-on-year</span></span></code></pre></div>
+<p>Note that the example data included in this package is not
+well-suited at all to year-on-year regression - it is a randomly taken
+1% sample of a larger data file, so few points are exactly one year
+apart from each other.</p>
+</div>
+</div>
+<div id="bootstrap-error-calculations" class="section level2">
+<h2>Bootstrap Error Calculations</h2>
+<p>A final step in the pipeline is evaluating uncertainty of the PLR
+calculation via bootstrapping: taking repeated samples of the data, and
+calculating mean PLR and standard error. These methods either sample
+directly from the power predicted data or the final data after
+regression, and calculate mean and standard deviation for both
+regression schemes. The samples are gathered in day, week, or month long
+chunks in accordance with the power predictive model used.</p>
+<div id="bootstrap-uncertainty" class="section level3">
+<h3>Bootstrap Uncertainty</h3>
+<p>The following method samples from the data before putting it through
+a power predictive model and PLR Regressions. It is written so that it
+can be used flexibly with data that may have been put through other
+power predictive models, so time_var and power_var parameters are
+requested. Within this package, those will always be ‘time_var’ and
+‘.fitted’, respectively. If desired, predicted data and nameplate power
+for the 6k model can be passed as well.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># samples data before applying PLR regression</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>xbx_wbw_plr_uncertainty <span class="ot">&lt;-</span> <span class="fu">plr_bootstrap_uncertainty</span>(test_dfc, <span class="at">n =</span> <span class="dv">2</span>, <span class="at">fraction =</span> <span class="fl">0.65</span>, <span class="at">by =</span> <span class="st">&#39;week&#39;</span>, <span class="at">power_var =</span> <span class="st">&#39;power_var&#39;</span>, <span class="at">time_var =</span> <span class="st">&#39;time_var&#39;</span>, <span class="at">var_list =</span> var_list, <span class="at">model =</span> <span class="st">&quot;xbx&quot;</span>, <span class="at">data_cutoff =</span> <span class="dv">10</span>, <span class="at">np =</span> <span class="cn">NA</span>, <span class="at">pred =</span> <span class="cn">NULL</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(xbx_wbw_plr_uncertainty, <span class="at">caption =</span> <span class="st">&quot;XbX Week-by-Week Bootstrapped Uncertainty&quot;</span>)</span></code></pre></div>
+<table>
+<caption>XbX Week-by-Week Bootstrapped Uncertainty</caption>
+<thead>
+<tr class="header">
+<th align="right">plr</th>
+<th align="right">error_95_conf</th>
+<th align="right">error_std_dev</th>
+<th align="left">method</th>
+<th align="left">model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">-1.6597845</td>
+<td align="right">0.1327681</td>
+<td align="right">0.0147772</td>
+<td align="left">regression</td>
+<td align="left">xbx</td>
+</tr>
+<tr class="even">
+<td align="right">-0.9984204</td>
+<td align="right">1.9781598</td>
+<td align="right">0.2201712</td>
+<td align="left">YoY</td>
+<td align="left">xbx</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the number of samples, n, is set rather low here. That is
+so the vignette can be processed by R more quickly; in practical use, it
+is best to set n to much higher values, e.g. 1000. Increasing the sample
+count makes the mean and standard error more precise and meaningful.</p>
+<p>A helper function is included to resample data from each individual
+time segment, either days, weeks, or months. Resampling from the enitre
+dataset would bias certain time segments with more or less data than
+others.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dfc_resampled <span class="ot">&lt;-</span> <span class="fu">mbm_resample</span>(test_dfc, <span class="at">fraction =</span> <span class="fl">0.65</span>, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>)</span></code></pre></div>
+</div>
+<div id="bootstrap-output" class="section level3">
+<h3>Bootstrap Output</h3>
+<p>An alternative method, plr_bootstrap_output, first puts the data
+through both PLR regression schemes, then bootstraps from the
+output.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>xbx_wbw_plr_output_uncertainty <span class="ot">&lt;-</span> <span class="fu">plr_bootstrap_output</span>(test_dfc, var_list, <span class="at">model =</span> <span class="st">&quot;xbx&quot;</span>, <span class="at">fraction =</span> <span class="fl">0.65</span>, <span class="at">n =</span> <span class="dv">10</span>, <span class="at">power_var =</span> <span class="st">&#39;power_var&#39;</span>, <span class="at">time_var =</span> <span class="st">&#39;time_var&#39;</span>, <span class="at">ref_irrad =</span> <span class="dv">900</span>, <span class="at">irrad_range =</span> <span class="dv">10</span>, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>, <span class="at">np =</span> <span class="cn">NA</span>, <span class="at">pred =</span> <span class="cn">NULL</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(xbx_wbw_plr_output_uncertainty, <span class="at">caption =</span> <span class="st">&quot;XbX Week-by-Week Bootstrapped Output Uncertainty&quot;</span>)</span></code></pre></div>
+<table>
+<caption>XbX Week-by-Week Bootstrapped Output Uncertainty</caption>
+<thead>
+<tr class="header">
+<th align="right">plr</th>
+<th align="right">error_95_conf</th>
+<th align="right">error_std_dev</th>
+<th align="left">method</th>
+<th align="left">model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">-1.5404879</td>
+<td align="right">0.4542111</td>
+<td align="right">0.6349433</td>
+<td align="left">regression</td>
+<td align="left">xbx</td>
+</tr>
+<tr class="even">
+<td align="right">-0.9514959</td>
+<td align="right">0.4973192</td>
+<td align="right">0.6952043</td>
+<td align="left">YoY</td>
+<td align="left">xbx</td>
+</tr>
+</tbody>
+</table>
+<p>This method will typically give more meaningful results for
+Year-on-Year regression: that method can be biased by random sampling
+prior to regression, since it relies on data points exactly a year
+apart.</p>
+</div>
+<div id="bootstrap-after-modeling" class="section level3">
+<h3>Bootstrap after Modeling</h3>
+<p>The methods above both incorporate power prediction, but sometimes it
+is preferred to bootstrap data that has already been through power
+prediction. In this case, make use of
+plr_bootstrap_output_from_results.K</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>xbx_wbw_plr_result_uncertainty <span class="ot">&lt;-</span> <span class="fu">plr_bootstrap_output_from_results</span>(test_xbx_wbw_res_no_outliers, <span class="at">power_var =</span> <span class="st">&#39;power_var&#39;</span>, <span class="at">time_var =</span> <span class="st">&#39;time_var&#39;</span>, <span class="at">weight_var =</span> <span class="st">&#39;sigma&#39;</span>, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>, <span class="at">model =</span> <span class="st">&#39;xbx&#39;</span>, <span class="at">fraction =</span> <span class="fl">0.65</span>, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(xbx_wbw_plr_result_uncertainty, <span class="at">caption =</span> <span class="st">&quot;XbX Week-by-Week Bootstrapped Output Uncertainty From Results&quot;</span>)</span></code></pre></div>
+<table>
+<caption>XbX Week-by-Week Bootstrapped Output Uncertainty From
+Results</caption>
+<thead>
+<tr class="header">
+<th align="right">plr</th>
+<th align="right">error_95_conf</th>
+<th align="right">error_std_dev</th>
+<th align="left">method</th>
+<th align="left">model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">-0.8714039</td>
+<td align="right">0.3009538</td>
+<td align="right">0.4207043</td>
+<td align="left">regression</td>
+<td align="left">xbx</td>
+</tr>
+<tr class="even">
+<td align="right">-0.7762235</td>
+<td align="right">0.8113492</td>
+<td align="right">1.1341880</td>
+<td align="left">YoY</td>
+<td align="left">xbx</td>
+</tr>
+</tbody>
+</table>
+<p>Note that here, defining power_var, time_var, and weight_var takes on
+extra importance since the data has already been through power
+prediction. If you’re unsure, examine the colnames of your data. The
+model parameter should be a string, and is only passed through to the
+result for the purposes of consistency; it does not impact the function
+at all.</p>
+</div>
+</div>
+<div id="sources" class="section level2">
+<h2>Sources</h2>
+<ol style="list-style-type: decimal">
+<li><p>Alan J. Curran, et al. Performance Loss Rate Consistency and
+Uncertainty Across Multiple Methods and Filtering Criteria. IEEE PVSC
+46, Chicago, IL, USA.</p></li>
+<li><p>M. S. Lave, J. Stein, and L. Burnham, “Performance Comparison of
+Stion CIGS Modules to Baseline Monocrystalline Modules at the New Mexico
+Florida and Vermont Regional Test Centers: January 2015- December 2016.”
+Sandia National Lab. (SNL-CA), Livermore, CA (United States); Sandia
+National Lab. (SNL-NM), Albuquerque, NM (United States), Tech.
+Rep. SAND2017-0957, Jan. 2017.</p></li>
+<li><p>Ernest Hasselbrink, et al. “Validation of the PVLife Model Using
+3 Million Module-Years of Live Site Data.” IEEE 39th Photovoltaic
+Specialists Conference (PVSC), IEEE, 2013, pp. 0007–0012.</p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

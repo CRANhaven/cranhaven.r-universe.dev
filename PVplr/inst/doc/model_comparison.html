@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Tyler Burleyson" />
+
+<meta name="date" content="2023-02-14" />
+
+<title>Power Predictive Model Comparison</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Power Predictive Model Comparison</h1>
+<h4 class="author">Tyler Burleyson</h4>
+<h4 class="date">2023-02-14</h4>
+
+
+
+<p>The Solar Durability and Lifetime Extension (SDLE) center currently
+uses several power predictive models in analysis. Power data cannot be
+easily compared between systems due to variations in conditions, so
+these models allow meaningful comparisons by predicting power as a
+function of weather. Each model uses unique formulas for this function,
+with the end goal of producing predicted power values that are
+independent of weather.</p>
+<p>These methods are discussed in-depth at an academic level in the SDLE
+paper, “Performance Loss Rate Consistency and Uncertainty across
+Multiple Methods and Filtering Criteria”. This vignette will focus on
+practical differences between the models that you should know in order
+to make the most use of them. Before beginning, please notice the
+following result from the study:</p>
+<blockquote>
+<p>“The PLR with the lowest uncertainty is not necessarily the most
+accurate PLR. It has been observed that PLR results on the same system
+can exist outside of each others error bars based on filtering and
+predictive model. While one method may give consistent results it is
+important to compare between methods to ensure that the result is an
+accurate representation on the actual performance of the system.”</p>
+</blockquote>
+<p>All of the methods share several qualities. Options exist to group
+data for regression by day, week, or month. Data is grouped by these
+time periods and linear models are created for each group. Predicted
+values (either generated by the method or supplied by the user) are
+given to these models. If you are interested in correcting power at a
+particular set of standard conditions, use this option. Finally, fitted
+values and standard deviations are attached to the output in the .fitted
+and .se.fit columns (in all cases other than the 6k model; see its entry
+below). For more in-depth analysis of uncertainty in PLR calculations,
+see the bootstrap functions.</p>
+<div id="xbx-method" class="section level2">
+<h2>XbX Method</h2>
+<p>The simplest model is the plr_xbx_model. It is data driven, meaning
+it does not take in outside information for the creation of its linear
+regression models. This offers a great deal of flexibility - XbX works
+well with either POA or GHI irradiance, and either module or ambient
+temperature readings. It also lends itself to change point analysis.</p>
+<div id="equation" class="section level3">
+<h3>Equation</h3>
+<p><span class="math inline">\(P_{pred.} = \beta_{0} + \beta_{1} G +
+\beta_{2} T + \epsilon\)</span></p>
+<p>This model uses a simplistic, linear equation relating power to
+irradiance (G) and temperature (T) with constant coefficients and an
+error term (<span class="math inline">\(\epsilon\)</span>). It is this
+simplicity that enables its use for change point PLR, as well as the
+options to use POA or GHI irradiance and module or air temperature.</p>
+</div>
+<div id="implementation" class="section level3">
+<h3>Implementation</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>test_xbx_wbw_res <span class="ot">&lt;-</span> <span class="fu">plr_xbx_model</span>(test_dfc, var_list, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>, <span class="at">data_cutoff =</span> <span class="dv">30</span>, <span class="at">predict_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(test_xbx_wbw_res[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">caption =</span> <span class="st">&quot;XbX Model: Week-by-Week Implementation&quot;</span>)</span></code></pre></div>
+<table>
+<caption>XbX Model: Week-by-Week Implementation</caption>
+<thead>
+<tr class="header">
+<th align="right">time_var</th>
+<th align="right">power_var</th>
+<th align="right">std_error</th>
+<th align="right">sigma</th>
+<th align="left">outlier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2698.953</td>
+<td align="right">4.313960</td>
+<td align="right">64.56543</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2684.590</td>
+<td align="right">2.107368</td>
+<td align="right">30.97186</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">2711.251</td>
+<td align="right">2.296031</td>
+<td align="right">33.58805</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">2709.296</td>
+<td align="right">2.298589</td>
+<td align="right">34.55537</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">2692.148</td>
+<td align="right">2.472725</td>
+<td align="right">37.25536</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
+<p>Due to its data-driven nature, this method will typically show the
+strongest seasonality of those offered in this package. This is likely
+due to extrapolation done when predicting representative conditions
+affects seasonality in the data. Higher irradiance filters will reduce
+this seasonality, but also reduce the amount of data being used.</p>
+</div>
+</div>
+<div id="xbx-utc-method" class="section level2">
+<h2>XbX + UTC Method</h2>
+<p>Modelling temperature can be challenging due to low variation on a
+daily basis and high variation across seasons. Models like the XbX are
+thus prone to extrapolation, as mentioned above. It is possible to
+introduce a Universal Temperature Correction (UTC) to solve this issue
+by converting measured temperature to representative temperature,
+resulting in a corrected power. Then, this corrected power can be used
+to model based off of irradiance, with temperature as a variable
+removed.</p>
+<div id="determining-utc" class="section level4">
+<h4>Determining UTC</h4>
+<p>Data is subset to a narrow irradiance range so that the effect of
+temperature on generated power can be studied in isolation. A linear
+regression is performed between temperature and power, giving the change
+in power per degree celsius. This is then converted to percent power
+loss per degree celcius (<span class="math inline">\(\gamma_{T}\)</span>).</p>
+</div>
+<div id="equation-1" class="section level3">
+<h3>Equation</h3>
+<p><span class="math inline">\(P_{cor} = \frac{P_{obs}}{1 + \gamma_{T}
+(T_{obs} - T_{rep}) (\frac{G_{obs}}{G_{rep}})}\)</span></p>
+<p><span class="math inline">\(P_{cor} = \beta_{0} + \beta_{1} G +
+\epsilon\)</span></p>
+<p>Note the similarity in the second equation to that in the XbX
+method;</p>
+</div>
+<div id="implementation-1" class="section level3">
+<h3>Implementation</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>test_xbxutc_wbw_res <span class="ot">&lt;-</span> <span class="fu">plr_xbx_utc_model</span>(test_dfc, var_list, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>, <span class="at">data_cutoff =</span> <span class="dv">30</span>, <span class="at">predict_data =</span> <span class="cn">NULL</span>, <span class="at">ref_irrad =</span> <span class="dv">900</span>, <span class="at">irrad_range =</span> <span class="dv">10</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(test_xbxutc_wbw_res[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">caption =</span> <span class="st">&quot;XbX + UTC: Week-by-Week Implementation&quot;</span>)</span></code></pre></div>
+<table>
+<caption>XbX + UTC: Week-by-Week Implementation</caption>
+<thead>
+<tr class="header">
+<th align="right">time_var</th>
+<th align="right">power_var</th>
+<th align="right">std_error</th>
+<th align="right">sigma</th>
+<th align="left">outlier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2622.894</td>
+<td align="right">4.244483</td>
+<td align="right">63.52561</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2639.916</td>
+<td align="right">1.495169</td>
+<td align="right">21.97441</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">2641.688</td>
+<td align="right">1.638776</td>
+<td align="right">23.97323</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">2646.879</td>
+<td align="right">1.771683</td>
+<td align="right">26.63423</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">2624.343</td>
+<td align="right">2.016262</td>
+<td align="right">30.37805</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="pvusa-method" class="section level2">
+<h2>PVUSA Method</h2>
+<p>This method is well known in the industry. It’s physics-based,
+meaning it’s formula is derived from Ohm’s law, <span class="math inline">\(P = I * V\)</span>. The model assumes current to
+be a function of plane-of-array (POA) irradiance, and voltage to be a
+function of irradiance and module temperature, predicted from the
+ambient temperature and wind speed (when available). The equation, then,
+becomes the following:</p>
+<div id="equation-2" class="section level3">
+<h3>Equation</h3>
+<p><span class="math inline">\(P = G_{POA} (\beta_{0} + \beta_{1} G +
+\beta_{2} T_{amb} + \beta_{3} W)\)</span></p>
+<p>It is worth noting that the method requires POA irradiance and
+ambient temperature specifically - it lacks that flexibility found in
+the XbX method.</p>
+</div>
+<div id="implementation-2" class="section level3">
+<h3>Implementation</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>test_pvusa_wbw_res <span class="ot">&lt;-</span> <span class="fu">plr_pvusa_model</span>(test_dfc, var_list, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>, <span class="at">data_cutoff =</span> <span class="dv">30</span>, <span class="at">predict_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(test_pvusa_wbw_res[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">caption =</span> <span class="st">&quot;PVUSA: Week-by-Week Implementation&quot;</span>)</span></code></pre></div>
+<table>
+<caption>PVUSA: Week-by-Week Implementation</caption>
+<thead>
+<tr class="header">
+<th align="right">time_var</th>
+<th align="right">power_var</th>
+<th align="right">std_error</th>
+<th align="right">sigma</th>
+<th align="left">outlier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2633.746</td>
+<td align="right">3.752025</td>
+<td align="right">56.15516</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2642.439</td>
+<td align="right">1.143010</td>
+<td align="right">16.79874</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">2649.242</td>
+<td align="right">1.011813</td>
+<td align="right">14.80155</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">2652.921</td>
+<td align="right">1.021034</td>
+<td align="right">15.34950</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">2642.501</td>
+<td align="right">1.214817</td>
+<td align="right">18.30306</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="https://www.nrel.gov/docs/fy09osti/45376.pdf">this
+paper</a> as well for an in-depth look at uncertainties in the
+model.</p>
+</div>
+</div>
+<div id="k-method" class="section level2">
+<h2>6k Method</h2>
+<p>The most complicated of the SDLE models, the 6k model makes use of
+nameplate power and six constants for modeling. Similarly to the PVUSA
+model, it is an implementation of Ohm’s law, <span class="math inline">\(P = I * V\)</span>. Here, irradiance as a fraction
+of standard irradiance represents current. Voltage is modeled by a
+complex statement involving nameplate power, the fraction of irradiance
+over standard irradiance, and the difference between module temperature
+and reference temperature.</p>
+<div id="equation-3" class="section level3">
+<h3>Equation</h3>
+<p><span class="math inline">\(G^{\prime} = G_{POA} /
+G_{STC}\)</span></p>
+<p><span class="math inline">\(T^{\prime} = T_{mod} /
+T_{STC}\)</span></p>
+<p><span class="math inline">\(P = G^{\prime} * (P_{NP} + k_1
+\log(G^{\prime}) + k_2 \log(G^{\prime})^2 + k_3 T^{\prime} + k_4
+T^{\prime} log(G^{\prime}) + k_5 T^{\prime} (G^{\prime})^2 + k_6
+(T^{\prime})^2)\)</span></p>
+<p>The <span class="math inline">\(G^{\prime}\)</span> and <span class="math inline">\(T^{\prime}\)</span> terms are defined for the
+purposes of temperature and irradiance correction.</p>
+</div>
+<div id="implementation-3" class="section level3">
+<h3>Implementation</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>test_6k_wbw_res <span class="ot">&lt;-</span> <span class="fu">plr_6k_model</span>(test_dfc, var_list, <span class="at">nameplate_power =</span> <span class="dv">230</span>, <span class="at">by =</span> <span class="st">&quot;week&quot;</span>, <span class="at">data_cutoff =</span> <span class="dv">30</span>, <span class="at">predict_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(test_6k_wbw_res[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">caption =</span> <span class="st">&quot;6k: Week-by-Week Implementation&quot;</span>)</span></code></pre></div>
+<table>
+<caption>6k: Week-by-Week Implementation</caption>
+<thead>
+<tr class="header">
+<th align="right">time_var</th>
+<th align="right">power_var</th>
+<th align="right">std_error</th>
+<th align="right">sigma</th>
+<th align="left">outlier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">633.6229</td>
+<td align="right">38.59570</td>
+<td align="right">577.6476</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">589.9942</td>
+<td align="right">46.39807</td>
+<td align="right">681.9096</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">585.9931</td>
+<td align="right">40.98954</td>
+<td align="right">599.6253</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">711.7698</td>
+<td align="right">39.69704</td>
+<td align="right">596.7774</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">770.4572</td>
+<td align="right">40.57412</td>
+<td align="right">611.3108</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<p>Another important distinction between the 6k and other models is its
+linear regression scheme. While the others use standard least-squares
+linear regression through the base R ‘lm()’ function, the 6k implements
+the Levenberge-Marquardt method through minpack.lm (specifically, the
+‘nlsLM()’ function). This causes several disparities. Firstly, the
+returned dataframe lacks .se.fit and sigma columns. Secondly, the model
+attempts to fit the data by adjusting its six constants, so the fit
+improves dramatically with a greater quantity of data.</p>
+<p>The 6k model has the greatest uncertainty of any of the models as
+well as the most extreme outliers, and so it is recommended that data
+given to it is filtered as little as possible. In particular, an SDLE
+publication found that the lowest deviation was achieved when irradiance
+is filtered only below 0 watts per meter squared.</p>
+<p>One final note on the 6k model: since it uses nameplate power in its
+fitting, if it is given standard conditions (STC) for predict_data, it
+will simply return the nameplate power value at all points in time. Be
+sure to either let predicted data be calculated by the model, or supply
+values specific to the actual location of the system.</p>
+<div id="potential-errors" class="section level4">
+<h4>Potential Errors</h4>
+<p>Note that the model can fail to fit the data properly, most often
+with shorter time scales such as day-by-day modeling. In this case, it
+returns a rather esoteric error message. Usually there are many warning
+messages as well: here they are suppressed for readability.s</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This code should create an error</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>test6k_dbd_res <span class="ot">&lt;-</span> <span class="fu">plr_6k_model</span>(test_dfc, var_list, <span class="at">nameplate_power =</span> <span class="dv">230</span>, <span class="at">by =</span> <span class="st">&quot;day&quot;</span>, <span class="at">data_cutoff =</span> <span class="dv">30</span>, <span class="at">predict_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in `dplyr::mutate()`:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ In argument: `tidy = purrr::map(fit, tidy)`.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Caused by error in `purrr::map()`:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ In index: 418.</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Caused by error in `chol2inv()`:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ! &#39;size&#39; cannot exceed nrow(x) = 2</span></span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="sources" class="section level2">
+<h2>Sources</h2>
+<p>Alan J. Curran, et al. Performance Loss Rate Consistency and
+Uncertainty Across Multiple Methods and Filtering Criteria. IEEE PVSC
+46, Chicago, IL, USA.</p>
+<p>A. J. Curran, R. Zhang, Y. Hu, R. Haddadian, J. L. Braid, T. J.
+Peshek, and R. H. French, “Determining the Power Rate of Change of 353
+Solar Plant Inverters Using a Month-by-Month Analysis and Common Data
+Science Applications to Power Time Series,” CWRU, Aug. 2017.</p>
+<p>D. L. King, J. A. Kratochvil, and W. E. Boyson, “Field experience
+with a new performance characterization procedure for photovoltaic
+arrays,” Sandia National Laboratories, Tech. Rep., 1997. Available: <a href="http://www.osti.gov/energycitations/servlets/purl/" class="uri">http://www.osti.gov/energycitations/servlets/purl/</a>
+629484-omiEsH/webviewable/</p>
+<p>T. Huld, G. Friesen, A. Skoczek, R. P. Kenny, T. Sample, M. Field,
+and E. D. Dunlop, “A power-rating model for crystalline silicon pv
+modules,” Solar Energy Materials and Solar Cells, vol. 95, no. 12, pp.
+3359–3369, 2011.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
