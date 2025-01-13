@@ -1,0 +1,12 @@
+citHeader("To cite SlaPMEG in publications use:")
+
+bibentry(
+  bibtype = "Manual",
+  title    = "Pathway testing for longitudinal metabolomics",
+  author   = c(person("Mitra", "Ebrahimpoor"),
+                    person("Pietro", "Spitali"),
+                    person(" Jelle"," Goeman,"),
+                    person("Roula", "Tsonaka") ),
+  journal  = "Statistics in Medicine",
+  year     = 2021,
+  url      = "https://onlinelibrary.wiley.com/doi/full/10.1002/sim.8957")

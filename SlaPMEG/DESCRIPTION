@@ -1,0 +1,35 @@
+Package: SlaPMEG
+Type: Package
+Title: Pathway Testing for Longitudinal Omics
+Version: 1.0.2
+Maintainer: Mitra Ebrahimpoor <mitra.ebrahimpoor@gmail.com>
+Authors@R: person(given = "Mitra", family = "Ebrahimpoor", role =
+        c("aut", "cre"), email = "mitra.ebrahimpoor@gmail.com", comment
+        = c(ORCID = "0000-0002-2299-876X"))
+Description: A self-contained hypothesis is tested for a given pathway
+        of longitudinal omics. 'SlaPMEG' is a two-step procedure.
+        First, a shared latent process mixed model is fitted over the
+        longitudinal measures of omics in a pathway. This shared model
+        allows deviation from the shared process at subject level (a
+        random intercept, slope, or both per subject) and also at omic
+        level (a random effect per omic). These random effects
+        summarize the longitudinal trend of the observations which can
+        be used to test for group differences using 'Globaltest' in the
+        second step. If the pathway is large or the shared effect is
+        small, the package fits a series of pairwise models and
+        estimates the shared random effects based on them.
+License: GPL (>= 2)
+Date: 2024-10-23
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Depends: R (>= 4.0.0)
+Imports: lme4 (>= 1.1.21), lcmm (>= 1.8.1), globaltest (>= 5.36.0),
+        magic (>= 1.5.9), reshape2 (>= 1.4.3), ggplot2 (>= 3.2.1),
+        mvtnorm
+NeedsCompilation: no
+Packaged: 2024-10-23 20:29:03 UTC; mitra
+Author: Mitra Ebrahimpoor [aut, cre]
+        (<https://orcid.org/0000-0002-2299-876X>)
+Repository: CRAN
+Date/Publication: 2024-11-05 10:00:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
