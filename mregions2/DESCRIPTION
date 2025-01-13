@@ -1,0 +1,46 @@
+Package: mregions2
+Type: Package
+Title: Access Data from Marineregions.org: Gazetteer & Data Products
+Version: 1.1.1
+Authors@R: c( person(given = "Salvador Jesús", family = "Fernández
+        Bejarano", role = c("aut", "cre"), email =
+        "salvador.fernandez@vliz.be", comment = c(ORCID =
+        "0000-0003-0535-7677", github = "salvafern")), person(given =
+        "Lotte",family = "Pohl", role = "aut", email =
+        "lotte.pohl@imbrsea.eu", comment = c(ORCID =
+        "0000-0002-7607-7018", github = "lottepohl")), person(given =
+        "Julia", family = "Gustavsen", role = "rev"), person(given =
+        "Muralidhar", family = "M.A.", role = "rev"), person(given =
+        "Sheila", family = " M. Saia", role = "rev"), person("LifeWatch
+        Belgium", role = "fnd", comment = "lifewatch.be") )
+Maintainer: Salvador Jesús Fernández Bejarano
+        <salvador.fernandez@vliz.be>
+Description: Explore and retrieve marine geospatial data from the
+        Marine Regions Gazetteer
+        <https://marineregions.org/gazetteer.php?p=webservices> and the
+        Marine Regions Data Products
+        <https://marineregions.org/webservices.php>.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Config/testthat/edition: 3
+Imports: checkmate, glue, httr2, magrittr, sf, utils, rdflib, ISOcodes,
+        memoise, cli, dplyr, xml2, wrapr, methods, curl, digest
+RoxygenNote: 7.3.2
+URL: https://github.com/ropensci/mregions2,
+        https://docs.ropensci.org/mregions2/
+BugReports: https://github.com/ropensci/mregions2/issues
+Suggests: ows4R (>= 0.3), httptest2, jsonlite, knitr, leaflet,
+        leaflet.extras2, mapview, rmarkdown, testthat, wk, purrr, withr
+VignetteBuilder: knitr
+Depends: R (>= 2.10)
+NeedsCompilation: no
+Packaged: 2024-08-30 09:33:55 UTC; localadmin
+Author: Salvador Jesús Fernández Bejarano [aut, cre]
+        (<https://orcid.org/0000-0003-0535-7677>, salvafern), Lotte
+        Pohl [aut] (<https://orcid.org/0000-0002-7607-7018>,
+        lottepohl), Julia Gustavsen [rev], Muralidhar M.A. [rev],
+        Sheila M. Saia [rev], LifeWatch Belgium [fnd] (lifewatch.be)
+Repository: CRAN
+Date/Publication: 2024-09-03 16:00:07 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
