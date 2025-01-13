@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Introduction</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<!-- 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Introduction vignette}
+-->
+
+<h1>Introduction</h1>
+
+<p>Glycomics is rapidly emerging field in high-throughput biology that
+aims to systematically study glycan structures of a given protein, cell type or
+organic system. As within other high-throughput methods in biology (microarrays,
+metabolomics, proteomics), accuracy of high-throughput methods is highly affected
+by complicated experimental procedures leading to differences between replicates
+and the existence of batch effects, among others.</p>
+
+<p><strong><em>Glycanr</em></strong> package tries to fill the gap in N-glycan data analysis by providing
+easy to use functions for glycomics analysis. At the moment it is mostly
+oriented to data obtained by UPLC and LCMS analysis of Plasma and IgG
+glycome.</p>
+
+<h2>Targeted audience</h2>
+
+<p>As commented, the package is currently oriented to data analysts working
+with Plasma and IgG glycome data obtained by UPLC and LCMS analysis.
+More correctly, it is oriented to the analysts with the data resembling
+data from papers like
+<a href="https://www.sciencedirect.com/science/article/pii/S1874391911005549">Selman et al.</a>,
+<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3205872/">Pučić et al.</a> or
+<a href="https://pubs.acs.org/doi/abs/10.1021/acs.analchem.5b01463">Stöckmann et al.</a>.</p>
+
+<p>The package helps in calculating different quantities like derived traits
+and preparing the data for analysts doing different statistical
+or computational modeling of the N-glycan data like in
+<a href="https://pubmed.ncbi.nlm.nih.gov/26200652/">Vučković et al.</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/24325898/">Krištić et al</a> or
+<a href="https://jasn.asnjournals.org/content/27/3/933.full">Barrios et al.</a>.</p>
+
+<h2>Working with glycanr package</h2>
+
+<p>At the moment glycanr package consists of 12 functions 
+and 2 data sets.</p>
+
+<p>Functions  <strong><em>glyco.plot</em></strong> and <strong><em>glyco.outliers</em></strong> are handy
+functions to quickly explore the data. See the &ldquo;plots&rdquo; vignette
+for more information.</p>
+
+<p>Functions <strong><em>ildt</em></strong>, <strong><em>iudt</em></strong> and <strong><em>phdt</em></strong> return derived traits
+obtained from basic glycans. They have a standardized input
+depending on the definition of derived traits (e.g. derived
+traits as defined in <a href="https://dx.doi.org/10.1074/mcp.M113.037465">Huffman et al.</a>). Names of the
+columns representing glycans for a specific definition
+can be obtained with the argument <em>print.exp.names</em>.
+Columns of the data frame used to store glycan measurement
+should be named according to the expected names. Subset of the
+expected names can also be used if some glycans weren&#39;t measured.</p>
+
+<p>Functions <strong><em>ildt.translate</em></strong> and <strong><em>iudt.translate</em></strong> are
+useful to translate between computer friendly and human friendly names.</p>
+
+<p>Functions <strong><em>mediannorm</em></strong>, <strong><em>medianquotientnorm</em></strong>, <strong><em>tanorm</em></strong>,
+<strong><em>refpeaknorm</em></strong> and <strong><em>quantilenorm</em></strong> are used to normalize the data
+with specific normalization techniques. See the &ldquo;normalization&rdquo; vignette
+for more info.</p>
+
+<p>Some functions have a default scheme for column names representing glycans
+(e.g. columns starting with &ldquo;GP&rdquo; present glycan data) and additional argument
+<em>glyco.names</em> to change the default.</p>
+
+</body>
+
+</html>

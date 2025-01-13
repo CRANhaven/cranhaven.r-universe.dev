@@ -1,0 +1,74 @@
+<!-- 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Introduction vignette}
+-->
+
+# Introduction
+
+Glycomics is rapidly emerging field in high-throughput biology that
+aims to systematically study glycan structures of a given protein, cell type or
+organic system. As within other high-throughput methods in biology (microarrays,
+metabolomics, proteomics), accuracy of high-throughput methods is highly affected
+by complicated experimental procedures leading to differences between replicates
+and the existence of batch effects, among others.
+
+***Glycanr*** package tries to fill the gap in N-glycan data analysis by providing
+easy to use functions for glycomics analysis. At the moment it is mostly
+oriented to data obtained by UPLC and LCMS analysis of Plasma and IgG
+glycome.
+
+## Targeted audience
+
+As commented, the package is currently oriented to data analysts working
+with Plasma and IgG glycome data obtained by UPLC and LCMS analysis.
+More correctly, it is oriented to the analysts with the data resembling
+data from papers like
+[Selman et al.][1],
+[Pučić et al.][2] or
+[Stöckmann et al.][3].
+
+The package helps in calculating different quantities like derived traits
+and preparing the data for analysts doing different statistical
+or computational modeling of the N-glycan data like in
+[Vučković et al.][4], [Krištić et al][5] or
+[Barrios et al.][6].
+
+## Working with glycanr package
+
+At the moment glycanr package consists of 12 functions 
+and 2 data sets.
+
+Functions  ***glyco.plot*** and ***glyco.outliers*** are handy
+functions to quickly explore the data. See the "plots" vignette
+for more information.
+
+Functions ***ildt***, ***iudt*** and ***phdt*** return derived traits
+obtained from basic glycans. They have a standardized input
+depending on the definition of derived traits (e.g. derived
+traits as defined in [Huffman et al.][7]). Names of the
+columns representing glycans for a specific definition
+can be obtained with the argument *print.exp.names*.
+Columns of the data frame used to store glycan measurement
+should be named according to the expected names. Subset of the
+expected names can also be used if some glycans weren't measured.
+
+Functions ***ildt.translate*** and ***iudt.translate*** are
+useful to translate between computer friendly and human friendly names.
+
+Functions ***mediannorm***, ***medianquotientnorm***, ***tanorm***,
+***refpeaknorm*** and ***quantilenorm*** are used to normalize the data
+with specific normalization techniques. See the "normalization" vignette
+for more info.
+
+Some functions have a default scheme for column names representing glycans
+(e.g. columns starting with "GP" present glycan data) and additional argument
+*glyco.names* to change the default.
+
+
+[1]: https://www.sciencedirect.com/science/article/pii/S1874391911005549
+[2]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3205872/
+[3]: https://pubs.acs.org/doi/abs/10.1021/acs.analchem.5b01463
+[4]: https://pubmed.ncbi.nlm.nih.gov/26200652/
+[5]: https://pubmed.ncbi.nlm.nih.gov/24325898/
+[6]: https://jasn.asnjournals.org/content/27/3/933.full
+[7]: https://dx.doi.org/10.1074/mcp.M113.037465
