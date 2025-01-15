@@ -1,0 +1,19 @@
+Package: hasseDiagram
+Type: Package
+Title: Drawing Hasse Diagram
+Version: 0.2.0
+Date: 2021-06-10
+Author: Krzysztof Ciomek
+Maintainer: Krzysztof Ciomek <k.ciomek@gmail.com>
+URL: https://github.com/kciomek/hasseDiagram
+Depends: Rgraphviz (>= 2.6.0), grid (>= 3.0.2), graph
+Imports: methods
+Description: Drawing Hasse diagram - visualization of transitive
+        reduction of a finite partially ordered set.
+License: MIT + file LICENSE
+RoxygenNote: 7.1.1
+NeedsCompilation: no
+Packaged: 2021-06-10 05:57:31 UTC; Krzysztof
+Repository: CRAN
+Date/Publication: 2021-06-10 06:10:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
