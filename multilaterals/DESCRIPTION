@@ -1,0 +1,25 @@
+Package: multilaterals
+Type: Package
+Title: Transitive Index Numbers for Cross-Sections and Panel Data
+Version: 1.0
+Date: 2017-09-04
+Author: Edoardo Baldoni
+Maintainer: Edoardo Baldoni <edoardo.baldoni@gmail.com>
+Description: Computing transitive (and non-transitive) index numbers
+        (Coelli et al., 2005 <doi:10.1007/b136381>) for cross-sections
+        and panel data. For the calculation of transitive indexes, the
+        EKS (Coelli et al., 2005 <doi:10.1007/b136381>; Rao et al.,
+        2002 <doi:10.1007/978-1-4615-0851-9_4>) and Minimum spanning
+        tree (Hill, 2004 <doi:10.1257/0002828043052178>) methods are
+        implemented. Traditional fixed-base and chained indexes, and
+        their growth rates, can also be derived using the Paasche,
+        Laspeyres, Fisher and Tornqvist formulas.
+License: GPL-3
+Imports: parallel, ape, igraph
+Suggests: lattice
+LazyData: TRUE
+NeedsCompilation: no
+Packaged: 2017-09-07 15:09:15 UTC; Edoardo
+Repository: CRAN
+Date/Publication: 2017-09-07 15:23:58 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
