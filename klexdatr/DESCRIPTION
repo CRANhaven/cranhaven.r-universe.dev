@@ -1,0 +1,58 @@
+Package: klexdatr
+Title: Kootenay Lake Exploitation Study Data
+Version: 0.1.2
+Authors@R: c( person("Joe", "Thorley", , "joe@poissonconsulting.ca",
+        c("aut", "cre", "dtc"), comment = c(ORCID =
+        "0000-0002-7683-4592")), person("Greg", "Andrusak", role =
+        c("aut", "dtc")), person("Gary", "Pavan", role = c("aut",
+        "dtc")), person("Sarah", "Stephenson", role = c("aut", "dtc")),
+        person("Matt", "Neufeld", role = c("aut", "dtc")),
+        person("Jeff", "Burrows", role = c("aut", "dtc")),
+        person("Kerry", "Reed", role = c("aut", "dtc")),
+        person("Robyn", "Irvine", role = c("aut", "dtc")),
+        person("Harvey", "Andrusak", role = c("aut", "dtc")),
+        person("James", "Baxter", role = "dtc"), person("Rob", "Bison",
+        role = "dtc"), person("Mike", "Ramsay", role = "dtc"),
+        person("Habitat Conservation Trust Foundation", role = c("cph",
+        "fnd")), person("Fish and Wildlife Compensation Program", role
+        = c("cph", "fnd")), person("Freshwater Fish Society of BC",
+        role = c("cph", "fnd")), person("Ministry of Environment", role
+        = c("cph", "dtc")), person("Bonneville Power Administration",
+        role = c("cph", "fnd")), person("Idaho Department of Fish and
+        Game", role = "cph"), person("Kootenai Tribe of Idaho", role =
+        "cph") )
+Description: Six relational 'tibbles' from the Kootenay Lake Large
+        Trout Exploitation study. The study which ran from 2008 to 2014
+        caught, tagged and released large Rainbow Trout and Bull Trout
+        in Kootenay Lake by boat angling. The fish were tagged with
+        internal acoustic tags and/or high reward external tags and
+        subsequently detected by an acoustic receiver array as well as
+        reported by anglers. The data are analysed by Thorley and
+        Andrusak (1994) <doi:10.7717/peerj.2874> to estimate the
+        natural and fishing mortality of both species.
+License: CC BY 4.0
+Depends: R (>= 3.4)
+Imports: sf
+Suggests: chk, covr, testthat, tibble
+URL: https://github.com/poissonconsulting/klexdatr
+BugReports: https://github.com/poissonconsulting/klexdatr/issues
+LazyData: true
+RoxygenNote: 7.1.1
+Encoding: UTF-8
+NeedsCompilation: no
+Packaged: 2021-05-29 20:46:23 UTC; joe
+Author: Joe Thorley [aut, cre, dtc]
+        (<https://orcid.org/0000-0002-7683-4592>), Greg Andrusak [aut,
+        dtc], Gary Pavan [aut, dtc], Sarah Stephenson [aut, dtc], Matt
+        Neufeld [aut, dtc], Jeff Burrows [aut, dtc], Kerry Reed [aut,
+        dtc], Robyn Irvine [aut, dtc], Harvey Andrusak [aut, dtc],
+        James Baxter [dtc], Rob Bison [dtc], Mike Ramsay [dtc], Habitat
+        Conservation Trust Foundation [cph, fnd], Fish and Wildlife
+        Compensation Program [cph, fnd], Freshwater Fish Society of BC
+        [cph, fnd], Ministry of Environment [cph, dtc], Bonneville
+        Power Administration [cph, fnd], Idaho Department of Fish and
+        Game [cph], Kootenai Tribe of Idaho [cph]
+Maintainer: Joe Thorley <joe@poissonconsulting.ca>
+Repository: CRAN
+Date/Publication: 2021-05-29 21:00:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
