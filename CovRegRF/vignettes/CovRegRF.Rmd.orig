@@ -1,0 +1,115 @@
+---
+title: "CovRegRF: Covariance Regression with Random Forests"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{CovRegRF: Covariance Regression with Random Forests}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{css, echo=FALSE}
+p {
+font-size: 14px;
+text-align: justify;
+}
+h1.title {
+font-size: 30px;
+color: Black;
+}
+h1 { /* Header 1 */
+font-size: 24px;
+color: DarkBlue;
+}
+h2 { /* Header 2 */
+font-size: 20px;
+color: DarkBlue;
+}
+h3 { /* Header 3 */
+font-size: 18px;
+#font-family: "Times New Roman", Times, serif;
+color: DarkBlue;
+}
+```
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = ""
+)
+```
+
+This R package implements the **Cov**ariance **Reg**ression with **R**andom **F**orests (**CovRegRF**) method described in Alakus et al. (2023) [<doi:10.1186/s12859-023-05377-y>](https://doi.org/10.1186/s12859-023-05377-y). The theoretical details of the proposed method are presented in Section 1 followed by a data analysis using this method in Section 2. 
+
+# Proposed method
+
+Most of the existing multivariate regression analyses focus on estimating the conditional mean of the response variable given its covariates. However, it is also crucial in various areas to capture the conditional covariances or correlations among the elements of a multivariate response vector based on covariates. We consider the following setting: let $\mathbf{Y}_{n \times q}$ be a matrix of $q$ response variables measured on $n$ observations, where $\mathbf{y}_i$ represents the $i$th row of $\mathbf{Y}$. Similarly, let $\mathbf{X}_{n \times p}$ be a matrix of $p$ covariates available for all $n$ observations, where $\mathbf{x}_i$ represents the $i$th row of $\mathbf{X}$. We assume that the observation $\mathbf{y}_i$ with covariates $\mathbf{x}_i$ has a conditional covariance matrix $\Sigma_{\mathbf{x}_i}$. We propose a novel method called Covariance Regression with Random Forests (CovRegRF) to estimate the covariance matrix of a multivariate response $\mathbf{Y}$ given a set of covariates $\mathbf{X}$, using a random forest framework. Random forest trees are built with a specialized splitting criterion $$\sqrt{n_Ln_R}*d(\Sigma^L, \Sigma^R)$$ where $\Sigma^L$ and $\Sigma^R$ are the covariance matrix estimates of left and right nodes, and $n_L$ and $n_R$ are the left and right node sizes, respectively, $d(\Sigma^L, \Sigma^R)$ is the Euclidean distance between the upper triangular part of the two matrices and computed as follows:
+$$d(A, B) = \sqrt{\sum_{i=1}^{q}\sum_{j=i}^{q} (\mathbf{A}_{ij} - \mathbf{B}_{ij})^2}$$ where $\mathbf{A}_{q \times q}$ and $\mathbf{B}_{q \times q}$ are symmetric matrices. For a new observation, the random forest provides the set of nearest neighbour out-of-bag observations which is used to estimate the conditional covariance matrix for that observation.
+
+## Significance test
+
+We propose a hypothesis test to evaluate the effect of a subset of covariates on the covariance matrix estimates while controlling for the other covariates. Let $\Sigma_\mathbf{X}$ be the conditional covariance matrix of $\mathbf{Y}$ given all $X$ variables and $\Sigma_{\mathbf{X}^c}$ is the conditional covariance matrix of $\mathbf{Y}$ given only the set of controlling $X$ variables. If a subset of covariates has an effect on the covariance matrix estimates obtained with the proposed method, then $\Sigma_\mathbf{X}$ should be significantly different from $\Sigma_{\mathbf{X}^c}$. We conduct a permutation test for the null hypothesis $$H_0 : \Sigma_\mathbf{X} = \Sigma_{\mathbf{X}^c}$$ We estimate a $p$-value with the permutation test. If the $p$-value is less than the pre-specified significance level $\alpha$, we reject the null hypothesis. 
+
+# Data analysis
+We will show how to use the CovRegRF package on a generated data set. The data set consists of two multivariate data sets: $\mathbf{X}_{n \times 3}$ and $\mathbf{Y}_{n \times 3}$. The sample size ($n$) is 200. The covariance matrix of $\mathbf{Y}$ depends on $X_1$ and $X_2$ (*i.e.* $X_3$ is a noise variable). We load the data and split it into train and test sets:
+
+```{r setup}
+library(CovRegRF)
+data(data)
+xvar.names <- colnames(data$X)
+yvar.names <- colnames(data$Y)
+data1 <- data.frame(data$X, data$Y)
+
+set.seed(4567)
+smp <- sample(1:nrow(data1), size = round(nrow(data1)*0.6), replace = FALSE)
+traindata <- data1[smp,, drop=FALSE]
+testdata <- data1[-smp, xvar.names, drop=FALSE]
+```
+
+Firstly, we check the global effect of $\mathbf{X}$ on the covariance matrix estimates by applying the significance test for the three covariates.
+```{r}
+formula <- as.formula(paste(paste(yvar.names, collapse="+"), ".", sep=" ~ "))
+globalsig.obj <- significance.test(formula, traindata, params.rfsrc = list(ntree = 200), 
+                                   nperm = 10, test.vars = NULL)
+globalsig.obj$pvalue
+```
+Using 10 permutations, the estimated $p$-value is 0 which is smaller than the significance level ($\alpha$) of 0.05 and we reject the null hypothesis indicating the conditional covariance matrices significantly vary with the set of covariates. When performing a permutation test to estimate a $p$-value, we need more than 10 permutations. Using 500 permutations, the estimated $p$-value is 0.012. The computational time increases with the number of permutations. 
+
+Next, we apply the proposed method with `covregrf()` and get the out-of-bag (OOB) covariance matrix estimates for the training observations.
+```{r}
+covregrf.obj <- covregrf(formula, traindata, params.rfsrc = list(ntree = 200))
+pred.oob <- covregrf.obj$predicted.oob
+head(pred.oob, 2)
+```
+
+Then, we get the variable importance (VIMP) measures for the covariates. VIMP measures reflect the predictive power of $\mathbf{X}$ on the estimated covariance matrices. Also, we can plot the VIMP measures.
+```{r vimp_plot, fig.show='hold', fig.width=5, fig.height=3, fig.align='center'}
+vimp.obj <- vimp(covregrf.obj)
+vimp.obj$importance
+plot.vimp(vimp.obj)
+```
+
+From the VIMP measures, we see that $X_3$ has smaller importance than $X_1$ and $X_2$. We apply the significance test to evaluate the effect of $X_3$ on the covariance matrices while controlling for $X_1$ and $X_2$.
+```{r}
+partialsig.obj <- significance.test(formula, traindata, params.rfsrc = list(ntree = 200), 
+                                    nperm = 10, test.vars = "x3")
+partialsig.obj$pvalue
+```
+Using 10 permutations, the estimated *p*-values is 0.3 and we fail to reject the null hypothesis, indicating that we do not have enough evidence to prove that $X_3$ has an effect on the estimated covariance matrices while $X_1$ and $X_2$ are in the model. Using 500 permutations, the estimated $p$-value is 0.218.
+
+Finally, we can get the covariance matrix predictions for the test observations. 
+```{r}
+pred.obj <- predict(covregrf.obj, testdata)
+pred <- pred.obj$predicted
+head(pred, 2)
+```
+
+# References
+Alakus, C., Larocque, D., and Labbe, A. (2023). Covariance regression with random forests. *BMC Bioinformatics* 24, 258.
+
+# Session info
+```{r}
+sessionInfo()
+```

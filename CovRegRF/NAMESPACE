@@ -1,0 +1,39 @@
+useDynLib(CovRegRF, .registration = TRUE)
+
+importFrom("data.tree", "FromDataFrameNetwork", "SetGraphStyle",
+           "SetEdgeStyle", "SetNodeStyle", "Do", "GetDefaultTooltip")
+importFrom("DiagrammeR", "render_graph", "create_graph",
+           "create_node_df", "create_edge_df", "add_global_graph_attrs")
+importFrom("parallel", mclapply)
+importFrom("graphics", "abline", "axis", "box", "boxplot", "bxp",
+           "legend", "lines", "matlines", "matplot", "mtext", "par", "plot",
+           "plot.new", "plot.window", "points", "rug", "segments",
+           "strwidth", "text", "title", "grconvertX", "grconvertY", "plot.default", "barplot")
+importFrom("stats", "as.dist", "as.formula", "cutree", "dlnorm", "formula",
+           "hclust", "lowess", "median", "model.matrix", "na.omit",
+           "optim", "pgamma", "plnorm", "pnorm", "predict", 
+           "quantile", "qnorm", "runif", "sd", "supsmu", "var", "wilcox.test", "rnorm",
+           "lm", "coef", "cov.wt", "cov")
+importFrom("utils", "txtProgressBar", "setTxtProgressBar",
+           "write.table", "tail")
+importFrom("grDevices", "gray", "dev.off")
+import("data.table")
+
+export(covregrf)
+export(plot.vimp)
+export(plot.vimp.covregrf)
+export(predict.covregrf)
+export(print.covregrf)
+export(significance.test)
+export(vimp)
+export(vimp.covregrf)
+
+S3method(plot, vimp)
+S3method(plot, vimp.covregrf)
+S3method(predict, covregrf)
+S3method(print, covregrf)
+
+
+
+
+

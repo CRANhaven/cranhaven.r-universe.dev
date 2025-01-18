@@ -1,0 +1,53 @@
+Package: CovRegRF
+Type: Package
+Title: Covariance Regression with Random Forests
+Version: 2.0.1
+Authors@R: c(person(given = "Cansu", family = "Alakus", role = c("aut",
+        "cre"), email = "cansu.alakus@hec.ca"), person(given = "Denis",
+        family = "Larocque", role = c("aut"), email =
+        "denis.larocque@hec.ca"), person(given = "Aurelie", family =
+        "Labbe", role = c("aut"), email = "aurelie.labbe@hec.ca"),
+        person(given = "Hemant", family = "Ishwaran", role = c("ctb"),
+        comment = "Author of included 'randomForestSRC' codes"),
+        person(given = "Udaya B.", family = "Kogalur", role = c("ctb"),
+        comment = "Author of included 'randomForestSRC' codes"),
+        person("Intel Corporation", role = c("cph"), comment =
+        "Copyright holder of included LAPACKE codes"), person(given =
+        "Keita", family = "Teranishi", role = c("ctb"), comment =
+        "Author of included cblas_dgemm.c codes"))
+Description: Covariance Regression with Random Forests (CovRegRF) is a
+        random forest method for estimating the covariance matrix of a
+        multivariate response given a set of covariates. Random forest
+        trees are built with a new splitting rule which is designed to
+        maximize the distance between the sample covariance matrix
+        estimates of the child nodes. The method is described in Alakus
+        et al. (2023) <doi:10.1186/s12859-023-05377-y>. 'CovRegRF' uses
+        'randomForestSRC' package (Ishwaran and Kogalur, 2022)
+        <https://cran.r-project.org/package=randomForestSRC> by
+        freezing at the version 3.1.0. The custom splitting rule
+        feature is utilised to apply the proposed splitting rule. The
+        'randomForestSRC' package implements 'OpenMP' by default,
+        contingent upon the support provided by the target architecture
+        and operating system. In this package, 'LAPACK' and 'BLAS'
+        libraries are used for matrix decompositions.
+Depends: R (>= 3.6.0)
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.0
+Imports: data.table, data.tree, DiagrammeR
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+NeedsCompilation: yes
+Packaged: 2024-07-10 02:17:14 UTC; cansualakus
+Author: Cansu Alakus [aut, cre], Denis Larocque [aut], Aurelie Labbe
+        [aut], Hemant Ishwaran [ctb] (Author of included
+        'randomForestSRC' codes), Udaya B. Kogalur [ctb] (Author of
+        included 'randomForestSRC' codes), Intel Corporation [cph]
+        (Copyright holder of included LAPACKE codes), Keita Teranishi
+        [ctb] (Author of included cblas_dgemm.c codes)
+Maintainer: Cansu Alakus <cansu.alakus@hec.ca>
+Repository: CRAN
+Date/Publication: 2024-07-15 18:40:11 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

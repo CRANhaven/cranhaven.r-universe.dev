@@ -1,0 +1,20 @@
+#' Generated example data
+#'
+#' A generated data set containing two multivariate data sets: X and Y, which
+#' represent the set of covariates and responses, respectively. The covariance
+#' matrix of Y has a compound symmetry structure with heterogeneous variances.
+#' Both variances and correlations are functions of the covariates. X variables
+#' are generated from the standard normal distribution. The correlations are
+#' generated with a logit model and the variances are functions of these
+#' generated correlations. The sample size is 200. There are 3 covariates and 3
+#' response variables. x1 and x2 are the importantvariables for the varying
+#' covariance matrix of Y. x3 is the noise variable.
+#'
+#' @format A list with two elements namely X and Y. Each element has 200 rows.
+#'   X has 3 columns and Y has 3 columns.
+#'
+#' @examples
+#' ## load generated example data
+#' data(data, package = "CovRegRF")
+#'
+"data"

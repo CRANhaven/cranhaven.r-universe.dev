@@ -1,0 +1,68 @@
+#' Predict method for covregrf objects
+#'
+#' Obtain predicted covariance matrices using a covregrf forest for training or
+#'   new data.
+#'
+#' @param object An object of class \code{(covregrf, grow)} created by the
+#'   function \code{covregrf}.
+#' @param newdata Test data of the set of covariates. A data.frame with numeric
+#'  values and factors. If missing, the out-of-bag predictions in \code{object}
+#'  is returned.
+#' @param ... Optional arguments to be passed to other methods.
+#'
+#' @return An object of class \code{(covregrf, predict)} which is a list with the
+#'   following components:
+#'
+#'   \item{predicted}{Predicted covariance matrices for test data. If
+#'     \code{newdata} is missing, OOB predictions for training observations.}
+#'   \item{bop}{Bag of Observations for Prediction. An \eqn{nxn} matrix of
+#'     counts.}
+#'   \item{n}{Sample size of the test data (\code{NA}'s are omitted). If
+#'     \code{newdata} is missing, sample size of the training set.}
+#'   \item{xvar.names}{A character vector of the covariate names.}
+#'   \item{yvar.names}{A character vector of the response variable names.}
+#'
+#' @examples
+#' options(rf.cores=2, mc.cores=2)
+#'
+#' ## load generated example data
+#' data(data, package = "CovRegRF")
+#' xvar.names <- colnames(data$X)
+#' yvar.names <- colnames(data$Y)
+#' data1 <- data.frame(data$X, data$Y)
+#'
+#' ## define train/test split
+#' set.seed(2345)
+#' smp <- sample(1:nrow(data1), size = round(nrow(data1)*0.6), replace = FALSE)
+#' traindata <- data1[smp,,drop=FALSE]
+#' testdata <- data1[-smp, xvar.names, drop=FALSE]
+#'
+#' ## formula object
+#' formula <- as.formula(paste(paste(yvar.names, collapse="+"), ".", sep=" ~ "))
+#'
+#' ## train covregrf
+#' covregrf.obj <- covregrf(formula, traindata, params.rfsrc = list(ntree = 50))
+#'
+#' ## predict without new data (OOB predictions will be returned)
+#' pred.obj <- predict(covregrf.obj)
+#' pred.oob <- pred.obj$predicted
+#'
+#' ## predict with new test data
+#' pred.obj2 <- predict(covregrf.obj, newdata = testdata)
+#' pred <- pred.obj2$predicted
+#'
+#'
+#' @seealso
+#'   \code{\link{covregrf}}
+#'   \code{\link{vimp.covregrf}}
+#'   \code{\link{print.covregrf}}
+
+predict.covregrf <- function(object,
+                           newdata,
+                           ...)
+{
+  result.predict <- generic.predict.covregrf(object,
+                                           newdata,
+                                           ...)
+  return(result.predict)
+}

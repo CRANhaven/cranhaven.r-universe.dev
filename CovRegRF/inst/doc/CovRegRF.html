@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>CovRegRF: Covariance Regression with Random Forests</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">CovRegRF: Covariance Regression with Random
+Forests</h1>
+
+
+
+<p>This R package implements the <strong>Cov</strong>ariance
+<strong>Reg</strong>ression with <strong>R</strong>andom
+<strong>F</strong>orests (<strong>CovRegRF</strong>) method described in
+Alakus et al. (2023) <a href="https://doi.org/10.1186/s12859-023-05377-y">&lt;doi:10.1186/s12859-023-05377-y&gt;</a>.
+The theoretical details of the proposed method are presented in Section
+1 followed by a data analysis using this method in Section 2.</p>
+<div id="proposed-method" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Proposed method</h1>
+<p>Most of the existing multivariate regression analyses focus on
+estimating the conditional mean of the response variable given its
+covariates. However, it is also crucial in various areas to capture the
+conditional covariances or correlations among the elements of a
+multivariate response vector based on covariates. We consider the
+following setting: let <span class="math inline">\(\mathbf{Y}_{n \times
+q}\)</span> be a matrix of <span class="math inline">\(q\)</span>
+response variables measured on <span class="math inline">\(n\)</span>
+observations, where <span class="math inline">\(\mathbf{y}_i\)</span>
+represents the <span class="math inline">\(i\)</span>th row of <span class="math inline">\(\mathbf{Y}\)</span>. Similarly, let <span class="math inline">\(\mathbf{X}_{n \times p}\)</span> be a matrix of
+<span class="math inline">\(p\)</span> covariates available for all
+<span class="math inline">\(n\)</span> observations, where <span class="math inline">\(\mathbf{x}_i\)</span> represents the <span class="math inline">\(i\)</span>th row of <span class="math inline">\(\mathbf{X}\)</span>. We assume that the
+observation <span class="math inline">\(\mathbf{y}_i\)</span> with
+covariates <span class="math inline">\(\mathbf{x}_i\)</span> has a
+conditional covariance matrix <span class="math inline">\(\Sigma_{\mathbf{x}_i}\)</span>. We propose a novel
+method called Covariance Regression with Random Forests (CovRegRF) to
+estimate the covariance matrix of a multivariate response <span class="math inline">\(\mathbf{Y}\)</span> given a set of covariates
+<span class="math inline">\(\mathbf{X}\)</span>, using a random forest
+framework. Random forest trees are built with a specialized splitting
+criterion <span class="math display">\[\sqrt{n_Ln_R}*d(\Sigma^L,
+\Sigma^R)\]</span> where <span class="math inline">\(\Sigma^L\)</span>
+and <span class="math inline">\(\Sigma^R\)</span> are the covariance
+matrix estimates of left and right nodes, and <span class="math inline">\(n_L\)</span> and <span class="math inline">\(n_R\)</span> are the left and right node sizes,
+respectively, <span class="math inline">\(d(\Sigma^L, \Sigma^R)\)</span>
+is the Euclidean distance between the upper triangular part of the two
+matrices and computed as follows: <span class="math display">\[d(A, B) =
+\sqrt{\sum_{i=1}^{q}\sum_{j=i}^{q} (\mathbf{A}_{ij} -
+\mathbf{B}_{ij})^2}\]</span> where <span class="math inline">\(\mathbf{A}_{q \times q}\)</span> and <span class="math inline">\(\mathbf{B}_{q \times q}\)</span> are symmetric
+matrices. For a new observation, the random forest provides the set of
+nearest neighbour out-of-bag observations which is used to estimate the
+conditional covariance matrix for that observation.</p>
+<div id="significance-test" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Significance
+test</h2>
+<p>We propose a hypothesis test to evaluate the effect of a subset of
+covariates on the covariance matrix estimates while controlling for the
+other covariates. Let <span class="math inline">\(\Sigma_\mathbf{X}\)</span> be the conditional
+covariance matrix of <span class="math inline">\(\mathbf{Y}\)</span>
+given all <span class="math inline">\(X\)</span> variables and <span class="math inline">\(\Sigma_{\mathbf{X}^c}\)</span> is the conditional
+covariance matrix of <span class="math inline">\(\mathbf{Y}\)</span>
+given only the set of controlling <span class="math inline">\(X\)</span>
+variables. If a subset of covariates has an effect on the covariance
+matrix estimates obtained with the proposed method, then <span class="math inline">\(\Sigma_\mathbf{X}\)</span> should be significantly
+different from <span class="math inline">\(\Sigma_{\mathbf{X}^c}\)</span>. We conduct a
+permutation test for the null hypothesis <span class="math display">\[H_0 : \Sigma_\mathbf{X} =
+\Sigma_{\mathbf{X}^c}\]</span> We estimate a <span class="math inline">\(p\)</span>-value with the permutation test. If the
+<span class="math inline">\(p\)</span>-value is less than the
+pre-specified significance level <span class="math inline">\(\alpha\)</span>, we reject the null
+hypothesis.</p>
+</div>
+</div>
+<div id="data-analysis" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Data analysis</h1>
+<p>We will show how to use the CovRegRF package on a generated data set.
+The data set consists of two multivariate data sets: <span class="math inline">\(\mathbf{X}_{n \times 3}\)</span> and <span class="math inline">\(\mathbf{Y}_{n \times 3}\)</span>. The sample size
+(<span class="math inline">\(n\)</span>) is 200. The covariance matrix
+of <span class="math inline">\(\mathbf{Y}\)</span> depends on <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> (<em>i.e.</em> <span class="math inline">\(X_3\)</span> is a noise variable). We load the
+data and split it into train and test sets:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(CovRegRF)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(data)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>xvar.names <span class="ot">&lt;-</span> <span class="fu">colnames</span>(data<span class="sc">$</span>X)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>yvar.names <span class="ot">&lt;-</span> <span class="fu">colnames</span>(data<span class="sc">$</span>Y)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>Y)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">4567</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>smp <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(data1), <span class="at">size =</span> <span class="fu">round</span>(<span class="fu">nrow</span>(data1)<span class="sc">*</span><span class="fl">0.6</span>), <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>traindata <span class="ot">&lt;-</span> data1[smp,, drop<span class="ot">=</span><span class="cn">FALSE</span>]</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>testdata <span class="ot">&lt;-</span> data1[<span class="sc">-</span>smp, xvar.names, drop<span class="ot">=</span><span class="cn">FALSE</span>]</span></code></pre></div>
+<p>Firstly, we check the global effect of <span class="math inline">\(\mathbf{X}\)</span> on the covariance matrix
+estimates by applying the significance test for the three
+covariates.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="fu">paste</span>(yvar.names, <span class="at">collapse=</span><span class="st">&quot;+&quot;</span>), <span class="st">&quot;.&quot;</span>, <span class="at">sep=</span><span class="st">&quot; ~ &quot;</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>globalsig.obj <span class="ot">&lt;-</span> <span class="fu">significance.test</span>(formula, traindata, <span class="at">params.rfsrc =</span> <span class="fu">list</span>(<span class="at">ntree =</span> <span class="dv">200</span>), </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">nperm =</span> <span class="dv">10</span>, <span class="at">test.vars =</span> <span class="cn">NULL</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>globalsig.obj<span class="sc">$</span>pvalue</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<p>Using 10 permutations, the estimated <span class="math inline">\(p\)</span>-value is 0 which is smaller than the
+significance level (<span class="math inline">\(\alpha\)</span>) of 0.05
+and we reject the null hypothesis indicating the conditional covariance
+matrices significantly vary with the set of covariates. When performing
+a permutation test to estimate a <span class="math inline">\(p\)</span>-value, we need more than 10
+permutations. Using 500 permutations, the estimated <span class="math inline">\(p\)</span>-value is 0.012. The computational time
+increases with the number of permutations.</p>
+<p>Next, we apply the proposed method with <code>covregrf()</code> and
+get the out-of-bag (OOB) covariance matrix estimates for the training
+observations.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>covregrf.obj <span class="ot">&lt;-</span> <span class="fu">covregrf</span>(formula, traindata, <span class="at">params.rfsrc =</span> <span class="fu">list</span>(<span class="at">ntree =</span> <span class="dv">200</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pred.oob <span class="ot">&lt;-</span> covregrf.obj<span class="sc">$</span>predicted.oob</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred.oob, <span class="dv">2</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           y1        y2       y3</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y1 1.1286879 0.8387699 1.101836</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y2 0.8387699 1.9878143 1.507416</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y3 1.1018365 1.5074164 3.591839</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          y1       y2       y3</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y1 1.353311 1.050629 1.761897</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y2 1.050629 2.153400 2.142313</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y3 1.761897 2.142313 4.453531</span></span></code></pre></div>
+<p>Then, we get the variable importance (VIMP) measures for the
+covariates. VIMP measures reflect the predictive power of <span class="math inline">\(\mathbf{X}\)</span> on the estimated covariance
+matrices. Also, we can plot the VIMP measures.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>vimp.obj <span class="ot">&lt;-</span> <span class="fu">vimp</span>(covregrf.obj)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>vimp.obj<span class="sc">$</span>importance</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         x1         x2         x3 </span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1.38012921 0.51122499 0.07159317</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.vimp</span>(vimp.obj)</span></code></pre></div>
+<p><img src="data:image/png;base64,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l/Tvf//b/6MYv8CiHZ4Q+Oyzz/Rc/uKLL+TZZ5/1pM6YVeLry0cCjDtx4oSxImpKlSpl9uzZoxb85z//0Stup06dAha999575qabbjKVKlUyDRo0MA888IBBWaSePXuajh07msGDB2tdf/nLX8xvfvMbc/nll5vvv/9e80Qq74ygraib2rVrmxo1apgRI0aYM2fOaNnQEfSaNWvMtddeaypUqGB+8pOfmL///e+aL/SfvbVTG+xFSHehftj09ttvm2bNmqmtDz74oPn4448NbLjgggvM3XffbU6dOqX57cXJtG3b1kyaNMk0bNjQVK9e3Tz11FMBu5AJrLp166Z1gcvvf/97Y0MrWv61117T9p5//nlTrVo15VerVi1le9FFF5m77rpL80Vi069fP3P11VcbG+YxV1xxhdp47733BtijAhuGMldddZWpWLGigc+mTZum9eKfW1Zffvml2vrHP/5R/ZmZmamM//vf/xrww3qrVq3Mhg0bAnXbC59yqVy5soGPNm7cGNgXqU+rVq0yvXv3ViaNGjUyv/71r82RI0e0LHwDH9kBgq7jGMD6L3/5S10PZdq9e3fdHqmfkdo7duyY1t+rVy+tJ9y/SHx//PFH079/f1O/fn1TpUoVZffNN99oNeAG27dv3x6otmvXruor9DfceWNDjQY+R104Fx599FFz/PjxQPlx48aZSy65RM8R+OrWW2/Vcw8Z0A7awyi5TZs2pk6dOqZDhw7mvPPOMxkZGbpv4cKFgbr8uCB+NCrRNt13330qGjjhkCC09gqpwoT1nTt3qjA3adLEQGwgjtg/Y8YM7FZxwwEA8YFArFy5Uk9Y5EGIw0155IXAQZgvvfRSrR9CjxQs0D/88IOK4cUXX2yGDx9uWrdurXnRZmgKDXEMHTpU80Jo7UhCTxS0a0faKqzOheKNN97Qqtq1a2fsXYSpWbOmnij16tXT8k44aP369SpcKA/RxMUC9d1///1a/s9//rOulylTxuDEBFenL82bNzcIHxXFBhdFsG3cuLFBffhEG1OnTtU2VqxYoftxMj7xxBMq4jghYVtxWH366adaL9p6+OGHTd++fXUd/b/99tv1got2u3Tpou3aOy7df80116jPICgQKVyciupT06ZNldVbb72lYoI2R44cqfW+9NJLWu/EiRN1HQKNdnGRQgpligtiUf2M1J59RmLK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" title="plot of chunk vimp_plot" alt="plot of chunk vimp_plot" style="display: block; margin: auto;" /></p>
+<p>From the VIMP measures, we see that <span class="math inline">\(X_3\)</span> has smaller importance than <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>. We apply the significance test to
+evaluate the effect of <span class="math inline">\(X_3\)</span> on the
+covariance matrices while controlling for <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>partialsig.obj <span class="ot">&lt;-</span> <span class="fu">significance.test</span>(formula, traindata, <span class="at">params.rfsrc =</span> <span class="fu">list</span>(<span class="at">ntree =</span> <span class="dv">200</span>), </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">nperm =</span> <span class="dv">10</span>, <span class="at">test.vars =</span> <span class="st">&quot;x3&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>partialsig.obj<span class="sc">$</span>pvalue</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.3</span></span></code></pre></div>
+<p>Using 10 permutations, the estimated <em>p</em>-values is 0.3 and we
+fail to reject the null hypothesis, indicating that we do not have
+enough evidence to prove that <span class="math inline">\(X_3\)</span>
+has an effect on the estimated covariance matrices while <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are in the model. Using 500
+permutations, the estimated <span class="math inline">\(p\)</span>-value
+is 0.218.</p>
+<p>Finally, we can get the covariance matrix predictions for the test
+observations.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pred.obj <span class="ot">&lt;-</span> <span class="fu">predict</span>(covregrf.obj, testdata)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> pred.obj<span class="sc">$</span>predicted</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred, <span class="dv">2</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           y1        y2        y3</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y1 1.0710647 0.5039413 0.6859008</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y2 0.5039413 1.6077176 1.1050398</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y3 0.6859008 1.1050398 2.7710218</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          y1       y2       y3</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y1 1.294158 1.306257 1.854186</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y2 1.306257 2.183658 2.424231</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y3 1.854186 2.424231 4.387248</span></span></code></pre></div>
+</div>
+<div id="references" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> References</h1>
+<p>Alakus, C., Larocque, D., and Labbe, A. (2023). Covariance regression
+with random forests. <em>BMC Bioinformatics</em> 24, 258.</p>
+</div>
+<div id="session-info" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Session info</h1>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; R version 4.2.0 (2022-04-22)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Running under: macOS Monterey 12.6.3</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] CovRegRF_2.0.0</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] visNetwork_2.1.0   digest_0.6.29      R6_2.5.1           jsonlite_1.8.0     magrittr_2.0.3     evaluate_0.15     </span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] highr_0.9          rlang_1.0.6        stringi_1.7.8      cli_3.6.0          data.table_1.14.2  rstudioapi_0.13   </span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13] DiagrammeR_1.0.9   rmarkdown_2.14     data.tree_1.0.0    RColorBrewer_1.1-3 tools_4.2.0        stringr_1.4.0     </span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19] htmlwidgets_1.5.4  glue_1.6.2         parallel_4.2.0     xfun_0.31          yaml_2.3.5         fastmap_1.1.0     </span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [25] compiler_4.2.0     htmltools_0.5.3    knitr_1.39</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
