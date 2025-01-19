@@ -1,0 +1,48 @@
+Package: boostmtree
+Version: 1.5.1
+BUILD: bld20220309
+
+---------------------------------------------------------------------------------
+CHANGES TO RELEASE 1.5.1
+---------------------------------------------------------------------------------
+Added the ability to model a nominal or ordinal longitudinal
+response. With this addition, package now handles continuous, binary,
+nominal or ordinal longitudinal response.
+
+RELEASE 1.4.1
+---------------------------------------------------------------------------------
+Added the ability to model a binary response.  Added a separate
+function, vimp.boostmtree(), for calculating VIMP using out of bag or
+test data. This function also allows estimatation of separate as well
+as joint VIMP (of multiple covariates).  
+
+RELEASE 1.3.0
+---------------------------------------------------------------------------------
+Fix to avoid mclapply on Windows, and to default to lapply instead.
+The in-sample CV now only uses out of bag data rather than the
+previous version which was using n-1 observations.  Variable
+importance (VIMP) is calculated using the out of bag data in the grow
+mode.  The name of the function vimp.plot has been replaced with
+vimpPlot.  NULL values encountered in the mclapply function have been
+fixed.  The marginalPlot function is new.  It is similar to the
+partial plot except that it provide unadjusted predicted y values.
+  
+RELEASE 1.2.1
+---------------------------------------------------------------------------------
+Fix to avoid mclapply on Debian, and to default to lapply instead.
+  
+RELEASE 1.2.0
+---------------------------------------------------------------------------------
+Synchronization with package dependency in randomForestSRC (1.5.0) due to
+minor change in membership output protocols.
+
+RELEASE 1.1.0
+---------------------------------------------------------------------------------
+This update includes an "in sample" cross-validation method for
+determining the optimal boosting iteration.  See the help file of
+boostmtree for more details.  Various bugs and fixes are also addressed.
+
+RELEASE 1.0.0
+---------------------------------------------------------------------------------
+Please report bugs to ubk@kogalur.com
+
