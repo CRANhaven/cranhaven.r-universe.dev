@@ -1,0 +1,30 @@
+useDynLib(RFCCA, .registration = TRUE)
+
+importFrom("parallel", mclapply)
+importFrom("graphics", "abline", "axis", "barplot", "box", "boxplot", "bxp",
+           "legend", "lines", "matlines", "matplot", "mtext", "par", "plot",
+           "plot.new", "plot.window", "points", "rug", "segments",
+           "strwidth", "text", "title", "grconvertX", "grconvertY", "plot.default")
+importFrom("stats", "as.dist", "as.formula", "cutree", "dlnorm", "formula",
+           "hclust", "lowess", "median", "model.matrix", "na.omit",
+           "optim", "pgamma", "plnorm", "pnorm", "predict",
+           "quantile", "qnorm", "runif", "sd", "supsmu", "var", "wilcox.test",
+	   "cancor")
+importFrom("utils", "txtProgressBar", "setTxtProgressBar",
+           "write.table", "tail")
+importFrom("grDevices", "dev.off","gray")
+
+export(global.significance)
+export(plot.vimp)
+export(plot.vimp.rfcca)
+export(predict.rfcca)
+export(print.rfcca)
+export(rfcca)
+export(vimp)
+export(vimp.rfcca)
+
+S3method(plot, vimp)
+S3method(plot, vimp.rfcca)
+S3method(predict, rfcca)
+S3method(print, rfcca)
+

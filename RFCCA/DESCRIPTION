@@ -1,0 +1,53 @@
+Package: RFCCA
+Title: Random Forest with Canonical Correlation Analysis
+Version: 2.0.0
+Authors@R: c(person(given = "Cansu", family = "Alakus", role = c("aut",
+        "cre"), email = "cansu.alakus@hec.ca"), person(given = "Denis",
+        family = "Larocque", role = c("aut"), email =
+        "denis.larocque@hec.ca"), person(given = "Aurelie", family =
+        "Labbe", role = c("aut"), email = "aurelie.labbe@hec.ca"),
+        person(given = "Hemant", family = "Ishwaran", role = c("ctb"),
+        comment = "Author of included randomForestSRC codes"),
+        person(given = "Udaya B.", family = "Kogalur", role = c("ctb"),
+        comment = "Author of included randomForestSRC codes"),
+        person("Intel Corporation", role = c("cph"), comment =
+        "Copyright holder of included LAPACKE codes"), person(given =
+        "Keita", family = "Teranishi", role = c("ctb"), comment =
+        "Author of included cblas_dgemm.c codes"))
+Description: Random Forest with Canonical Correlation Analysis (RFCCA)
+        is a random forest method for estimating the canonical
+        correlations between two sets of variables depending on the
+        subject-related covariates. The trees are built with a
+        splitting rule specifically designed to partition the data to
+        maximize the canonical correlation heterogeneity between child
+        nodes. The method is described in Alakus et al. (2021)
+        <doi:10.1093/bioinformatics/btab158>. 'RFCCA' uses
+        'randomForestSRC' package (Ishwaran and Kogalur, 2020) by
+        freezing at the version 2.9.3. The custom splitting rule
+        feature is utilised to apply the proposed splitting rule. The
+        'randomForestSRC' package implements 'OpenMP' by default,
+        contingent upon the support provided by the target architecture
+        and operating system. In this package, 'LAPACK' and 'BLAS'
+        libraries are used for matrix decompositions.
+Depends: R (>= 3.5.0)
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.0
+Imports: CCA, PMA
+Suggests: knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+URL: https://github.com/calakus/RFCCA
+BugReports: https://github.com/calakus/RFCCA/issues
+NeedsCompilation: yes
+Packaged: 2024-02-06 18:11:26 UTC; cansualakus
+Author: Cansu Alakus [aut, cre], Denis Larocque [aut], Aurelie Labbe
+        [aut], Hemant Ishwaran [ctb] (Author of included
+        randomForestSRC codes), Udaya B. Kogalur [ctb] (Author of
+        included randomForestSRC codes), Intel Corporation [cph]
+        (Copyright holder of included LAPACKE codes), Keita Teranishi
+        [ctb] (Author of included cblas_dgemm.c codes)
+Maintainer: Cansu Alakus <cansu.alakus@hec.ca>
+Repository: CRAN
+Date/Publication: 2024-02-09 00:10:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

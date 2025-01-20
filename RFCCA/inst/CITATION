@@ -1,0 +1,24 @@
+citHeader("To cite RFCCA in publications use:")
+
+bibentry(
+  bibtype  = "Article",
+  title    = "Conditional canonical correlation estimation based on covariates with random forests",
+  author   = c(person(family="Alakus", given="Cansu"),
+	                      person(family="Larocque", given="Denis"),
+	                      person(family="Jacquemont", given="Sebastien"),
+	                      person(family="Barlaam", given="Fanny"),
+	                      person(family="Martin", given="Charles-Olivier"),
+	                      person(family="Agbogba", given="Kristian"),
+	                      person(family="Lippe", given="Sarah"),
+	                      person(family="Labbe", given="Aurelie")),
+  journal  = "Bioinformatics",
+  year     = "2021",
+  volume   = "37",
+  number   = "17",
+  pages    = "2714–2721",
+  url      = "https://doi.org/10.1093/bioinformatics/btab158",
+  textVersion = paste("Alakus et al. (2021).",
+                      "Conditional canonical correlation estimation based on covariates with random forests.",
+                      "Bioinformatics, 37(17), 2714-2721", sep=" "
+  )
+)

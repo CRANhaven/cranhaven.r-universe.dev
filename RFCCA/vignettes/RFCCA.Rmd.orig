@@ -1,0 +1,153 @@
+---
+title: "RFCCA: Random Forest with Canonical Correlation Analysis"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Random Forest with Canonical Correlation Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{css, echo=FALSE}
+p {
+font-size: 14px;
+text-align: justify;
+}
+h1.title {
+font-size: 30px;
+color: Black;
+}
+h1 { /* Header 1 */
+font-size: 24px;
+color: DarkBlue;
+}
+h2 { /* Header 2 */
+font-size: 20px;
+color: DarkBlue;
+}
+h3 { /* Header 3 */
+font-size: 18px;
+#font-family: "Times New Roman", Times, serif;
+color: DarkBlue;
+}
+
+```
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = ""
+)
+```
+
+# Introduction
+This R package implements the Random Forest with Canonical Correlation Analysis (RFCCA) method described in Alakus et al. (2021) [<doi:10.1093/bioinformatics/btab158>](https://doi.org/10.1093/bioinformatics/btab158). The theoretical details are given in the next section. The last section presents a data analysis using this method. 
+
+# Method
+## Motivation
+Multi-view data denotes many kinds of data that provide information about a subject from multiple sources. Integration of multiple feature sets and investigating the relationships between them may help to understand their interactions and obtain more meaningful interpretations. Canonical correlation analysis (CCA) is a multivariate statistical method that analyzes the relationship between two multivariate data sets, $X$ and $Y$. CCA searches for linear combinations of each of the two data sets, $Xa$ and $Yb$, having maximum correlation.
+
+The multi-view data collection may also include some subject-related covariates such as age, gender and IQ as one of the views. We want to identify the linear association between two sets of variables, $X$ and $Y$, but we assume that this association can depend on a third set of subject-related covariates $Z$. 
+
+## Random forest with canonical correlation analysis
+We consider the following setting: let $X$ and $Y$ be two multivariate data sets of dimension $p$ and $q$, respectively, and let $Z$ be a $r$-dimensional vector of subject-related covariates. We assume that the canonical correlation between $X$ and $Y$ depends on $Z$. RFCCA uses an unsupervised random forest based on the set of covariates $Z$ to find subgroups of observations with similar canonical correlations between $X$ and $Y$. This random forest consists of many unsupervised decision trees with a specialized splitting criterion $$\sqrt{n_Ln_R}*|\rho_L - \rho_R|$$ where $\rho_L$ and $\rho_R$ are the canonical correlation estimations of left and right nodes, and $n_L$ and $n_R$ are the left and right node sizes, respectively. This splitting rule seeks to increase the canonical correlation heterogeneity. Following the random forest growing, RFCCA builds the Bag of Observations for Prediction (BOP), which is the set of training observations that are in the same terminal nodes as the observation of interest, for a new observation. Then, it applies CCA to the observations in BOP to estimate the canonical correlation of the new observation.
+
+## Global significance test
+We perform a hypothesis test to evaluate the global effect of the subject-related covariates on distinguishing between canonical correlations. Define the unconditional canonical correlation between $X$ and $Y$ as $\rho_{\tiny CCA}(X,Y)$ which is found by computing CCA with all $X$ and $Y$, and the conditional canonical correlation between $X$ and $Y$ given $Z$ as $\rho(X,Y | Z)$ which is found by RFCCA. If there is a global effect of $Z$ on correlations between $X$ and $Y$, $\rho(X,Y | Z)$ should be significantly different from $\rho_{\tiny CCA}(X,Y)$. We conduct a permutation test for the null hypothesis $$H_0 : \rho(X,Y | Z) = \rho_{\tiny CCA}(X,Y)$$ We estimate a *p*-value with the permutation test. If the $p$-value is less than the pre-specified significance level $\alpha$, we reject the null hypothesis. 
+
+# Data analysis
+We will show how to use RFCCA package on a generated data set. The data set has three sets of variables: $X \in R^{n \times 2}$, $Y \in R^{n \times 2}$ and $Z \in R^{n \times 7}$. The sample size ($n$) is 300. The correlation between $X$ and $Y$ depends only on $Z_1,...,Z_5$ (*i.e.* $Z_6$ and $Z_7$ are noise variables). Firstly, we load the data and split the data into train and test sets:
+
+```{r, message=FALSE}
+library(RFCCA)
+data(data)
+
+set.seed(2345)
+smp <- sample(dim(data$X)[1], round(dim(data$X)[1]*0.7))
+train.X <- data$X[smp,]
+train.Y <- data$Y[smp,]
+train.Z <- data$Z[smp,]
+test.Z <- data$Z[-smp,]
+```
+
+Then, we train the random forest with `rfcca()`. 
+```{r}
+rf.obj <- rfcca(X = train.X, Y = train.Y, Z = train.Z, ntree = 100)
+```
+
+Before analyzing the prediction results, we have to check first if the the global effect of $Z$ is significant by applying the global significance test.
+```{r}
+test.obj <- global.significance(X = train.X, Y = train.Y, Z = train.Z, 
+                                ntree = 100, nperm = 10)
+test.obj$pvalue
+```
+Using 10 permutations, the estimated *p*-value < 0.05 (where the significance level($\alpha$) is 0.05). Hence, we reject the null hypothesis. 10 permutations to compute the *p*-value is indeed very low. Using 500 permutations, we got a *p*-value of 0. Higher number of permutations is required to estimate the *p*-value accurately. However, it should also be noted that higher number of permutations increases the computational time. 
+
+Since the global effect of $Z$ is significant, now we can analyze the predictions. We can get the out-of-bag (OOB) predictions from the grow object.
+```{r}
+pred.oob <- rf.obj$predicted.oob
+head(pred.oob)
+```
+Those values represent the OOB canonical correlation predictions for the training observations. The predicted canonical correlations range between 0 and 1 where the closer the values to 1, the stronger the correlation between the canonical variates, $Xa$ and $Yb$.
+
+We can get the variable importance (VIMP) measures for $Z$. VIMP measures reflect the predictive power of subject-related covariates on the estimated correlations.
+```{r}
+vimp.obj <- vimp(rf.obj)
+vimp <- vimp.obj$importance
+vimp
+```
+
+Moreover, we can plot the variable importance measures. We know that the correlation between $X$ and $Y$ depends on $Z_1,...,Z_5$. Therefore, it is expected to get higher VIMP measures for $Z_1,...,Z_5$ than $Z_6$ and $Z_7$.
+```{r vimp_plot, fig.show='hold', fig.width=6, fig.height=4, fig.align='center'}
+plot.vimp(vimp.obj)
+```
+
+Finally, we can get canonical correlation predictions for test $Z$.
+```{r}
+pred.obj <- predict(rf.obj, test.Z)
+pred <- pred.obj$predicted
+head(pred)
+```
+Those values represent the canonical correlation predictions for the test observations.
+
+Besides the canonical correlation estimations, we can get the estimated canonical coefficients for the $X$ and $Y$, $a$ and $b$, respectively.
+```{r}
+head(pred.obj$predicted.coef$coefx)
+head(pred.obj$predicted.coef$coefy)
+```
+We can analyse the linear relations between the variables with the entries of the estimated canonical coefficient vectors, $a$ and $b$. The values under the $X_1$ and $X_2$ columns represent the canonical coefficients for $X_1$ and $X_2$, $a_1$ and $a_2$, respectively. Similarly, $b_1$ and $b_2$ for the canonical coefficients of $Y_1$ and $Y_2$ under the corresponding columns.
+
+Alternatively, we can use variants of CCA for the final canonical correlation estimation. Here, we use Sparse CCA (SCCA) for the final canonical correlation estimations. The idea of SCCA is to improve the interpretability of results by forcing some of the canonical coefficients to be zero which results in a set of selected features that has the highest importance in the relationship between $X$ and $Y$.
+```{r}
+pred.obj2 <- predict(rf.obj, test.Z, finalcca = "scca")
+pred2 <- pred.obj2$predicted
+head(pred2)
+```
+
+Again, we can look at the estimated canonical coefficients for the $X$ and $Y$.
+```{r}
+head(pred.obj2$predicted.coef$coefx)
+head(pred.obj2$predicted.coef$coefy)
+```
+
+We can plot the canonical correlation estimations using classical CCA and Sparse CCA.
+```{r canonical_correlation_plot, fig.show='hold', fig.width=5, fig.height=5, fig.align='center'}
+plot(pred, pred2, xlab="Classical CCA", ylab="Sparse CCA", 
+     xlim=c(min(pred,pred2),max(pred,pred2)), ylim=c(min(pred,pred2),max(pred,pred2)),
+     pch = 20) 
+abline(0,1,col = "red") 
+```
+
+For further data analysis, one can use SHAP values (Lundberg et al., 2017) to gain additional insights. SHAP values show how much each variable contributes, either positively or negatively, to the individual predictions. For an example of application to the problem in question, see Alakus et al. (2020).
+
+# References
+Alakus, C., Larocque, D., Jacquemont, S., Barlaam, F., Martin, C.-O., Agbogba, K., Lippe, S., and Labbe, A. (2021). Conditional canonical correlation estimation based on covariates with random forests. Bioinformatics, 37(17), 2714-2721.
+
+Lundberg, S. M., & Lee, S. I. (2017). A unified approach to interpreting model predictions. In Advances in neural information processing systems (pp. 4765-4774).
+
+# Session info
+```{r}
+sessionInfo()
+```
