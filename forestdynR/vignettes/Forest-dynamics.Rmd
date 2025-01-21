@@ -1,0 +1,22 @@
+---
+title: "Forest-dynamics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Forest-dynamics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(forestdynR)
+```
+# What does forestdynR want to bring to you?
+
+Forest dynamics, also commonly referred to as tree community dynamics, aims to provide information on the structural and floristic changes within a specific forest over time, allowing for analyses of demographic shifts, such as variations in the number of individuals and basal area. Considered a crucial tool for understanding the processes and mechanisms that govern the evolution and ecological performance of vegetation, forest dynamics offers essential floristic and phytosociological data. Additionally, it enables the estimation of the area's current stock, including biomass volume and stored carbon. With this, the forestdynR package provides relevant information about the dynamics of tree communities and serves as a tool for researchers to develop scientific work in the area.

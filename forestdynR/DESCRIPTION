@@ -1,0 +1,45 @@
+Type: Package
+Package: forestdynR
+Title: Calculate Forest Dynamics
+Version: 0.0.1
+Authors@R: c( person("Pedro", "Higuchi", email = "higuchip@gmail.com",
+        role = c("cre", "aut")), person("Ana Carolina", "Silva", email
+        = "carol_sil4@yahoo.com.br", role = c("aut")), person("Adam",
+        "Slabadack", email = "arslabadack@gmail.com", role = c("aut")))
+Maintainer: Pedro Higuchi <higuchip@gmail.com>
+Description: Determines the dynamics of tree species communities
+        (mortality rates, recruitment, loss and gain in basal area, net
+        changes and turnover). Important notes are a) The 'forest_df'
+        argument (data) must contain the columns 'plot' (plot
+        identification), 'spp' (species identification), DBH_1
+        (Diameter at breast height in first year of measure) and DBH_2
+        (Diameter at breast height in second year of measure). DBH_1
+        and DBH_2 must be numeric values; b) example input file in
+        'data(forest_df_example)'; c) The argument 'inv_time'
+        represents the time between inventories, in years; d) The
+        'coord' argument must be of the type 'c(longitude, latitude)',
+        with decimal degree values; e) Argument 'add_wd' represents a
+        dataframe with wood density values (g cm-3) format with three
+        columns ('genus', 'species', 'wd'). This argument is set to
+        NULL by default, and if isn't provided, the wood density will
+        be estimated with the getWoodDensity() function from the
+        'BIOMASS' package.
+License: GPL (>= 2)
+URL: https://github.com/higuchip/forestdynR
+BugReports: https://github.com/higuchip/forestdynR/issues
+Depends: R (>= 4.3.0)
+Imports: BIOMASS (>= 2.1.11), tcltk (>= 1.0.0),
+Suggests: covr, knitr, rmarkdown, spelling, testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2024-11-18 20:37:29 UTC; optimus-prime
+Author: Pedro Higuchi [cre, aut], Ana Carolina Silva [aut], Adam
+        Slabadack [aut]
+Repository: CRAN
+Date/Publication: 2024-11-19 12:20:41 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
