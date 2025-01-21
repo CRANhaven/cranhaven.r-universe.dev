@@ -1,0 +1,61 @@
+* version 2.1.11
+- Move from httr to httr2 package for correctTaxo
+- Replace sp and raster dependencies by sf and terra
+
+* version 2.1.10
+- Add a graceful failure message in case of API or connection failure to match the CRAN policy
+
+* version 2.1.9
+- Change of the reference dataset in correctTaxo function to avoid a bug (tropicos was no longer maintained)
+- Add a graceful failure message in case of API or connection failure to match the CRAN policy
+
+* version 2.1.7
+- Remove the as.vector to match the latest development versions of R
+
+* version 2.1.6
+- Fit the CRAN policies regarding the cache management by defaulting location to
+R session temp folder (issue #30)
+  - Use function createCache to activate a permanent cache
+  - clearCache function allows to clear or remove permanent cache folder
+- Avoid all tests based on downloading rasters (E and bioclim parameters)
+
+* version 2.1.5
+- updated TNRS API request code in correctTaxo (issue #25)
+
+* version 2.1.4
+- replaced taxosaurus with TNRS for name resolution in correctTaxo
+- spell check documentation (thank you Mauro)
+- fix an issue with summaryByPlot when a plot contains a single tree
+- added fetching accepted names in correctTaxo
+- removed unneeded dependencies on usethis, taxize, covr, rvest, MCMCglmm and lmfor
+
+* version 2.1.3
+-
+
+* version 2.1.2
+- Modified dataset for compatibility issues with new rgdal package
+
+* version 2.1
+- bugs correction
+- add a vignette for the managment of the plot
+- add few tricks for the summaryByPlot
+- add of a function to convert tree relative to absolute coordinates
+
+* version 2.0
+- code optimization of most functions
+- new functions: computeFeldRegion, attributeTree, correctCoordGPS, cutPlot, latlong2UTM, numberCorner, summaryByPlot, updateCache
+- Re-writing of the dataset Karnataka forest, there were missing stems in the previous version of this database
+
+* version 1.2
+- Duplicated genera from the plantList have been fixed in the "genusFamily" dataset (e.g. The family Jungermanniaceae was given for the genus Massularia, now the dataset gives the Rubiaceae family)
+
+* version 1.1
+- The NouraguesHD dataset has now taxonomic information
+- The warning message from the computeAGB function has been removed
+- The correctTaxo function have been slightly modified to handle species names not recognized by TNRS
+- The getWoodDensity function has been slightly modified to deal with NA values in addWoodDensityData, which is now a data.frame of three colums and not four (the family column is now internaly built).
+- The computeAGB and AGBmonteCarlo functions have an additional argument: Dlim (see help).
+- The AGBmonteCarlo function has now an option to propagate error up to the carbon estimate (see the argument Carbon).
+
+* version 1.0
+Initial version of BIOMASS
