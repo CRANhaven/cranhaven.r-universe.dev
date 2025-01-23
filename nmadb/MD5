@@ -1,0 +1,9 @@
+73ffc1e5379fc6329f41584a8c3cf6ec *DESCRIPTION
+ec351adf5cf024c5770825cec7b11218 *NAMESPACE
+1f694ed4521e25948edd1ea03d1e4a1b *R/publictoken.R
+17d23320b0e391516a0f98821b595e37 *R/readdb.R
+2a4c3e38993b24ce64b3095094ca5c7a *R/runnetmeta.R
+b8f9e891f67d9c25287cc4a144bfabc7 *R/wide2long.R
+832df473aeaade25fe9159740b38e4e1 *man/getNMADB.Rd
+5baca5c0bbc66e4f8daf2cd27efd13c9 *man/readByID.Rd
+8c3720d20ddcc0ddb54fdec97222600e *man/runnetmeta.Rd
