@@ -1,0 +1,42 @@
+Package: RegrCoeffsExplorer
+Title: Efficient Visualization of Regression Coefficients for lm(),
+        glm(), and glmnet() Objects
+Version: 1.1.0
+Imports: dplyr, ggpubr, gridExtra, glmnet, ggplot2, magrittr,
+        grDevices, rlang, stats
+Authors@R: c( person("Vadim", "Tyuryaev", ,"vadim.tyuryaev@gmail.com",
+        role = c("aut", "cre"), comment = c(ORCID =
+        "0009-0008-1361-6265")), person("Aleksandr", "Tsybakin", ,
+        "tsybakin@yorku.ca", role = c("aut")), person("Jane",
+        "Heffernan", , "jmheffer@yorku.ca", role = c("aut")),
+        person("Hanna", "Jankowski", , "hkj@yorku.ca", role =
+        c("aut")), person("Kevin", "McGregor", , "kevinmcg@yorku.ca",
+        role = c("aut")) )
+Description: The visualization tool offers a nuanced understanding of
+        regression dynamics, going beyond traditional per-unit
+        interpretation of continuous variables versus categorical ones.
+        It highlights the impact of unit changes as well as larger
+        shifts like interquartile changes, acknowledging the
+        distribution of empirical data. Furthermore, it generates
+        visualizations depicting alterations in Odds Ratios for
+        predictors across minimum, first quartile, median, third
+        quartile, and maximum values, aiding in comprehending
+        predictor-outcome interplay within empirical data
+        distributions, particularly in logistic regression frameworks.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Suggests: faraway, knitr, MASS, psych, rmarkdown, selectiveInference,
+        survival
+VignetteBuilder: knitr
+URL: https://vadimtyuryaev.github.io/RegrCoeffsExplorer/
+NeedsCompilation: no
+Packaged: 2024-11-13 20:38:35 UTC; vadim
+Author: Vadim Tyuryaev [aut, cre]
+        (<https://orcid.org/0009-0008-1361-6265>), Aleksandr Tsybakin
+        [aut], Jane Heffernan [aut], Hanna Jankowski [aut], Kevin
+        McGregor [aut]
+Maintainer: Vadim Tyuryaev <vadim.tyuryaev@gmail.com>
+Repository: CRAN
+Date/Publication: 2024-11-14 13:50:49 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

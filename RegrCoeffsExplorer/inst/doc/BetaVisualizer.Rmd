@@ -1,0 +1,614 @@
+---
+title: "BetaVisualizer"
+author:
+  - Vadim Tyuryaev^[York University,Mathematics and Statistic, vadimtyu@yorku.ca]
+  - Aleksandr Tsybakin^[York University,Mathematics and Statistic, tsybakin@yorku.ca]  
+  - Jane Heffernan^[York University,Mathematics and Statistic,  jmheffer@yorku.ca]
+  - Hanna Jankowski^[York University,Mathematics and Statistic, hkj@yorku.ca]
+  - Kevin McGregor^[York University,Mathematics and Statistic, kevinmcg@yorku.ca]
+output: 
+  rmarkdown::html_vignette: 
+    df_print: kable
+vignette: >
+  %\VignetteIndexEntry{BetaVisualizer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# LIBRARIES
+
+```{r, echo=TRUE, include=TRUE,  warning=FALSE, message=FALSE}
+library(RegrCoeffsExplorer)
+library(gridExtra)
+library(glmnet)
+library(selectiveInference)
+library(dplyr)
+library(faraway)
+library(MASS)
+library(psych)
+library(ggplot2)
+library(rlang)
+```
+
+# EXAMPLES
+
+## 1. LM object
+
+### 1.1 Data
+
+To assess the impact of automobile design and performance characteristics on 
+fuel efficiency, measured in miles per gallon (`MPG`), we apply our data
+visualization tool to the `mtcars` dataset. 
+
+```{r}
+
+# help(mtcars)
+
+df_mtcars=as.data.frame(mtcars)
+
+df_mtcars[c("cyl","vs","am","gear")] =
+  lapply(df_mtcars[c("cyl","vs","am","gear")] , factor) # convert to factor
+
+head(df_mtcars)
+
+lm_object=lm(mpg~cyl+hp+wt+disp+vs+am+carb,data=df_mtcars)
+
+summary(lm_object)
+
+```
+
+### 1.2 Default side-by-side plots
+
+```{r,fig.height=6,fig.width=12, warning=F}
+
+grid.arrange(vis_reg(lm_object)$"SidebySide")
+
+```
+
+It is imperative to acknowledge that variables such as engine configuration 
+(specifically, the straight engine `vs1`) and vehicle `weight` influence fuel 
+efficiency the most, with the effect of `vs` variable remaining consistent when 
+examining changes in coefficients of continuous variables occurring within 
+empirical data spanning from the first (Q1) to the third (Q3) quartiles 
+by default. Nonetheless, a paradigm shift is observed for several other
+variables when the analysis transitions from a per-unit change perspective 
+(as depicted in the left plot) to an examination of variations between 
+the Q1 and Q3 quartiles (illustrated in the right plot). Under this new 
+analytical lens, `displacement` and `horsepower` emerge as the third positive and
+first negative most influential factors, respectively. This shift in variable 
+significance can be attributed to the fact that the differences in displacement 
+and horsepower among the majority of vehicles do not typically equate to  a mere
+1 cubic inch or 1 horsepower. Consequently, this phenomenon underscores the
+criticality of considering the distribution of variables in the interpretation 
+of regression outcomes, as reliance on per-unit interpretations may lead to 
+misconceptions.
+
+### 1.3 Visualizing per-unit change together with an intercept
+
+```{r, fig.height=6,fig.width=7, warning=F}
+
+vis_reg(lm_object, intercept=T)$"PerUnitVis"
+
+```
+
+### 1.4  Adding Confidence Intervals (CIs)
+
+```{r, fig.height=6,fig.width=7, warning=F}
+
+vis_reg(lm_object, intercept=T, CI=T)$"PerUnitVis"
+
+```
+
+### 1.4 Customizing pallete, title, and modifying default realized effect size calculations
+
+```{r, fig.height=6,fig.width=12, warning=F}
+
+grid.arrange(vis_reg(
+             lm_object, CI=T,palette=c("palegreen4","tomato1"),
+             eff_size_diff=c(1,5),
+             title=c(
+               "Regression - Unit Change", 
+               "Regression - Effective Change (min --> max)"
+                     )
+                     )$"SidebySide"
+             )
+
+```
+
+### 1.5 Customizing individual graphs 
+
+```{r, fig.height=6,fig.width=7, warning=F}
+
+# obtain coefficients for vs and wt
+vline1=lm_object$coefficients['vs1'][[1]]
+vline2=lm_object$coefficients['wt'][[1]]
+
+vis_reg(lm_object)$"PerUnitVis"+
+  geom_hline(yintercept=vline1, linetype="dashed", color = "blue", size=1)+   # add a vertical line
+  geom_hline(yintercept=vline2, linetype="dashed", color = "orange", size=1)+
+  ggtitle("Visualization of Regression Results (per unit change)")+
+  ylim(-5,5)+                                                                 # note the coordinate flip
+  xlab("aspects")+
+  ylab("coefficients")+
+  theme_bw()+
+  scale_fill_manual(values = c("black","pink" ))+                             # change mappings 
+  theme(plot.title = element_text(hjust = 0.5))                               # place title in the center
+ 
+```
+
+## 2. GLM object
+
+We employ the High School and Beyond dataset (`hsb`) to visualize the odds
+of selecting the `Academic` high school program. This analysis is based on 
+predictors such as sex, race, socioeconomic status and scores on several subjects.
+
+### 2.1 Data and fitted object
+
+```{r}
+
+# ?hsb
+
+glm_object=glm(
+  I(prog == "academic") ~ gender +math+ read + write + science + socst,
+  family = binomial(link="logit"), 
+  data = faraway::hsb)
+
+summary(glm_object)
+
+```
+
+### 2.2 Default side-by-side plots, CIs and 99% confidence interval 
+
+```{r, fig.height=6,fig.width=12, warning=F}
+
+grid.arrange(vis_reg(
+             glm_object,
+             CI=T, 
+             alpha=0.01
+                    )$"SidebySide"
+             )
+
+```
+
+Upon examination of the regression coefficients derived from the empirical
+data distribution for a change between Q1 and Q3  for continuous independent 
+variables, it is evident that the `math` score variable exerts the 
+highest impact on the odds of selecting an academic program as shown on the
+right plot. Concurrently, the variable `gendermale` which predominates 
+in influence as depicted in the left plot, transitions to the position of 
+minimal positive impact within this context.
+
+## 3 GLMNET model objects
+
+### 3.1. Data
+
+We utilize the LASSO regression to understand how various car characteristics 
+influence sales price using a data set from 93 Cars on Sale in the USA in 1993. 
+
+```{r}
+
+df_glmnet=data.frame(Cars93)
+
+df_glmnet[sample(dim(df_glmnet)[1], 5), ] # examine 5 randomly selected rows
+
+levels(df_glmnet$Origin)                                                        # check level attributes
+
+df_glmnet=df_glmnet %>% mutate(MPG.avg = (MPG.city + MPG.highway) / 2)          # calculate average MPG
+
+```
+
+### 3.2 LASSO - data preparation and model 
+
+```{r, fig.height=6,fig.width=7, warning=F}
+
+y_lasso=df_glmnet$Price
+
+x_lasso=model.matrix(
+        as.formula(paste("~",
+                         paste(c("MPG.avg","Horsepower","RPM","Wheelbase", 
+                                 "Passengers","Length", "Width", "Weight",
+                                 "Origin","Man.trans.avail"
+                                 ), collapse = "+"
+                               ),sep = ""
+                         )
+                   ), data=df_glmnet
+                     )
+                                                   
+
+x_lasso = x_lasso[, -1]                                                         # remove intercept
+
+ndim_lasso=dim(x_lasso)[1]
+
+cv_model_lasso = cv.glmnet(x_lasso, y_lasso, family="gaussian", alpha=1)        # LASSO regression
+
+# extract value of lambda that gives minimum mean cross-validated error
+best_lambda_lasso = cv_model_lasso$lambda.min                                   
+
+plot(cv_model_lasso)
+
+best_model_lasso = glmnet(x_lasso, y_lasso, family="gaussian", alpha=1, 
+                            lambda=best_lambda_lasso)
+
+coefficients(best_model_lasso)
+
+
+```
+
+Note that on Lasso regression plots two values of regularization parameter
+$\lambda$ are indicated: $\lambda_{min}$ and $\lambda_{1se}$. What is the 
+difference? The first, $\lambda_{min}$is the value that minimizes the
+cross-validated error, leading to a model that fits the data with the 
+lowest prediction error, but with a potential risk of overfitting. 
+Conversely,$\lambda_{1se}$. is a more conservative choice, representing the
+largest $\lambda$ within one standard error of the minimum error, resulting in
+a simpler, more robust model that is less likely to overfit while maintaining 
+a prediction error close to the minimum. For our analysis we select $\lambda_{min}$. 
+
+The LASSO regression has reduced the coefficient for the `weight` variable to
+zero, likely due to its high correlation with other variables included 
+in the analysis. 
+
+
+
+### 3.3 Checking correlations for numeric variables of interest
+
+```{r,fig.height=8,fig.width=8, warning=F}
+
+df_glmnet_num=df_glmnet%>%select_if(function(x) is.numeric(x))                  
+
+cols_to_select = c("MPG.avg","Horsepower","RPM","Wheelbase","Passengers",
+                   "Length", "Width", "Weight")
+
+df_glmnet_num=df_glmnet_num %>%select(all_of(cols_to_select))                 
+
+corPlot(df_glmnet_num,xlas=2)
+
+```
+
+The correlation matrix substantiates our hypothesis, revealing a high 
+correlation between weight and multiple variables incorporated in the model.
+
+### 3.4 Default LASSO plots with custom realized effect size
+
+```{r, fig.height=6,fig.width=12, warning=F}
+
+grid.arrange(vis_reg(best_model_lasso,eff_size_diff=c(1,3),         # Q2 - minimum
+                     glmnet_fct_var="Originnon-USA")$"SidebySide")  # note the naming pattern for categorical variables
+    
+
+```
+
+Note that the `Weight` variable is retained and remains consistently equal to $0$
+across both plots. Additionally, the variation in regression coefficients and
+their interpretation align with the paradigm change discussed previously. 
+
+### 3.5 Modifying idividial plots and arraning them back together
+
+```{r, fig.height=6,fig.width=12, warning=F}
+
+plt_1=vis_reg(best_model_lasso,eff_size_diff=c(1,3),
+              glmnet_fct_var="Originnon-USA")$"PerUnitVis"+
+              ggtitle("Visualization of CV.GLMNET Results (per unit change)")+
+              ylim(-4,4)+
+              xlab("Car characteristics")+
+              ylab("LASSO coefficients")+
+              theme_bw()+
+              scale_fill_manual(values = c("red","whitesmoke" ))+                            
+              theme(plot.title = element_text(hjust = 0.5))   
+
+plt_2=vis_reg(best_model_lasso, eff_size_diff=c(1,3), 
+              glmnet_fct_var="Originnon-USA")$"RealizedEffectVis"+
+              ggtitle("Visualization of CV.GLMNET Results (effective:min --> Q2)")+
+              ylim(-15,15)+        
+              xlab("Car characteristics")+
+              ylab("LASSO coefficients")+
+              theme_bw()+
+              scale_fill_manual(values = c("maroon1","palegreen1" ))+                            
+              theme(plot.title = element_text(hjust = 0.5))   
+
+plt_3=arrangeGrob(plt_1,plt_2, nrow=1, widths = c(1,1))
+
+grid.arrange(plt_3)
+
+```
+
+Note that coefficients with absolute values exceeding those specified in the
+`ylim` vector will not be visualized. For instance, setting `ylim`=c(-2,2) for the 
+left plot would result in the omission of the `Originnon-USA` coefficient 
+from the visualization.
+
+### 3.6 Post Selection Inference
+
+### 3.6.1 Data
+
+We employ the Stanford Heart Transplant data (`jasa`) which bcontains detailed 
+records of heart transplant patients, including their survival times, status,
+and other clinical variables, used for survival analysis to demonstrate the
+construction of CIs for `glmnet` type objects. 
+
+```{r}
+
+# ?jasa
+
+heart_df=as.data.frame(survival::jasa)
+
+heart_df_filtered = heart_df %>%filter(!rowSums(is.na(.)))                      # remove rows containing NaN values
+
+# check last 6 rows of the data frame
+tail(heart_df_filtered)
+
+```
+
+### 3.6.2 Data observations
+
+```{r, fig.height=6,fig.width=12, warning=F}
+
+# filtered data only contains patients who received a transplant,
+sum(heart_df_filtered$transplant!=1)
+
+# mismatch scores are weakly correlated,
+print('Correlation between mismatch scores:')
+cor(heart_df_filtered$mscore,heart_df_filtered$mismatch)
+
+# if rejection occurs, the death is certain, at least, in this data set
+heart_cont_table=table(heart_df_filtered$reject,heart_df_filtered$fustat)
+dimnames(heart_cont_table) =list(
+  Reject = c("No", "Yes"), 
+  Status = c("Alive", "Deceased")
+  )
+heart_cont_table
+                       
+# 'age' is skewed variable with a very big range
+paste("Range of '\ age \' variable is : ",diff(range(heart_df_filtered$age)))
+
+old_par = par()      
+par(mfrow=c(2,2))
+hist(heart_df_filtered$age, main="Histogram of Age", xlab="age")
+boxplot(heart_df_filtered$age,main="Boxplot of Age", ylab="age")
+hist(sqrt(heart_df_filtered$age),main="Histogram of transformed data", xlab="Sqrt(age)")
+boxplot(sqrt(heart_df_filtered$age),main="Boxplot of transformed data", ylab="Sqrt(age)")
+par(old_par)          
+
+```
+
+### 3.6.3 A note about rounding
+
+```{r}
+
+# observe that age variable is not rounded
+
+# it is calculated in the following manner
+age_calc_example=difftime(heart_df_filtered$accept.dt, 
+                          heart_df_filtered$birth.dt,units = "days")/365.25
+
+# check the first calculated value
+age_calc_example[1]==heart_df_filtered[1,]$age
+
+# check randomly selected value
+n_samp=sample(dim(heart_df_filtered)[1],1)
+age_calc_example[n_samp]==heart_df_filtered[n_samp,]$age
+
+# check 5 point summary 
+heart_df_filtered$age%>%summary()
+
+# check 5 point summary for data rounded down to the nearest integer
+heart_df_filtered$age%>%floor()%>%summary()
+
+```
+
+In the realm of our visualization tool, two primary inquiries emerge:
+
+*How does the Odds Ratio (OR) change with a __unit increment__ in the variables 
+under scrutiny?
+
+*How does the OR vary in response to alterations _exceeding a single unit_, such
+as the disparity between the first (Q1) and third (Q3) quartiles within the data
+distribution?
+
+It is crucial to acknowledge that the data distribution may not always support a
+per-unit interpretation, as exemplified by the `age` variable 
+within our dataset. Consequently, when engaging in calculations that encompass 
+changes across quartiles, it is advisable to employ rounding strategies 
+(either floor or ceiling functions) prior to data input. This approach 
+facilitates the comparison of ORs associated with unit
+age discrepancies (e.g., 1 year) against those pertaining to more substantial 
+differences (e.g., 10 years).
+
+Absence of rounding can lead to nuanced interpretations. Consider, for instance, 
+the interquartile range for the `age` variable, which is calculated 
+as Q3 - Q1 (52.08 - 42.50 = 9.58 years). In such scenarios, the OR derived
+from the Q3 to Q1 variation in `age` essentially compares the odds of mortality
+among individuals with an age gap of 9.58 years, a differential that may not 
+intuitively serve as the most illustrative measure. In the `vis_reg()` function,
+the `round_func` parameter allows for the specification of rounding the 
+calculated differences either upwards or downwards to the nearest integer, 
+thus providing a more instinctual explication.
+ 
+### 3.6.4 Model
+
+```{r}
+
+# reject categorical variable in not included due to the reason previously stated
+heart_df_filtered = heart_df_filtered %>%
+  mutate(across(all_of(c("surgery")), as.factor))
+
+# apply 'sqrt()' transformation to 'age' variable
+heart_df_filtered$sqrt.age=sqrt(heart_df_filtered$age)
+
+y_heart=heart_df_filtered$fustat
+
+x_heart=model.matrix(as.formula(paste("~",
+         paste(c("sqrt.age" ,"mismatch","mscore", "surgery"),collapse = "+"),
+         sep = "")), data=heart_df_filtered)
+
+x_heart=x_heart[, -1]
+x_heart_orig=x_heart                                                            # save original data set
+x_heart=scale(x_heart,T,T)                                                    
+
+gfit_heart = cv.glmnet(x_heart,y_heart,standardize=F,family="binomial")
+
+lambda_heart=gfit_heart$lambda.min
+n_heart=dim(x_heart)[1]
+
+beta_hat_heart=coef(gfit_heart, x=x_heart, y=y_heart, s=lambda_heart, exact=T)
+
+# note that lambda should be multiplied by the number of rows
+out_heart = fixedLassoInf(x_heart,y_heart,beta_hat_heart,lambda_heart*n_heart,
+                          family="binomial")
+#check the output
+out_heart
+
+# note the class
+class(out_heart)
+
+```
+
+Although the data input is centered and scaled, the coefficients and CIs are
+presented on the original scale. The package includes a function named
+`detransform` that carries out the re-scaling and de-centering process for 
+effective size difference calculations. Alternatively, consider rounding down
+or up before passing the data to the function. 
+
+### 3.6.5 A note on data scaling and centering in relation to `glmnet` objects
+
+```{r}
+ 
+# back transformation logic
+ x_heart_reconstructed = t(apply(x_heart, 1, function(x) 
+   x*attr(x_heart,'scaled:scale') + attr(x_heart, 'scaled:center')))
+
+ # check
+ all.equal(x_heart_orig,x_heart_reconstructed)
+ 
+ # same via a function
+ x_heart_reconstructed.2=detransform(x_heart)
+ all.equal(x_heart_orig,x_heart_reconstructed.2)
+
+```
+
+### 3.6.6 LASSO regression with CIs and custom realized effect size
+
+```{r,fig.height=6,fig.width=12, warning=F}
+
+grid.arrange(vis_reg(out_heart, CI=T, glmnet_fct_var=c("surgery1"), 
+                     round_func="none",eff_size_diff=c(1,3))$"SidebySide"
+             )
+
+```
+
+### 3.6.7 A note on Selective Inference 
+
+In the domain of Selective Inference, it is noteworthy that CIs may not 
+encompass the estimated coefficients. To elucidate, scenarios may arise wherein 
+both bounds of the confidence intervals are positioned beneath the estimated 
+coefficients. The following example is reproduced without any changes from 
+__"Tools for Post-Selection Inference"__ (pp.9-10).
+
+```{r}
+
+set.seed(43)
+n = 50
+p = 10
+sigma = 1
+x = matrix(rnorm(n*p),n,p)
+x=scale(x,TRUE,TRUE)
+beta = c(3,2,rep(0,p-2))
+y = x%*%beta + sigma*rnorm(n)
+pf=c(rep(1,7),rep(.1,3)) #define penalty factors
+pf=p*pf/sum(pf) # penalty factors should be rescaled so they sum to p
+xs=scale(x,FALSE,pf) #scale cols of x by penalty factors
+# first run glmnet
+gfit = glmnet(xs, y, standardize=FALSE)
+# extract coef for a given lambda; note the 1/n factor!
+# (and we don't save the intercept term)
+lambda = .8
+beta_hat = coef(gfit, x=xs, y=y, s=lambda/n, exact=TRUE)[-1]
+# compute fixed lambda p-values and selection intervals
+out = fixedLassoInf(xs,y,beta_hat,lambda,sigma=sigma)
+#rescale conf points to undo the penalty factor
+out$ci=t(scale(t(out$ci),FALSE,pf[out$vars]))
+out
+
+```
+
+Note that confidence intervals for the first two variables contain the __true__
+values `c(3,2)` and **do not encompass** the estimated coefficients `c(3.987,2.911)`. 
+
+### 3.6.7 GLMNET with penalty factor and CIs
+
+```{r}
+
+pf_heart=c(0.3, 0.1,0.1,0.1)
+p_l=length(pf_heart)
+pf_heart=p_l*pf_heart/sum(pf_heart)
+
+xs_heart_res=scale(x_heart,FALSE,pf_heart)                                      # note that the data is being scaled again
+
+gfit_heart_pef_fac_res = cv.glmnet(xs_heart_res, y_heart, standardize=FALSE, 
+                                   family="binomial")
+
+lambda_heart_pef_fac_res=gfit_heart_pef_fac_res$lambda.min
+
+beta_hat_heart_res=coef(gfit_heart_pef_fac_res, x=xs_heart_res, y=y_heart,
+                        s=lambda_heart_pef_fac_res, exact=F)
+
+out_heart_res = fixedLassoInf(xs_heart_res,y_heart,beta_hat_heart_res,
+                              lambda_heart_pef_fac_res*n_heart,family="binomial")
+
+out_heart_res$ci=t(scale(t(out_heart_res$ci),FALSE,pf_heart[out_heart_res$vars]))
+
+out_heart_res
+
+```
+
+### 3.6.8 A second note on data scaling and centering in relation to `fixedLassoInf` objects
+
+```{r,fig.height=6,fig.width=12, warning=F}
+
+x_heart_test_3=detransform(xs_heart_res, attr_center=NULL)
+
+x_heart_test_3=detransform(x_heart_test_3,
+                           attr_scale=attr(x_heart, 'scaled:scale'),
+                           attr_center=attr(x_heart, 'scaled:center')
+                           )
+# check
+all.equal(x_heart_test_3,x_heart_orig)
+
+```
+
+The __vis_reg()__ function operates by extracting the necessary information 
+from the provided object. However, in the context of generating CIS with penalty 
+factors for `fixedLassoInf` type objects, a dual transformation, as 
+illustrated previously, is necessary. Direct reconstruction from the passed 
+object is not possible in such instances. Therefore, to obtain CIs
+for `fixedLassoInf` objects that have been fitted using penalty factors, it is
+essential to supply the original, non-transformed data. 
+
+### 3.6.9 Post selection inference with CIs and penalty factors
+
+```{r,fig.height=6,fig.width=12,warning=F}
+
+# note that case_penalty=T and x_data_orig must be specified
+
+# effective change between Q1(2) and max(5)
+grid.arrange(vis_reg(out_heart_res, CI=T, glmnet_fct_var=c("surgery1"), 
+                     case_penalty=T, x_data_orig=x_heart_orig,
+                     eff_size_diff=c(2,5))$"SidebySide")
+
+```
+
+It is important to observe that when the computed effective size difference is
+below 1, such would have been the case if we utilized default Q3 - Q1 difference
+which is 7.217 - 6.519 = 0.698 ( see `summary(heart_df_filtered$sqrt.age)` ), 
+the OR on the right plot would correspond to a change of **less** 
+than one unit. As a result, the numerical values presented on the right plot
+would be lower than those on the left plot. This outcome may appear
+counter intuitive at first glance.
+
