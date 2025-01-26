@@ -1,0 +1,5 @@
+importFrom(MASS, ginv)
+importFrom(psych, tr)
+importFrom("stats", "contrasts", "cor", "model.matrix","model.response", "pt")
+importFrom("utils", "read.table")
+exportPattern("^[[:alpha:]]+")
