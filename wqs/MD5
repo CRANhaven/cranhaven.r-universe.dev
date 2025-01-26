@@ -1,0 +1,9 @@
+0a3d720f042a243e6ea18a8a80a6c97f *DESCRIPTION
+4dbd81dc9065825ef65db44fd0728aea *NAMESPACE
+acee65e41dcd2fb6094be4a19f15b851 *R/wqs.est.R
+f41ba0b22221a261c43cd7248ab6e9c9 *R/wqs_helpers.R
+f0829aed537bf54d46b7a0ae3a5cb984 *build/partial.rdb
+71673ede6bf55d172a4c8248756a0263 *data/WQSdata.rda
+c8455a4a5db0223568ddb5be35295b85 *man/WQSdata.Rd
+b03f902d4d5e8d1330cc0f255b9e824d *man/wqs-package.Rd
+21d78b488c508b7909ac41769eeeab7b *man/wqs.est.Rd

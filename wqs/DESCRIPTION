@@ -1,0 +1,18 @@
+Package: wqs
+Type: Package
+Title: Weighted Quantile Sum Regression
+Version: 0.0.1
+Date: 2015-10-05
+Author: Jenna Czarnota, David Wheeler
+Maintainer: Jenna Czarnota <jennaczarnota@gmail.com>
+Description: Fits weighted quantile sum regression models, calculates
+        weighted quantile sum index and estimated component weights.
+Depends: R (>= 3.2.1)
+Imports: Rsolnp, glm2
+License: GPL (>= 2)
+LazyLoad: yes
+NeedsCompilation: no
+Packaged: 2015-10-05 19:29:59 UTC; Jenna
+Repository: CRAN
+Date/Publication: 2015-10-05 22:13:29
+Additional_repositories: https://cranhaven.r-universe.dev

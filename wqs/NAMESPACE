@@ -1,0 +1,4 @@
+export(wqs.est)
+importFrom(Rsolnp, solnp)
+importFrom(glm2, glm2)
+importFrom("stats", "coef", "gaussian", "quantile")
