@@ -1,0 +1,22 @@
+Package: COCONUT
+Type: Package
+Title: COmbat CO-Normalization Using conTrols (COCONUT)
+Version: 1.0.2
+Date: 2017-09-18
+Author: Timothy E Sweeney, MD, PhD [aut,cre]
+Maintainer: Timothy E Sweeney <tes17@alumni.stanford.edu>
+Depends: stats
+Suggests: limma, parallel
+Enhances:
+Description: Allows for pooled analysis of microarray data by
+        batch-correcting control samples, and then applying the derived
+        correction parameters to non-control samples to obtain
+        bias-free, inter-dataset corrected data.
+License: GPL-3
+LazyData: TRUE
+NeedsCompilation: no
+RoxygenNote: 6.0.1
+Packaged: 2017-09-19 02:35:09 UTC; timsweeney
+Repository: CRAN
+Date/Publication: 2017-09-19 07:55:13 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
