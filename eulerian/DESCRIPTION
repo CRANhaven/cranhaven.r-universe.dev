@@ -1,0 +1,17 @@
+Package: eulerian
+Title: eulerian: A package to find eulerian paths from graphs
+Version: 1.0
+Date: 2014-02-21
+Author: Ashis Saha, with contribution from Jaewoo Kang
+Maintainer: Ashis Saha <alorchhota@gmail.com>
+Description: An eulerian path is a path in a graph which visits every
+        edge exactly once. This package provides methods to handle
+        eulerian paths or cycles.
+License: GPL-2
+Depends: R(>= 2.15.0), methods
+Imports: graph
+Packaged: 2014-02-21 16:36:39 UTC; Ashis
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2014-02-21 19:07:56
+Additional_repositories: https://cranhaven.r-universe.dev

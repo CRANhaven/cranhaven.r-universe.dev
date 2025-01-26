@@ -1,0 +1,8 @@
+0654826d8e3a7ed80cc4957edc5ae836 *DESCRIPTION
+cc59747c7bc70149a2fce183432b466f *NAMESPACE
+461e947e6e9a2f18b4b9e41c4b9d844a *R/eulerian.R
+f63b95b7c701f0b444580f6fdf0e1bb7 *man/eulerian-package.Rd
+e43afd6b0b0ad19cfa3574fcd1f5dd8d *man/eulerian.Rd
+600d33a43c27c1ae158381d0b2662ff8 *man/hasEulerianCycle.Rd
+0e8971b872ff7ec8a875f5410ef39ab0 *man/hasEulerianPath.Rd
+3421fc1f401a3dd3932488ee1c456b8f *tests/eulerianTest.R
