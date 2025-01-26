@@ -1,0 +1,18 @@
+Package: TeachNet
+Type: Package
+Title: Fits Neural Networks to Learn About Backpropagation
+Version: 0.7.1
+Date: 2018-11-20
+Author: Georg Steinbuss
+Maintainer: Georg Steinbuss <gspam@steinbuss.de>
+Depends: methods
+Description: Can fit neural networks with up to two hidden layer and
+        two different error functions. Also able to handle a weight
+        decay. But just able to compute one output neuron and very
+        slow.
+License: GPL (>= 2)
+NeedsCompilation: no
+Packaged: 2018-11-27 14:47:27 UTC; georg
+Repository: CRAN
+Date/Publication: 2018-11-27 16:30:11 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

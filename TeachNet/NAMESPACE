@@ -1,0 +1,7 @@
+exportPattern("^[^\\.]")
+import(methods)
+importFrom("stats", "predict", "rnorm")
+exportClasses(Weights,Weights2)
+exportMethods("+","-","*")
+S3method(predict, Weights)
+S3method(predict, Weights2)
