@@ -1,0 +1,4 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("graphics", "plot", "points")
+importFrom("stats", "sd")
+

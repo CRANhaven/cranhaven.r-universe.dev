@@ -1,0 +1,15 @@
+Package: CHFF
+Type: Package
+Title: Closest History Flow Field Forecasting for Bivariate Time Series
+Version: 0.1.0
+Author: Patrick Fleming
+Maintainer: Kyle A. Caudle <kyle.caudle@sdsmt.edu>
+Description: The software matches the current history to the closest
+        history in a time series to build a forecast.
+License: GPL-3
+LazyData: TRUE
+NeedsCompilation: no
+Packaged: 2016-05-26 17:06:11 UTC; kcaudle
+Repository: CRAN
+Date/Publication: 2016-05-26 23:10:00
+Additional_repositories: https://cranhaven.r-universe.dev

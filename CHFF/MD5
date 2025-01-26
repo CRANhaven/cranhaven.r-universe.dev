@@ -1,0 +1,10 @@
+8eb8175c6a694d517bbf53a7d54577b7 *DESCRIPTION
+2b21303d6c25eea9f290346dc2acf4e9 *NAMESPACE
+981edcf6e639b0e8d5749ace9f824481 *R/CHFF.R
+4314973763a05b0eb51c0bb426943743 *R/HistorySpace.R
+2d86daf0a7e891d4895fd08df7074c8b *R/standarddistance.R
+268a3d7b0466c2d7f84196dad241346e *data/tsdata.rda
+6d351e225db59085c89fccf3ae9f1850 *man/CHFF.Rd
+1fe5b395066363eca633df1006623d05 *man/HistorySpace.Rd
+7a2fec81a6ba17d15e3cb0ad7dbdf340 *man/standarddistance.Rd
+a64c9be14c8167457fab7dd92016a960 *man/tsdata.Rd
