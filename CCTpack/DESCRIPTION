@@ -1,0 +1,21 @@
+Package: CCTpack
+Type: Package
+Title: Consensus Analysis, Model-Based Clustering, and Cultural
+        Consensus Theory Applications
+Version: 1.5.2
+Date: 2017-10-10
+Author: Royce Anders <andersr@uci.edu>
+Maintainer: Royce Anders <andersr@uci.edu>
+Description: Consensus analysis, model-based clustering, and cultural
+        consensus theory applications to response data (e.g.
+        questionnaires). The models are applied using hierarchical
+        Bayesian inference. The current package version supports
+        binary, ordinal, and continuous data formats.
+Depends: R2jags (>= 0.04-03)
+Imports: tcltk, rjags, psych, mvtnorm, polycor, MASS, methods
+License: GPL (>= 2)
+NeedsCompilation: no
+Packaged: 2017-10-10 11:00:10 UTC; randers
+Repository: CRAN
+Date/Publication: 2017-10-10 11:09:58 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

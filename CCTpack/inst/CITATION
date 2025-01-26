@@ -1,0 +1,22 @@
+## -*- R -*-
+citHeader("To cite the R package 'CCTpack' in publications use:")
+
+if(!exists("meta") || is.null(meta)) meta <- packageDescription("cluster")
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
+vers <- paste("R package version", meta$Version)
+
+citEntry(entry	= "Manual",
+	 title	= "CCTpack: Cultural Consensus Theory applications to data",
+	 author = c(
+         person("Royce", "Anders", email="andersr@uci.edu",
+                role = c("aut", "cre"))
+                     ),
+	 year = year,
+	 note = paste(vers,"---"),
+	##"For new features, see the 'Changelog' file (in the package source)"),
+## FIXME:  rather give the URL to the manual on CRAN ???
+##	   url = "http://stat.ethz.ch/CRAN/src/contrib/........",
+	 textVersion = paste(
+	 "Anders, R.(",
+         year, ").  CCTpack: Cultural Consensus Theory applications to data. ",
+	 vers, ".", sep=""))
