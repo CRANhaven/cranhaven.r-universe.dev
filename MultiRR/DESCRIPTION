@@ -1,0 +1,25 @@
+Package: MultiRR
+Type: Package
+Title: Bias, Precision, and Power for Multi-Level Random Regressions
+Version: 1.1
+Date: 2015-10-21
+Author: Yimen G. Araya-Ajoy
+Maintainer: Yimen G. Araya-Ajoy <yimencr@gmail.com>
+Depends:
+Description: Calculates bias, precision, and power for multi-level
+        random regressions. Random regressions are types of
+        hierarchical models in which data are structured in groups and
+        (regression) coefficients can vary by groups. Tools to estimate
+        model performance are designed mostly for scenarios where
+        (regression) coefficients vary at just one level. 'MultiRR'
+        provides simulation and analytical tools (based on 'lme4') to
+        study model performance for random regressions that vary at
+        more than one level (multi-level random regressions), allowing
+        researchers to determine optimal sampling designs.
+License: GPL-2
+Imports: MASS, lme4
+Packaged: 2015-10-21 08:19:09 UTC; yi
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2015-10-21 11:36:43
+Additional_repositories: https://cranhaven.r-universe.dev

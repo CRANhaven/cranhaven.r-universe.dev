@@ -1,0 +1,6 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("lme4", "lmer", "VarCorr")
+importFrom("MASS", "mvrnorm")
+importFrom("graphics", "abline", "par", "plot", "segments")
+importFrom("stats", "density", "logLik", "median", "pchisq",
+             "quantile", "rnorm", "sd")
