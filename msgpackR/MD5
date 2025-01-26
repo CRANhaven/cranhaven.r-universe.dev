@@ -1,0 +1,12 @@
+07b3f26aa74ca615a9f9dc3283f89a9e *DESCRIPTION
+2eaeb9428bd158369cd257966e593867 *LICENSE
+a5ee16b6e1d405d44310eb10a9090b5f *NAMESPACE
+f16614dd4468b9203bb83d0cd18e2d95 *R/msgpack.matrix.R
+cc5835a7d92f13a7ce7484a5aa65bb6f *R/msgpack.writeResult.R
+4c497c0ebb938a09bf2dd6246333b2df *R/pack.R
+263d0cd63a4f4516e21b0cbf56126a92 *R/unpack.R
+c3f87d34a35a1ae0ab05f1f1e6949ea1 *man/msgpack.matrix.Rd
+be7b911644b1d34fa20549d23a1b8cf4 *man/msgpack.writeResult.Rd
+0cfcad643d1ba6b96cb2d31efd284d2d *man/msgpackR-package.Rd
+18046f3dbf11f98a658b18f94d681d49 *man/pack.Rd
+a99ce4c435b6ae6e0fdc1e93bf4b21ba *man/unpack.Rd
