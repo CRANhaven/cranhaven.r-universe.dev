@@ -1,0 +1,12 @@
+37f85db65ed0ae645887e63ad7b292fb *DESCRIPTION
+5e6b6c5a5253ded86bdc57276c7f639f *NAMESPACE
+2e999f125d9ccfe9cc86b19d423a2318 *R/pco-internal.R
+f1664cb2e543d9ce6a4e6653ea8f5a43 *R/pedroni99.R
+d2b82ec42377a67a507e3fc81d5449dd *R/pedroni99m.R
+b03201da39e52818dda81504766d6d34 *data/gdi.rda
+cd2461dc8dfd1e6887e66944d2e4be03 *data/gds.rda
+aba93d0f0e5522e0b8a6d168dee6059a *man/gdi.Rd
+03d5910b0758388572abd1450a124a1c *man/gds.Rd
+66f13370d68134449ab2f1a2806f5670 *man/pco-package.Rd
+d0fb126648372fd5414557bb881d4675 *man/pedroni99.Rd
+2ce4f236be2863e4553256ab07f91138 *man/pedroni99m.Rd

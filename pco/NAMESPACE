@@ -1,0 +1,5 @@
+exportPattern("^[[:alpha:]]+")
+
+importFrom(stats, "lm")
+importFrom(stats, "embed")
+importFrom(stats, "na.fail")

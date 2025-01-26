@@ -1,0 +1,17 @@
+Package: pco
+Type: Package
+Version: 1.0.1
+Date: 2015-07-26
+Title: Panel Cointegration Tests
+Author: Georgi Marinov
+Maintainer: Georgi Marinov <georgi.marinov@ue-varna.bg>
+Depends: stats
+Description: Computation of the Pedroni (1999) panel cointegration test
+        statistics.  Reported are the empirical and the standardized
+        values.
+License: GPL-2
+NeedsCompilation: no
+Packaged: 2015-07-28 19:20:10 UTC; st
+Repository: CRAN
+Date/Publication: 2015-07-29 00:06:51
+Additional_repositories: https://cranhaven.r-universe.dev
