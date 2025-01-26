@@ -1,0 +1,27 @@
+Package: vfcp
+Type: Package
+Date: 2017-10-24
+Title: Computation of v Values for U and Copula C(U, v)
+Version: 1.4.0
+Author: Josef Brejcha
+Maintainer: Josef Brejcha <brchjo@gmail.com>
+Depends: copula, extraDistr, stringr
+Suggests: knitr, rmarkdown
+Description: Computation the value of one of two uniformly distributed
+        marginals if the copula probability value is known and the
+        value of the second marginal is also known. Computation and
+        plotting corresponding cumulative distribution function or
+        survival function. The numerical definition of a common area
+        limited by lines of the cumulative distribution function and
+        survival function. Approximate quantification of the
+        probability of this area. In addition to 'amh', the copula
+        dimension may be larger than 2.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: TRUE
+RoxygenNote: 6.0.1
+NeedsCompilation: no
+Packaged: 2017-10-27 08:41:36 UTC; brchjo
+Repository: CRAN
+Date/Publication: 2017-10-27 13:02:22 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

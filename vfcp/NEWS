@@ -1,0 +1,63 @@
+Changes in version 1.4.0
+
+	o New idea of probability calculation for space defined by CDF
+	  and copula survival function. Its use accelerated the calculation
+	  of this probability. At the same time, it recently allowed us
+	  to carry out this calculation even for a copula dimension greater
+	  than 2. Not for 'amh' and 'fgm' copulas.
+
+	o New functions have been inserted, namely:
+	  'gentruk', 'kopula', 'prosim', 'trimeze', 'vfenuo'.
+
+	o The following functions have been deleted as unnecessary:
+	  'CSmeze', 'CSmezesi', 'vfmargi', 'vfpint', 'vfplot', 'vfprip',
+	  'vfpsae', 'vfpsimsi', 'vfeduo', 'fxa'.
+
+Changes in Version 1.3.0
+
+	o Canceling the 'gaussian' copula option.
+
+	o Fix the end of 'vfex'. Now you can not 'joe' as 'gaussian'.
+
+	o A check has been added to the functions c('vfclayton',
+	  'vffrank', 'vfgumbel', 'vfjoe', 'vfalihaq') whether '0 <= u <= 1'.
+
+	o Added three functions: 'CSmezesi', 'vfpsimsi', 'vfpsae'.
+
+Changes in Version 1.2.0
+
+	o The name copula 'alihaq' has been changed to 'amh' as shown
+	  in the 'copula' package.
+
+	o Added four functions: 'fxa', 'prunikus', 'CSmeze', 'vfpint'.
+	  Their use is demonstrated in the examples in the help for 'CSmeze'.
+
+	o 'Vfpripo': Originally was only the first component of the vector
+	  'pro' smaller than 1. Now, there may be more, but just behind
+	  a 'pro[i + 1] < pro[i]', i = 1, ... , k.
+
+  o In NAMESPACE, the missing 'vfex' is added.
+
+  o Added distributions 'BetaPrime' and 'Beta'.
+
+  o Added 'vfeduo' to compute expected values of marginals.
+
+  o Added option 'ped' into 'vfploto' to applicate 'vfeduo'.
+
+Changes in Version 1.1.0
+
+  o Fixed 'vfalihaq'.
+
+  o Examples have been added to help for 'vfalihaq', 'vfjoe' and 'vffgm'.
+
+  o Next to 'vfplot' is newly 'vfploto'.
+
+  o Instead of the 'vfprip' are 'vfpripo' or 'vfprifo' with vector
+    parameter 'pro' as a substitute for 'hom' and 'jm'.
+
+  o Duo 'vfmrg' and 'vfex' replace 'vfmargi'.
+
+  o 'vfploto' uses 'vfpripo' or 'vfprfo' and 'vfmrg' and 'vfex'
+    as well.
+
+  o Original functions remained in the package.
