@@ -1,0 +1,6 @@
+exportPattern("^[[:alpha:]]+")
+import("igraph")
+importFrom("stats", "cov")
+export(fasjem, plot.fasjem, net.neighbors, net.hubs, net.edges, net.degree)
+S3method(plot,fasjem)
+importFrom("graphics", "plot")
