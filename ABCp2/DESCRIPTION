@@ -1,0 +1,19 @@
+Package: ABCp2
+Type: Package
+Title: Approximate Bayesian Computational Model for Estimating P2
+Version: 1.2
+Date: 2016-02-01
+Author: M. Catherine Duryea, Andrew D. Kern, Robert M. Cox, and Ryan
+        Calsbeek
+Maintainer: M. Catherine Duryea <katie.duryea@gmail.com>
+Description: Tests the goodness of fit of a distribution of offspring
+        to the Normal, Poisson, and Gamma distribution and estimates
+        the proportional paternity of the second male (P2) based on the
+        best fit distribution.
+Depends: MASS
+License: GPL-2
+Packaged: 2016-02-04 09:12:00 UTC; mcduryea
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2016-02-04 11:27:26
+Additional_repositories: https://cranhaven.r-universe.dev
