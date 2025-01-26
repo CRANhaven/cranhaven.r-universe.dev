@@ -1,0 +1,6 @@
+exportPattern("^[^\\.]")
+importFrom("grDevices", "dev.new", "gray.colors")
+importFrom("graphics", "box", "lines", "par", "plot", "points", "segments", "title")
+importFrom("stats", "density", "runif", "sd")
+importFrom("utils", "read.table", "write.table")
+

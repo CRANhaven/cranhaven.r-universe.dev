@@ -1,0 +1,21 @@
+Package: IsotopeR
+Type: Package
+Title: Stable Isotope Mixing Model
+Version: 0.5.4
+Date: 2016-06-15
+Author: Jake Ferguson and Jack Hopkins
+Maintainer: Jake Ferguson <troutinthemilk@gmail.com>
+Description: Estimates diet contributions from isotopic sources using
+        JAGS. Includes estimation of concentration dependence and
+        measurement error.
+Imports: fgui, runjags, colorspace, ellipse, plotrix
+Suggests: rgl
+License: GPL (>= 2)
+LazyLoad: yes
+Collate: 'IsotopeRModelsGroups.R' 'IsotopeRModelsNoGroups.R'
+        'IsotopeRgui.R' 'Plot_jags.R' 'IsotopeRModelsNoGroupsNoInd.R'
+Packaged: 2016-06-15 15:39:52 UTC; troutinthemilk
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2016-06-15 18:03:02
+Additional_repositories: https://cranhaven.r-universe.dev

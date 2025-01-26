@@ -1,0 +1,92 @@
+Known Issues:
+*Cannot estimate source correlation when more than 2 isotopes are estimated. This is due to computational issues in jags. For now source correlations are set to 0 when estimating more than 3 isotopes.
+*Cannot estimate diet contributions when only 1 isotope is used.
+
+v0.5.4
+*fixed bug that arose due to runjags package (runjags_2.0.3-2) that did not caclulate summary statistics
+
+v0.5.3
+*Added new models that don't have individual level of variation. 
+
+v0.5.2
+*updated order of inputs in GUI
+*removed hyperparameters for means of concentration dependnence (now uniform distribution)
+*updated vignette
+*fixed bug in repeated observation file
+
+v0.5.1
+*fixed bug in namespace file
+
+v0.5
+*added group grayscale shades
+*Removed digestibility error from GUI, now needs to be data needs to be corrected manually
+*Discrimination error file now needs to have same source names as in Sources file. If these don't match the software will stop.
+*fixed bug in determining range of diet posterior plots
+*fixed bug in discrimation variation
+*fixed bug in multiple individuals 
+*added rgl observation plots for 3 isotopes
+
+v0.4.7 
+*Fixed bug in model with grouped observations and measurement error
+
+v0.4.6
+*fixed bug in grouping multiple observations together for repeated observation model.
+
+v0.4.5
+*fixed bug in estimates plot for 2d space.
+
+v0.4.2
+*allowed csv files with ';' seperators to be loaded.
+
+v0.4.2
+*fixed assumption that individual labels are consecutive. Note that reported values are still consecutive so it could be problematic to match individual labels to the IsotopeR output when nonconsecutive labels are used.
+*included dic calculation, but only when parallel.runs==FALSE.
+
+v0.4.4 
+*fixed error in drawing plot limits when no measurement error is present.
+
+v0.4.1
+*fixed error in plotting  concentration dependence.
+*updated citations.
+
+v0.4
+*fixed concentration dependence calculation with 'n+1 sources'.
+*updated error messages when plot is unavailable to be more informative.
+*changed concentration precision prior from gamma to exponential distribution (with rate = 0.001). There was trouble inverting the matrix when the gamma distribution was used along with more than 3 sources. 
+*added the ability to do parallel chains on machines with multiple processors (needs to have more than 1 chain run to be useful). 
+*fixed the way range is determined in the diet source curves.
+*removed correlations when more than two isotopes are calculated.
+*updated vignette.
+
+v.0.3.1
+*fixed mislabeling of diet contribution curves that sometimes occurred
+*fixed mixing space x and y axis labels. labels are now read from data file.
+*increased the default spacing in mixture error plots so that ellipses will not be outside the axis ranges.
+*checked runs under R 2.14.0 and jags 3.1.0
+
+v.0.3
+*updated vignette to include an example analysis.
+*added group level estimates to the dietary source contributions plots. these are shown as broken lines.
+*updated mixing estimate plots to use the density function
+*fixed error message on 2 source model when no concentration dependence is present.
+*added shades of color to observation plots to identify subsources
+*added color option to observation plots, also now allows indefinite number of sources on observation plots
+*changed observation plots to only include point observations.
+*added function to load previously run data and make plots.
+*added appropriate colors to the source contribution plots.
+
+
+v.0.2.1 
+*fixed bug on 2 source plots
+
+
+v0.2 
+4/7/2011
+* fixed bug when all text files are included in the model.
+* fixed subsource estimation procedure.
+* fixed group estimation procedure.
+* updated posterior diet contribution plots to include group estimates.
+* fixed 2 source mixture and estimation plots.
+* cleaned up values of input data passed into run.jags
+* cleaned up output variables returned from run.jags
+* added vignette
