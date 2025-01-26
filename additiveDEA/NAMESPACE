@@ -1,0 +1,4 @@
+exportPattern("^[[:alpha:]]+")
+import(lpSolveAPI)
+importFrom("stats", "sd")
+importFrom("utils", "tail")
