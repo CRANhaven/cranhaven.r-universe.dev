@@ -1,0 +1,14 @@
+RWINLIB = ../windows/libopenmpt
+PKG_CPPFLAGS = -I$(RWINLIB)/include -DLIBOPENMPT_NOT_A_DLL
+PKG_LIBS = -L$(RWINLIB)/lib -lopenmpt -lsndfile -lvorbisfile -lvorbis -logg -lopus \
+  -lmpg123 -lshlwapi -lportaudiocpp -lportaudio -lz -lwinmm -lole32 -lsetupapi
+
+all: winlibs
+
+winlibs:
+	"${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" "../tools/winlibs.R"
+
+clean:
+	rm -f $(SHLIB) $(OBJECTS)
+
+.PHONY: all clean winlibs

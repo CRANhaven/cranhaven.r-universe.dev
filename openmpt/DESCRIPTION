@@ -1,0 +1,41 @@
+Package: openmpt
+Title: Open 'ModPlug' Tracker Port
+Version: 0.1.4
+Authors@R: c( person("Pepijn", "de Vries", role = c("aut", "cre"),
+        email = "pepijn.devries@outlook.com", comment = c(ORCID =
+        "0000-0002-7961-6646")), person("Jeroen", "Ooms", role = "ctb",
+        email = "jeroenooms@gmail.com", comment = c(ORCID =
+        "0000-0002-4035-0289")), person("Jester", role = c("cph",
+        "dtc"), comment = "Copyright holder of cyberrid.mod"),
+        person("OpenMPT Project Developers and Contributors", role =
+        "cph") )
+Description: Tracker music uses audio samples and pattern tables to
+        organise musical compositions. Such music is stored in module
+        files. This package reads, renders and plays module files using
+        the 'libopenmpt' library <https://lib.openmpt.org/>.
+License: GPL (>= 3)
+Encoding: UTF-8
+RoxygenNote: 7.2.3
+Imports: av
+Suggests: httr2, kableExtra, knitr, rmarkdown, testthat (>= 3.0.0),
+        xml2
+LinkingTo: cpp11
+SystemRequirements: openmpt: libopenmpt-devel (rpm) or libopenmpt-dev
+        (deb), portaudio-devel (rpm) or portaudio19-dev (deb).
+URL: https://pepijn-devries.github.io/openmpt/,
+        https://github.com/pepijn-devries/openmpt,
+        https://lib.openmpt.org/
+BugReports: https://github.com/pepijn-devries/openmpt/issues
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+NeedsCompilation: yes
+Packaged: 2025-01-08 23:06:24 UTC; vries171
+Author: Pepijn de Vries [aut, cre]
+        (<https://orcid.org/0000-0002-7961-6646>), Jeroen Ooms [ctb]
+        (<https://orcid.org/0000-0002-4035-0289>), Jester [cph, dtc]
+        (Copyright holder of cyberrid.mod), OpenMPT Project Developers
+        and Contributors [cph]
+Maintainer: Pepijn de Vries <pepijn.devries@outlook.com>
+Repository: CRAN
+Date/Publication: 2025-01-11 16:00:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

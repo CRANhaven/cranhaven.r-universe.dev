@@ -1,0 +1,42 @@
+---
+title: "openmpt S3 Class Objects"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{openmpt S3 Class Objects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This package has specified only one S3 class named `"openmpt"`. It is an external pointer
+(type of `externalptr`) that points to the location where the OpenMPT module object is
+stored in memory. It is stored in a format that can be handled by the libopenmpt library and
+can be used to play or render the module and control options for playing and rendering.
+
+## Initiating an `openmpt` class object
+
+The only way to initiate an `openmpt` class object is by reading a supported module from a
+file with `read_mod()`. There is no point in creating new `openmpt` objects from scratch anyway since
+the package offers no features to modify the module (see also `vignette("openmpt-alternatives")`).
+
+```{r initiate}
+library(openmpt)
+mod <- read_mod(system.file("cyberrid", "cyberrid.mod", package = "openmpt"))
+```
+
+## Using `openmpt` objects
+
+Each `openmpt` object holds its own set of control and render parameters, which can be obtained
+and modified with `control()` and `render_param()`. You can also control the volume of specific
+or all channels (see `?"volume-control"`). Pitch and tempo can also be tweaked (see `?"pitch-tempo"`).
+Use `play()` to play an `openmpt` object, and `convert_mod()` to convert it to a specific audio
+file format.
+
+There are many other functions that use `openmpt` objects as input. For a complete overview
+check the [Reference page](https://pepijn-devries.github.io/openmpt/reference/index.html).

@@ -1,0 +1,107 @@
+---
+title: "ModArchive"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ModArchive}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+[Modarchive](https://modarchive.org/) is a decades old archive containing
+thousands of module files. It is maintained and operated by a team of volunteers,
+and is funded with donations. It contains a diversity of module file formats and
+music genres.
+
+## ModArchive tools
+
+The ModArchive offers an application programming interface (API), for which
+the `openmpt` package offers several wrappers in R. For many of these functions
+you need an API key (see below)
+
+If you know the module's database ID, you can download it (without an API key)
+using
+
+```{r modarchive-download}
+library(openmpt)
+
+unreal <- modarchive_download(60395)
+unreal
+```
+
+Using the module ID you can also obtain meta-information from ModArchive
+for that module.
+
+```{r modarchive-info}
+if (modarchive_api() != "") {
+  info <- modarchive_info(60395)
+  info$genretext
+}
+```
+
+If you don't know the module ID, you can search the archive through different
+entry points:
+
+ * `modarchive_search_mod()`: search for texts in different fields
+   and filter the results with specific criteria
+ * `modarchive_search_genre()`: browse modules for a specific genre
+   and filter the results with specific criteria
+ * `modarchive_search_hash()`: search for a specific hash code
+ * `modarchive_view_by()`: create different views of lists of modules
+
+## ModArchive API key
+
+In order to keep traffic to the ModArchive servers in fair bounds,
+an API key is needed to make use of the features offered by the
+ModArchive toolbox. These keys are handed out and maintained by the
+ModArchive crew. In order to apply for a key, you first need to register
+at the [ModArchive Forums](https://modarchive.org/forums/). Then follow the
+instructions provided in
+[this topic](https://modarchive.org/forums/index.php?topic=1950.0)
+on the forum.
+
+Note that there are
+[different access levels](https://modarchive.org/index.php?xml-api),
+where the access levels determine which features are available to you.
+If ModArchive features wrapped in the `openmpt` package don't work,
+you might need a higher access level.
+
+Most wrappers (like `modarchive_search_mod()`) have an argument named
+`api`. There you can pass your key directly as argument. You
+can also set it as an environmental variable:
+`Sys.setenv(MODARCHIVE_API = "<your api key here>")`. You can
+also set it as a session option:
+`options(modarchive_api = "<your api key here>")`. By setting it as
+either an option or an environmental variable, you don't have to pass
+it as an argument with each call. It is automatically obtained with
+`modarchive_api()`.
+
+Each API key comes with a cap on the number of monthly requests you
+can make to the server. You can check how many requests you have and can
+make each month with your key with `modarchive_requests()`. Below you can
+how many requests where made with the key used for developing this package
+at the time this vignette was rendered (only if the machine rendering this
+vignette has registered an API key).
+
+```{r modarchive-requests}
+if (modarchive_api() != "")
+  modarchive_requests()
+```
+
+If you want to extract large quantities of files it is advised to use
+[torrent files](http://modarchive.textfiles.com/), which distributes the traffic
+across multiple hosts.
+
+## Other online resources
+
+Currently, the only alternative for ModArchive, supported by the `openmpt` package
+is [modland](https://modland.com/). It offers less features compared to ModArchive,
+yet it has a large collection of over 400,000 files and counting. You can use
+`modland_search()` and `modland_download()` to search and download files on and from
+modland, respectively. The good news here is that you don't need an API key.

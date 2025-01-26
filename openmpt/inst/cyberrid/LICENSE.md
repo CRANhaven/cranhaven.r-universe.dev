@@ -1,0 +1,1 @@
+cyberrid.mod by Jester is licensed under the [Attribution Non-commercial Share Alike license](https://creativecommons.org/licenses/by-nc-sa/4.0/)

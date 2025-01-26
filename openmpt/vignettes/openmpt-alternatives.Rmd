@@ -1,0 +1,77 @@
+---
+title: "openmpt and Alternatives"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{openmpt and Alternatives}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## What is tracker music?
+
+In order to understand what `openmpt` can do, you need to understand what tracker
+music is. Tracker music uses 'spreadsheet'-like tables (called patterns) to specify
+which instruments or samples are to be played at which notes in which order, with which
+timing and with which effect. Typically, tracker music uses multiple of these patterns
+played in a specified sequence to form a song.
+
+Tracker music is stored in a module file format. These files are self-contained, meaning
+they contain all information required to play (both patterns, pattern sequences and samples /
+instruments). There is more information at [Wikipedia](https://en.wikipedia.org/wiki/Module_file).
+Note that the terms modules and tracker music is often used interchangeably.
+
+## Capabilities of `openmpt`
+
+The `openmpt` R packages uses libopenmpt at its core. It essentially provides R bindings to
+the features offered by libopenmpt. This means that this package can read modules, play them,
+convert them to other audio formats. You can also retrieve meta-information stored in or about
+the module. The underpinning library does not contain entry points to modify or edit the modules,
+so this is also true for the R package.
+
+## Alternatives
+
+On Windows machines
+you can use the [OpenMPT](https://openmpt.org/) software, which has a graphical user interface (GUI).
+It allows you to compose and edit music. If you want to stick to `R` you can use
+[ProTrackR2](https://pepijn-devries.github.io/ProTrackR2/). That package allows you to create and modify
+modules in `R`. The downside is that it only support ProTracker compatible module files.
+
+What about midi files? Well midi files are no modules (i.e., not self-contained). According
+to the `libopenmpt` documentation it should be able to play some midi files to some extend.
+However, I was not able to test this successfully. If you want to work with midi files in `R`
+it is recommended to use [`fluidsynth`](https://github.com/ropensci/fluidsynth) instead.
+
+The comparison of `openmpt` and its alternatives are sumarised in the table below.
+
+```{r tab-feat, echo=FALSE, message=FALSE, warning=FALSE}
+library(kableExtra)
+data.frame(
+  Software =
+    c("[`openmpt` R package](https://pepijn-devries.github.io/openmpt/)",
+      "[OpenMPT (with GUI)](https://openmpt.org)",
+      "[`ProTrackR2` R package](https://pepijn-devries.github.io/ProTrackR2/)",
+      "[`fluidsynth` R package](https://docs.ropensci.org/fluidsynth/)"),
+  `Runs in R`  =
+    c("&#10004;", "", "&#10004;", "&#10004;"),
+  `Allows editing` =
+    c("", "&#10004;", "&#10004;", ""),
+  `Supported file formats` =
+    c("mptm mod s3m xm it 667 669 amf ams c67 dbm digi dmf dsm dsym dtm far fmt fst imf ice j2b m15 mdl med mms mt2 mtm mus nst okt plm psm pt36 ptm sfx sfx2 st26 stk stm stx stp symmod gtk gt2 ult wow xmf gdm mo3 oxm umx xpk ppm mmcmp",
+      "same as `openmpt` R package",
+      "mod (ProTracker compatible only)", "mid"),
+  `Operating systems` =
+    c("Windows, MacOS, Ubuntu, Fedora",
+      "Windows",
+      "Windows, MacOS, Ubuntu, Fedora",
+      "Windows, MacOS, Ubuntu, Fedora"),
+  check.names = FALSE
+) |>
+  kbl(escape = FALSE)
+```
