@@ -1,0 +1,22 @@
+Package: dhh
+Title: A Heavy-Headed Distribution
+Version: 0.0.1
+Authors@R: person("Runlong", "Tang", email = "tangrunlong@gmail.com",
+        role = c("aut", "cre"))
+Description: The density, cumulative distribution, quantiles, and i.i.d
+        random variables of a heavy-headed distribution. For more
+        information, please see the vignette.
+Depends: R (>= 3.5.0)
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2018-07-30 16:36:16 UTC; rltang_dell7510
+Author: Runlong Tang [aut, cre]
+Maintainer: Runlong Tang <tangrunlong@gmail.com>
+Repository: CRAN
+Date/Publication: 2018-07-31 09:50:06 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

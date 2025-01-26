@@ -1,0 +1,12 @@
+6d6c2ad44b37a6a78ed4eb5b36160a6c *DESCRIPTION
+7bfa0001784b03d27376ce39bac438cd *NAMESPACE
+f38bc358d82c88224631f7984e790531 *R/dhh_all.R
+34e231325477d397f44df938e742f029 *build/vignette.rds
+738f1afad71e215b6694a066b47d5061 *inst/doc/dhh-vignette.R
+a4b039d72f25cb770c75be5fd33ca9a4 *inst/doc/dhh-vignette.Rmd
+1669e2de9612d1dea09d575168b27e0d *inst/doc/dhh-vignette.html
+01dc6ac03e7ba38fdf132a8c4e18340a *man/dhh.Rd
+5580692bddbf5cd6dc23a35b47f8faf3 *man/phh.Rd
+307153e410cf8a22ec63f79345c8ab96 *man/qhh.Rd
+3480f219c7a4b5540119ee6a6885a263 *man/rhh.Rd
+a4b039d72f25cb770c75be5fd33ca9a4 *vignettes/dhh-vignette.Rmd

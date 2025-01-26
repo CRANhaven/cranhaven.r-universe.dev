@@ -1,0 +1,128 @@
+---
+title: "A Description of R Package 'dhh'"
+author: "Runlong Tang"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{A Description of R Package 'dhh'}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+The name of this R package "dhh" can be understood as "Distributions with Heavy Heads". The probability density function of the heavy-headed distribution is 
+$$f(x) = \frac{\alpha (b-a)^{-\alpha}}{(x-a)^{1-\alpha}}I\{a<x<b\},$$
+with parameters $a<b$ and $\alpha>0$. For the motivation and derivation of this distribution, please see the references.
+
+This package contains four functions on a heavy-headed distribution: 
+
+* `dhh`: the probability density function
+* `phh`: the cumulative distribution function (CDF)
+* `qhh`: the quantile function
+* `rhh`: the random variables
+
+Next, I will introduce these functions with examples.
+
+To use this library, we can first install it and then use the following command.
+```{r}
+library(dhh)
+```
+
+
+## On `dhh`
+This function `dhh(x, a, b, alpha)` gives the values of the density of the heavy-headed distribution.
+
+The default values of `a`, `b` and `alpha` are `0`, `1` and `0.1`, respectively.  Then, the following two commands give the same result, the value of the density at `0.5`.
+```{r}
+dhh(0.5)
+dhh(0.5, 0, 1, 0.1)
+```
+
+The argument `x` can be a vector.
+```{r}
+dhh(c(0.5, 0.7))
+```
+
+We can take a look at the plots of some density functions.
+```{r, fig.show='hold'}
+curve(dhh(x, a=0, b=1, alpha=0.1), -1, 2)
+curve(dhh(x, a=0, b=10, alpha=0.1), -1, 11)
+```
+
+
+## On `phh`
+This function `phh(x, a, b, alpha)` gives the values of the CDF of the heavy-headed distribution.
+
+The default values of `a`, `b` and `alpha` are `0`, `1` and `0.1`, respectively.  Then, the following two commands give the same result, the value of the density at `0.5`.
+```{r}
+phh(0.5)
+phh(0.5, 0, 1, 0.1)
+```
+
+The argument `x` can be a vector.
+```{r}
+phh(c(0.5, 0.7))
+```
+
+
+We can take a look at the plots of some CDF's.
+```{r, fig.show='hold'}
+curve(phh(x, a=0, b=1, alpha=0.1), -1, 2)
+curve(phh(x, a=0, b=10, alpha=0.1), -1, 11)
+```
+
+## On `qhh`
+This function `qhh(p, a, b, alpha)` gives the quantiles of the heavy-headed distribution.
+
+The default values of `a`, `b` and `alpha` are `0`, `1` and `0.1`, respectively.  Then, the following two commands give the same result, the value of the density at `0.5`.
+```{r}
+qhh(0.9)
+qhh(0.9, a=0, b=1, alpha=0.1)
+```
+
+The argument `p` can be a vector.
+```{r}
+phh(qhh((1:9)/10))
+```
+
+We can take a look at the plots of some quantile functions.
+```{r, fig.show='hold'}
+curve(qhh(x, 0, 1, 0.1), from = 0.1, to = 0.9)
+curve(qhh(x, a=10, b=100, alpha = 0.1), from = 0.1, to = 0.9)
+```
+
+## On `rhh`
+This function `rhh(n, a, b, alpha1)` generate $n$ i.i.d. random variables following the heavy-headed distribution.
+
+The default values of `a`, `b` and `alpha` are `0`, `1` and `0.1`, respectively.  Then, the following two commands are the same.
+```{r}
+rhh(5)
+rhh(5, a = 0, b = 1, alpha = 0.1)
+```
+
+We can generate $10000$ i.i.d. random variables and plot the histogram. Then we can add the density plot.
+```{r}
+hist(rhh(10000), freq=FALSE)
+curve(dhh, add = TRUE, col = 2)
+```
+
+We can also check the fact that the density goes to infinity as `a` goes to `a`.
+```{r}
+dhh(c(0.1, 0.01, 0.001, 0.0001, 0.00001))
+```
+
+
+## References
+Runlong Tang (2018) A Note On Finite Moments, Rediscovery Of The Pareto Distribution and Distributions With Heavy Tails and Heads
+(v1) <https://sites.google.com/site/tangrunlong/notes-on-finance>
+
+
+
