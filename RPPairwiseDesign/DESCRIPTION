@@ -1,0 +1,17 @@
+Package: RPPairwiseDesign
+Type: Package
+Title: Resolvable partially pairwise balanced design and Space-filling
+        design via association scheme
+Version: 1.0
+Date: 2015-01-19
+Author: Mohamed Laib, Imane Rezgui and Zebida Gheribi-Aoulmi
+Maintainer: Mohamed Laib <laib.med@gmail.com>
+Description: Using some association schemes to obtain a new series of
+        resolvable partially pairwise balanced designs (RPPBD) and
+        space-filling designs.
+License: GPL-3
+Packaged: 2015-02-03 12:09:09 UTC; admin
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2015-02-03 18:09:13
+Additional_repositories: https://cranhaven.r-universe.dev
