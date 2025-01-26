@@ -1,0 +1,6 @@
+export(sLRcontrast,qLRcontrast,pLRcontrast)
+
+importFrom("stats", "nlminb", "optimize", "quantile", "rnorm")
+importFrom("utils", "flush.console")
+
+useDynLib(LRcontrast)

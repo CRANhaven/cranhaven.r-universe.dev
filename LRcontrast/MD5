@@ -1,0 +1,8 @@
+914dc3e2997c4dc49cffaf3507883da6 *DESCRIPTION
+e6dd90ea0051a7991014940a8ec7c1e7 *NAMESPACE
+734b1beb2b09950a3301da6b3f8ed159 *R/LRcontrast.R
+bcce2bb43f91045abe1bedfce0222e6b *man/LRcontrast-package.Rd
+a4ffc02ee5081b8748b00b508e897536 *man/pLRcontrast.Rd
+834e8a4405c745cd15fbb80e3d6c50f7 *man/qLRcontrast.Rd
+2bda4f6c650e2476c4bf0f1ddd346258 *man/sLRcontrast.Rd
+066eafd89b58ac92c60701241c976df9 *src/LRcontrast.c

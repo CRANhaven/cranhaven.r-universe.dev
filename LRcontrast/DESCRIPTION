@@ -1,0 +1,19 @@
+Package: LRcontrast
+Type: Package
+Title: Dose Response Signal Detection under Model Uncertainty
+Version: 1.0
+Date: 2015-11-06
+Author: Kevin Kokot
+Depends: R (>= 3.1.2)
+Imports: DoseFinding
+Maintainer: Kevin Kokot <kevin.kokot@ruhr-uni-bochum.de>
+Description: Provides functions for calculating test statistics,
+        simulating quantiles and simulating p-values of likelihood
+        ratio contrast tests in regression models with a lack of
+        identifiability.
+License: GPL-3
+NeedsCompilation: yes
+Packaged: 2015-11-06 17:11:35 UTC; Kevin
+Repository: CRAN
+Date/Publication: 2015-11-07 00:19:46
+Additional_repositories: https://cranhaven.r-universe.dev
