@@ -1,0 +1,12 @@
+ee391e995bfa217484f73e7d46d3e0de *DESCRIPTION
+716ae37013669decb98ba83bc900c7b2 *NAMESPACE
+068c9ae161727fa8f806c9926a3729f0 *R/swan_closeness.R
+a7e669360404e9cbab425c4d762391a4 *R/swan_combinatory.R
+a13b65b6cec1ad65357332f4cffb35b5 *R/swan_connectivity.R
+182af569219241cc16703cdbd61da403 *R/swan_efficiency.R
+712cf802d81fc67197e1f7e1f2116766 *build/partial.rdb
+b6eda70d1d6201674e26f019474d5620 *man/NetSwan-package.Rd
+71000bc66d4b906d4e6d57a84a1a1ea5 *man/swan_closeness.Rd
+62659073414e05ac12d933eb00b11e4f *man/swan_combinatory.Rd
+dc35af162cb5c67473bad3c4a857b469 *man/swan_connectivity.Rd
+477cb924e166b5e0b1be4ddcb21b18ec *man/swan_efficiency.Rd

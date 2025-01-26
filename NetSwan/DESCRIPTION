@@ -1,0 +1,16 @@
+Package: NetSwan
+Type: Package
+Title: Network Strengths and Weaknesses Analysis
+Version: 0.1
+Date: 2015-10-31
+Author: Serge Lhomme
+Maintainer: Serge Lhomme <serge.lhomme@u-pec.fr>
+Description: A set of functions for studying network robustness,
+        resilience and vulnerability.
+Depends: igraph
+License: GPL (>= 2)
+NeedsCompilation: no
+Packaged: 2015-10-31 20:23:15 UTC; serge.lhomme
+Repository: CRAN
+Date/Publication: 2015-11-01 00:38:04
+Additional_repositories: https://cranhaven.r-universe.dev

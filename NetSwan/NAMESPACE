@@ -1,0 +1,7 @@
+exportPattern("^[[:alpha:]]+")
+importFrom(igraph,E)
+importFrom(igraph,V)
+importFrom(igraph,distances)
+importFrom(igraph,delete_vertices)
+importFrom(igraph,betweenness)
+importFrom(igraph,degree)
