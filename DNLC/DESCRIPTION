@@ -1,0 +1,23 @@
+Package: DNLC
+Type: Package
+Title: Differential Network Local Consistency Analysis
+Version: 1.0.0
+Date: 2016-11-23
+Authors@R: c(person("Yao", "Lu", role = "aut"), person("Yusheng",
+        "Ding", role = c("aut", "cre"), email =
+        "yushengding93@gmail.com"), person("Linqing", "Liu", role =
+        "aut"), person("Tianwei", "Yu", role = "aut"))
+Maintainer: Yusheng Ding <yushengding93@gmail.com>
+Description: Using Local Moran's I for detection of differential
+        network local consistency.
+License: GPL (>= 2)
+Imports: igraph, spdep, fdrtool, GOstats, locfdr, mvtnorm, caTools
+LazyData: true
+Depends: R (>= 2.10)
+NeedsCompilation: no
+Packaged: 2016-12-11 06:16:41 UTC; jinm
+Author: Yao Lu [aut], Yusheng Ding [aut, cre], Linqing Liu [aut],
+        Tianwei Yu [aut]
+Repository: CRAN
+Date/Publication: 2016-12-11 12:26:26
+Additional_repositories: https://cranhaven.r-universe.dev

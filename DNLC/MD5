@@ -1,0 +1,8 @@
+748bfc5714c9443ce6231056355541b5 *DESCRIPTION
+e1829bf960500a78a8667dc714c683ab *NAMESPACE
+d4f99419f93c497ca0809b6d8371bf94 *R/DNLC.R
+d77be5f9b37981cbf0243ad45e8b7224 *man/DNLC_statistics.Rd
+728d375c64477df19e6e4450bc03e153 *man/cal_lmi_data.Rd
+e27c75ee956c50352ef010f216b96da3 *man/gene_fdrtest.Rd
+cd513c823cd174d82f59fba80c861b92 *man/init_simulation_gene_net.Rd
+38bcb54e2709989009fa3319e3e2528b *man/significant_genes.Rd
