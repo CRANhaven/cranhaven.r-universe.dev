@@ -1,0 +1,33 @@
+Package: LncPath
+Type: Package
+Title: Identifying the Pathways Regulated by LncRNA Sets of Interest
+Version: 1.1
+Date: 2018-09-26
+Author: Junwei Han, Zeguo Sun
+Maintainer: Junwei Han <hanjunwei1981@163.com>
+Description: Identifies pathways synergisticly regulated by the
+        interested lncRNA(long non-coding RNA) sets based on a
+        lncRNA-mRNA(messenger RNA) interaction network. 1) The
+        lncRNA-mRNA interaction network was built from the
+        protein-protein interactions and the lncRNA-mRNA co-expression
+        relationships in 28 RNA-Seq data sets. 2) The interested
+        lncRNAs can be mapped into networks as seed nodes and a random
+        walk strategy will be performed to evaluate the rate of each
+        coding genes influenced by the seed lncRNAs. 3) Pathways
+        regulated by the lncRNA set will be evaluated by a weighted
+        Kolmogorov-Smirnov statistic as an ES Score. 4) The p value and
+        false discovery rate value will also be calculated through a
+        permutation analysis. 5) The running score of each pathway can
+        be plotted and the heat map of each pathway can also be plotted
+        if an expression profile is provided. 6) The rank and scores of
+        the gene list of each pathway can be printed.
+Imports: stats, graphics, utils, grDevices
+Depends: R (>= 3.2.1), igraph
+Suggests: Matrix,graph
+License: GPL (>= 2)
+LazyData: Yes
+NeedsCompilation: no
+Packaged: 2018-09-26 06:47:17 UTC; liu
+Repository: CRAN
+Date/Publication: 2018-09-26 14:20:06 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

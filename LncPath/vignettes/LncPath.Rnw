@@ -1,0 +1,193 @@
+%
+% NOTE -- ONLY EDIT LncPath.Rnw!!!
+% LncPath.tex file will get overwritten.
+%
+%\VignetteIndexEntry{LncPath Overview}
+%\VignetteKeywords{pathway}
+%\VignettePackage{LncPath}
+%\VignetteDepends{igraph}
+
+\documentclass[10pt]{article}
+
+\usepackage{hyperref}
+\usepackage[pdftex]{graphicx}
+\SweaveOpts{keep.source=TRUE,eps=FALSE,pdf=TRUE,prefix=FALSE} 
+\author{Junwei Han, Zeguo Sun}
+
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+\newcommand{\xiaowuhao}{\fontsize{9pt}{\baselineskip}\selectfont}
+\newcommand{\liuhao}{\fontsize{7.875pt}{\baselineskip}\selectfont}
+\newcommand{\qihao}{\fontsize{5.25pt}{\baselineskip}\selectfont}
+
+\newcommand\Rpackage[1]{{\textsf{#1}\index{#1 (package)}}}
+\newcommand\RpackageNoindex[1]{{\textsf{#1}}}
+\newcommand\Rclass[1]{{\textit{#1}\index{#1 (class)}}}
+\newcommand\Rfunction[1]{{{\small\texttt{#1}}\index{#1 (function)}}}
+\newcommand\Rmethod[1]{{\small\texttt{#1}}}
+\newcommand\Rcommand[1]{{{\small\texttt{#1}}\index{#1 (function)}}}
+\newcommand\Rfunarg[1]{{\small\texttt{#1}}}
+\newcommand\Robject[1]{{\small\texttt{#1}}}
+\bibliographystyle{plainnat}
+
+\begin{document}
+\setkeys{Gin}{width=1.0\textwidth}
+\title{How To Use LncPath}
+\maketitle
+\tableofcontents
+
+\section{Overview}
+This vignette illustrates how to easily use the \Rpackage{LncPath} package. The package can prioritize pathways coordinately regulated by lncRNAs based on a network diffusion strategy. We firstly constructed a lncRNA-mRNA relationship network by integrating the co-expression pairs between lncRNAs and mRNAs with the protein-protein interaction pairs. The lncRNAs user inputted will be mapped into the lncRNA-mRNA relationship network to evaluate the extent of each gene influenced by the lncRNAs based on a network diffusion strategy. We then built a ranked gene list based on the extent of influence. Finally, we mapped the genes of each pathway into the rank gene list and calculated the pathway enrichment score(ES) using a weighted Kolmogorov-Smirnov statistic. The permutation analysis was performed to selecting significant pathways.  
+
+<<echo=FALSE>>=
+library(LncPath)
+@ 
+
+
+\section{Finding the differentially expressed genes from a expression profile}\label{GetDatasection} 
+This section introduces how to find signigicantly differentially expressed genes from an expression profile. We provided two ways to find differentially expressed genes from an expression profile, student's t-test and fold change. For each strategy, a threshold is defined for selecting significant differentially expressed genes.
+
+
+<<>>= 
+#obtain the expression profile data 
+Profile <- getExampleData("Profile")
+Profile[1:10, 1:10]
+
+#obtain the labels of the samples of the expression profile, the label vector is a vector of 0/1s,
+# 0 represents the case sample and 1 represents the control sample 
+Labels <- getExampleData("Labels")
+Labels[1:10]
+
+##find differentially expressed genes, using t-Test defautly
+options(stringsAsFactors = FALSE)
+SigGenes <- findSigGenes(Profile, Labels, Method = "tTest", FdrCut = 0.01)
+head(SigGenes)
+@
+
+\section{Identifying pathways coordinately regulated by user interested lncRNAs}
+This section introduces how to identify pathways coordinately regulated by user interested lncRNAs. A vector of lncRNAs should be inputted, and they will be mapped into the lncRNA-mRNA relationship network as seed nodes to perform a network diffusion strategy. Here we constructed a huge lncRNA-mRNA network constructed by ingergrating a lncRNA-mRNA co-expression network and the protein-protein interaction network. Considering the huge network may be time consuming, we provided a litte example network for little trial. A weighted Kolmogorov-Smirnov statistic is used to  prioritize the pathways regulated by the user inputted lncRNAs. Now three pathway databases are surpported: KEGG, Reactome and Biocarta. The pathways with the number of genes between the user defined limit will be kept for further analysis to avoid potential bias. The permutation analysis was performed to filter significant pathways and the times of permutations can be set by the user.   
+
+<<>>= 
+
+#get lncRNA-mRNA interaction network
+NetLncPath <- getNet();
+dim(NetLncPath);
+print(head(NetLncPath), row.names = FALSE)
+
+#get example lncRNA sets 
+SigLncs <- getExampleData("SigLncs")
+print(head(SigLncs), row.names = FALSE)
+
+#get the example lncRNA-mRNA interaction network
+ExampleNet <- getExampleData("ExampleNet")
+print(head(ExampleNet), row.names = FALSE)
+
+
+#evaluate the rate of pathways regulated by lncRNA sets
+Result <- lncPath(SigLncs, ExampleNet,  Weighted = TRUE, PathwayDataSet = "KEGG", nperm = 100, 
+minPathSize = 0, maxPathSize = 500)
+
+
+## Generate a table of the summary of each pathway 
+PathwaySummaryTable <- lncPath2Table(Result)
+print(head(PathwaySummaryTable), row.names = FALSE)
+@ 
+
+\section{Gain insight into the details of each pathway}
+
+\subsection{Plot the running erichment score of a pathway}
+
+The function \Rfunction{plotRunningES} can plot global cumulative running enrichment scores of each gene of a certain pathway.
+
+<<>>=
+#get an example result data
+Result <- getExampleData("Result")
+@ 
+<<RunningScores, fig=TRUE, include=FALSE, prefix=FALSE>>=
+#plot the running score of the KEGG RIBOSOME pathway 
+plotRunningES(Result, Name = "KEGG_RIBOSOME")
+@
+
+Figure \ref{RunningScores} shows the running scores of each gene in the KEGG RIBOSOME pathway. 
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=1.0\textwidth]{RunningScores}
+\caption{The running scores of each gene in the KEGG RIBOSOME pathway.}\label{RunningScores}
+\end{center}
+\end{figure}
+@
+\subsection{Check the detail of genes of each pathway.}
+
+The function \Rfunction{geneSetDetail} can show the detail of each gene in a certain pathway.
+ 
+
+<<>>=
+#get an example result data
+Result <- getExampleData("Result")
+
+#get the details of genes in the KEGG_RIBOSOME pathway
+Detail <- geneSetDetail(Result, Name = "KEGG_RIBOSOME")
+head(Detail)
+@
+
+\subsection{Draw the heat map of genes in a certain pathway.}
+
+The function \Rfunction{drawAHeatMap} can draw a heatmap of the genes in a certain pathway based on the expression profile user specified. 
+
+<<>>=
+#get an example result data
+Result <- getExampleData("Result")
+#get example data
+Profile <- getExampleData("Profile")
+Labels <- getExampleData("Labels")
+@ 
+<<HeatMap, fig=TRUE, include=FALSE, prefix=FALSE>>=
+#Draw the heatmap of genes in KEGG_RIBOSOME pathway
+drawAHeatMap(Result, Name = "KEGG_RIBOSOME", PCExpr = Profile, Labels = Labels)
+@
+Figure \ref{HeatMap} shows the heatmap of genes in KEGG RIBOSOME pathway based on the example expression profile. 
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=1.0\textwidth]{HeatMap}
+\caption{The heatmap of genes in KEGG RIBOSOME pathway based on the example expression profile.}\label{HeatMap}
+\end{center}
+\end{figure}
+@
+
+
+\newpage
+\section{Session Info}
+The script runs within the following session:
+<<sessionInfo, echo=FALSE, results=verbatim>>=
+sessionInfo()
+@
+
+\begin{thebibliography}{}
+
+\bibitem[Subramanian {\it et~al}., 2005]{Subramanian2009} Subramanian, A., Tamayo, P., Mootha, V.K., Mukherjee, S., Ebert, B.L., Gillette, M.A., Paulovich, A., Pomeroy, S.L., Golub, T.R., Lander, E.S. et al. (2005) Gene set enrichment analysis: a knowledgebased approach for interpreting genome-wide expression profiles. Proc Natl Acad Sci U S A, 102, 15545-15550.
+
+\bibitem[Liao Q {\it et~al}., 2011]{Liao Q2011}  Liao Q, Liu C, Yuan X, Kang S, Miao R, Xiao H, Zhao G, Luo H, Bu D, Zhao H, et al: Large-scale prediction of long non-coding RNA functions in a coding-non-coding gene co-expression network. Nucleic Acids Res 2011, 39:3864-3878. 
+
+\bibitem[Guo X {\it et~al}., 2013]{Guo X2013} Guo X, Gao L, Liao Q, Xiao H, Ma X, Yang X, Luo H, Zhao G, Bu D, Jiao F, et al: Long non-coding RNAs function annotation: a global prediction method based on bi-colored networks. Nucleic Acids Res 2013, 41:e35.
+
+\end{thebibliography}
+
+\end{document}
+
+
+%
+% NOTE -- ONLY EDIT LncPath.Rnw!!!
+% LncPath.tex file will get overwritten.
+%
+%\VignetteIndexEntry{LncPath Overview}
+%\VignetteKeywords{pathway}
+%\VignettePackage{LncPath}
+%\VignetteDepends{igraph}
+
