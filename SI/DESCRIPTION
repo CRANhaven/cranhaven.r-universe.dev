@@ -1,0 +1,27 @@
+Package: SI
+Type: Package
+Title: Stochastic Integrating
+Version: 0.2.0
+Author: Jinhong Du
+Maintainer: Jinhong Du <jayduking@gmail.com>
+Description: An implementation of four stochastic methods of
+        integrating in R, including: 1. Stochastic Point Method (or
+        Monte Carlo Method); 2. Mean Value Method; 3. Important
+        Sampling Method; 4. Stratified Sampling Method. It can be used
+        to estimate one-dimension or multi-dimension integration by
+        Monte Carlo methods. And the estimated variance (precision) is
+        given. Reference: Caflisch, R. E. (1998)
+        <doi:10.1017/S0962492900002804>.
+License: GPL
+Encoding: UTF-8
+LazyData: true
+Date: 2018-09-22
+Depends: R (>= 3.0.1), stats (>= 3.3.2)
+Suggests: knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
+NeedsCompilation: no
+Packaged: 2018-09-23 01:28:54 UTC; dujinhong
+Repository: CRAN
+Date/Publication: 2018-09-23 04:10:10 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

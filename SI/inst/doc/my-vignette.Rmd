@@ -1,0 +1,176 @@
+---
+title: "Monte Carlo Integration"
+author: "Jinhong Du"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Monte Carlo Integration}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The **SI** package provides several methods of MC Integrating including
+
+- Stochastic Point Method
+- Mean Value Method
+- Important Sampling Method
+- Stratified Sampling Method
+
+Note that the `Stochastic Point Method` is only a stochastic point method to estimate integration. However, it is provided to be easily compared with other MC methods. These four methods are all belong to stochastic methods.
+
+## Stochastic Integration
+Suppose that $h(x)\in \mathbb{C}^1$ is well-defined and bounded on finite interval $C=[a,b]$. W.L.O.G., $0\leq h(x)\leq M$. We are tried to calculate the integral
+$$I=\int_a^bh(x)\mathrm{d}x$$
+That is to say, we need to calculate the area under $h(x)$: $D=\{(x,y):0\leq y\leq h(x),\ x\in C\}$.
+
+## Stochastic Point Method
+Uniformly sampling from $G=C\times(0,M)$ for $N$ times and get the stochastic points $Z_1,\cdots,Z_N$ where $Z_i=(X_i,Y_i),\ i=1,2,\cdots,N$. 
+
+For $i=1,2,\cdots,N$, let $$\xi_i=\begin{cases}
+1&,Z_i\in D\\
+0&,\text{otherwise}
+\end{cases}$$
+
+Then $\{\xi_i\}$ are outcomes of independent duplicate trials and $\xi_1,\cdots,\xi_N\overset{i.i.d.}{\sim}Bernoulli(1,p)$ where
+$$p=\mathbb{P}(Z_i\in D)=\dfrac{I}{M(b-a)}$$
+
+Thus, the stochastic point method is given by 
+$$\hat{I}_1=\hat{p}(b-a)$$
+where $\hat{p}$ is the estimator of $p$ and given by the proportion of points $\{Z_i\}$ that lie under the curve $h(x)$.
+
+From Strong Law of Large Number, 
+\begin{align*}
+\hat{p}=\dfrac{\sum\limits_{i=1}^N\xi_i}{N}\xrightarrow{a.s.}p\\
+\hat{I}=\hat{p}M(b-a)\xrightarrow{a.s.}I
+\end{align*}
+which means that we can use $\hat{I}$ to approximate $I$ better if we try more times (with large $N$).
+
+To estimate the variance (or precision), we use the Central Limit Theorem and get 
+\begin{align*}
+\dfrac{\hat{p}-p}{Var(p)}&=\dfrac{\hat{p}-p}{\sqrt{\dfrac{p(1-p)}{N}}}\xrightarrow{D}N(0,1)\\
+\dfrac{\hat{I}_1-I}{\sqrt{\frac{1}{N}}}&\xrightarrow{D}N(0,[M(b-a)]^2p(1-p))
+\end{align*}
+
+Therefore, the variance can be estimated by
+$$Var(\hat{I}_1)\approx \dfrac{1}{N}[M(b-a)]^2\hat{p}(1-\hat{p})$$
+
+For $m$-dimension function on $[a_1,b_1]\times \cdots \times[a_m,b_m]$, we also have
+\begin{align*}
+\hat{I}_1&=\hat{p}\prod\limits_{i=1}^m(b_i-a_i)\\
+Var(\hat{I}_1)&\approx \dfrac{1}{N}\left[M\prod\limits_{i=1}^m(b_i-a_i)\right]^2\hat{p}(1-\hat{p})
+\end{align*}
+
+In **SI** package, use the following code to carry out stochastic point method.
+
+    ## To integrate exp(x) from -1 to 1
+    set.seed(0)
+    h <- function(x){
+        exp(x)
+    }
+    N <- 100000
+    SPMresult <- SI.SPM(h,-1,1,exp(1),N)
+    I1 <- SPMresult[[1]]
+    VarI1 <- SPMresult[[2]]
+
+## Mean Value Method
+
+Let $U\sim Uniform(a,b)$, then 
+\begin{align*}
+\mathbb{E}[h(U)]&=\int_a^bh(x)\dfrac{1}{b-a}\mathrm{d}x\\
+&=\dfrac{I}{b-a}\\
+I&=(b-a)\mathbb{E}[h(U)]
+\end{align*}
+
+Suppose that we first sample $U_1,\cdots,U_N\overset{i.i.d.}{\sim}Uniform(a,b)$, then $Y_i=h(U_i),\ i=1,2,\cdots,N$ are i.i.d random variables.
+From Strong Law of Large Number,
+$$\overline{Y}=\dfrac{1}{N}\sum\limits_{i=1}^Nh(U_i)\xrightarrow{a.s.}\mathbb{E}[h(U)]=\dfrac{I}{b-a}$$
+
+Thus we get the mean value estimator $$\hat{I}_2=\dfrac{b-a}{N}\sum\limits_{i=1}^Nh(U_i)$$
+
+To estimate the variance (or precision), we use the Central Limit Theorem and get 
+\begin{align*}
+\dfrac{\hat{I}_2-I}{\sqrt{\frac{1}{N}}}&\xrightarrow{D}N(0,(b-a)^2Var[h(U)])\\
+\hat{I}_2&\xrightarrow{D}N(I,\dfrac{(b-a)^2}{N}Var[h(U)])
+\end{align*}
+where $$Var[h(U)]=\int_a^b\{h(u)-\mathbb{E}[h(U)]\}^2\dfrac{1}{b-a}\mathrm{d}u$$
+
+Since it can be estiamted by sample variance $$Var[h(U)]\approx \dfrac{1}{N}\sum\limits_{i=1}^N(Y_i-\overline{Y})^2$$
+we can estimate the variance of $\hat{I}_2$ by $$Var(\hat{I}_2)\approx \dfrac{(b-a)^2}{N^2}\sum\limits_{i=1}^N(Y_i-\overline{Y})^2$$
+
+For $m$-dimension function on $[a_1,b_1]\times \cdots \times[a_m,b_m]$, we also have
+\begin{align*}
+\hat{I}_2&=\dfrac{1}{N}\prod\limits_{i=1}^m(b_i-a_i)\sum\limits_{i=1}^Nh(U_i)\\
+Var(\hat{I}_2)&\approx \dfrac{1}{N}\left[\prod\limits_{i=1}^m(b_i-a_i)\right]^2\sum\limits_{i=1}^N(Y_i-\overline{Y})^2
+\end{align*}
+
+In **SI** package, use the following code to carry out mean value method.
+
+    ## To integrate exp(x) from -1 to 1
+    set.seed(0)
+    h <- function(x){
+        exp(x)
+    }
+    N <- 100000
+    MVMresult <- SI.MVM(h,-1,1,N)
+    I2 <- MVMresult[[1]]
+    VarI2 <- MVMresult[[2]]
+
+## Important Sampling Method
+
+Suppose $g(x)$ is a density having similar shape with $|h(x)|$,  $h(x)=0$ when $g(x)=0$ and $h(x)=o(g(x))$ as $x\rightarrow\infty$.
+
+Suppose that $X_i\overset{i.i.d.}{\sim}g(x),\ i=1,2,\cdots,N$ and let 
+$$\eta_i=\dfrac{h(X_i)}{g(X_i)}$$
+then $$\mathrm{E}\eta_i=\int_C\dfrac{h(x)}{g(x)}g(x)\mathrm{d}x=I$$
+
+Therefore, the important sampling estimator is given by 
+$$\hat{I}_3=\overline{\eta}=\dfrac{1}{N}\sum\limits_{i=1}^N\dfrac{h(X_i)}{g(X_i)}$$
+
+The variance can be estimated by 
+\begin{align*}
+Var(\hat{I}_3)&=Var(\overline{\eta})\\
+&=\dfrac{1}{N}Var\left(\dfrac{h(X)}{g(X)}\right)\\
+&\approx \dfrac{1}{N^2}\sum\limits_{i=1}^N \left[\dfrac{h(X_i)}{g(X_i)}-\hat{I}_3\right]^2
+\end{align*}
+
+In **SI** package, use the following code to carry out mean value method.
+
+    ## To integrate exp(x) from -1 to 1
+    ## Use the sampling density (3/2+x)/3
+    set.seed(0)
+    h <- function(x){
+        exp(x)
+    }
+    N <- 100000    
+    g <- function(x){return((3/2+x)/3)}
+    G_inv <- function(y){return(sqrt(6*y+1/4)-3/2)}
+    ISMresult <- SI.ISM(h,g,G_inv,N)
+    I3 <- ISMresult[[1]]
+    VarI3 <- ISMresult[[2]]
+
+## Stratified Sampling Method
+
+Suppose that $C=\bigcup\limits_{j=1}^m C_j$ and $C_i\cap C_j=\varnothing$. For every $C_j$, use mean value method to approximate $$\hat{I}_{C_j}=\int_{C_j}h(x)\mathrm{d}x$$
+
+And get $$\hat{I}_4=\sum\limits_{j=1}^m\hat{I}_{C_j}$$
+
+It can be shown that the varaince of $\hat{I}_4$ is smaller than $\hat{I}_2$.
+
+In **SI** package, use the following code to carry out mean value method.
+
+    ## To integrate exp(x) from -1 to 1
+    set.seed(0)
+    h <- function(x){
+        exp(x)
+    }
+    N <- 100000
+    SSMresult <- SI.SSM(h,-1,1,10,N)
+    I4 <- SSMresult[[1]]
+    VarI4 <- SSMresult[[2]]

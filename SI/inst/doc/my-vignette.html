@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Jinhong Du" />
+
+<meta name="date" content="2018-09-23" />
+
+<title>Monte Carlo Integration</title>
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Monte Carlo Integration</h1>
+<h4 class="author"><em>Jinhong Du</em></h4>
+<h4 class="date"><em>2018-09-23</em></h4>
+
+
+
+<p>The <strong>SI</strong> package provides several methods of MC Integrating including</p>
+<ul>
+<li>Stochastic Point Method</li>
+<li>Mean Value Method</li>
+<li>Important Sampling Method</li>
+<li>Stratified Sampling Method</li>
+</ul>
+<p>Note that the <code>Stochastic Point Method</code> is only a stochastic point method to estimate integration. However, it is provided to be easily compared with other MC methods. These four methods are all belong to stochastic methods.</p>
+<div id="stochastic-integration" class="section level2">
+<h2>Stochastic Integration</h2>
+<p>Suppose that <span class="math inline">\(h(x)\in \mathbb{C}^1\)</span> is well-defined and bounded on finite interval <span class="math inline">\(C=[a,b]\)</span>. W.L.O.G., <span class="math inline">\(0\leq h(x)\leq M\)</span>. We are tried to calculate the integral <span class="math display">\[I=\int_a^bh(x)\mathrm{d}x\]</span> That is to say, we need to calculate the area under <span class="math inline">\(h(x)\)</span>: <span class="math inline">\(D=\{(x,y):0\leq y\leq h(x),\ x\in C\}\)</span>.</p>
+</div>
+<div id="stochastic-point-method" class="section level2">
+<h2>Stochastic Point Method</h2>
+<p>Uniformly sampling from <span class="math inline">\(G=C\times(0,M)\)</span> for <span class="math inline">\(N\)</span> times and get the stochastic points <span class="math inline">\(Z_1,\cdots,Z_N\)</span> where <span class="math inline">\(Z_i=(X_i,Y_i),\ i=1,2,\cdots,N\)</span>.</p>
+<p>For <span class="math inline">\(i=1,2,\cdots,N\)</span>, let <span class="math display">\[\xi_i=\begin{cases}
+1&amp;,Z_i\in D\\
+0&amp;,\text{otherwise}
+\end{cases}\]</span></p>
+<p>Then <span class="math inline">\(\{\xi_i\}\)</span> are outcomes of independent duplicate trials and <span class="math inline">\(\xi_1,\cdots,\xi_N\overset{i.i.d.}{\sim}Bernoulli(1,p)\)</span> where <span class="math display">\[p=\mathbb{P}(Z_i\in D)=\dfrac{I}{M(b-a)}\]</span></p>
+<p>Thus, the stochastic point method is given by <span class="math display">\[\hat{I}_1=\hat{p}(b-a)\]</span> where <span class="math inline">\(\hat{p}\)</span> is the estimator of <span class="math inline">\(p\)</span> and given by the proportion of points <span class="math inline">\(\{Z_i\}\)</span> that lie under the curve <span class="math inline">\(h(x)\)</span>.</p>
+<p>From Strong Law of Large Number, <span class="math display">\[\begin{align*}
+\hat{p}=\dfrac{\sum\limits_{i=1}^N\xi_i}{N}\xrightarrow{a.s.}p\\
+\hat{I}=\hat{p}M(b-a)\xrightarrow{a.s.}I
+\end{align*}\]</span> which means that we can use <span class="math inline">\(\hat{I}\)</span> to approximate <span class="math inline">\(I\)</span> better if we try more times (with large <span class="math inline">\(N\)</span>).</p>
+<p>To estimate the variance (or precision), we use the Central Limit Theorem and get <span class="math display">\[\begin{align*}
+\dfrac{\hat{p}-p}{Var(p)}&amp;=\dfrac{\hat{p}-p}{\sqrt{\dfrac{p(1-p)}{N}}}\xrightarrow{D}N(0,1)\\
+\dfrac{\hat{I}_1-I}{\sqrt{\frac{1}{N}}}&amp;\xrightarrow{D}N(0,[M(b-a)]^2p(1-p))
+\end{align*}\]</span></p>
+<p>Therefore, the variance can be estimated by <span class="math display">\[Var(\hat{I}_1)\approx \dfrac{1}{N}[M(b-a)]^2\hat{p}(1-\hat{p})\]</span></p>
+<p>For <span class="math inline">\(m\)</span>-dimension function on <span class="math inline">\([a_1,b_1]\times \cdots \times[a_m,b_m]\)</span>, we also have <span class="math display">\[\begin{align*}
+\hat{I}_1&amp;=\hat{p}\prod\limits_{i=1}^m(b_i-a_i)\\
+Var(\hat{I}_1)&amp;\approx \dfrac{1}{N}\left[M\prod\limits_{i=1}^m(b_i-a_i)\right]^2\hat{p}(1-\hat{p})
+\end{align*}\]</span></p>
+<p>In <strong>SI</strong> package, use the following code to carry out stochastic point method.</p>
+<pre><code>## To integrate exp(x) from -1 to 1
+set.seed(0)
+h &lt;- function(x){
+    exp(x)
+}
+N &lt;- 100000
+SPMresult &lt;- SI.SPM(h,-1,1,exp(1),N)
+I1 &lt;- SPMresult[[1]]
+VarI1 &lt;- SPMresult[[2]]</code></pre>
+</div>
+<div id="mean-value-method" class="section level2">
+<h2>Mean Value Method</h2>
+<p>Let <span class="math inline">\(U\sim Uniform(a,b)\)</span>, then <span class="math display">\[\begin{align*}
+\mathbb{E}[h(U)]&amp;=\int_a^bh(x)\dfrac{1}{b-a}\mathrm{d}x\\
+&amp;=\dfrac{I}{b-a}\\
+I&amp;=(b-a)\mathbb{E}[h(U)]
+\end{align*}\]</span></p>
+<p>Suppose that we first sample <span class="math inline">\(U_1,\cdots,U_N\overset{i.i.d.}{\sim}Uniform(a,b)\)</span>, then <span class="math inline">\(Y_i=h(U_i),\ i=1,2,\cdots,N\)</span> are i.i.d random variables. From Strong Law of Large Number, <span class="math display">\[\overline{Y}=\dfrac{1}{N}\sum\limits_{i=1}^Nh(U_i)\xrightarrow{a.s.}\mathbb{E}[h(U)]=\dfrac{I}{b-a}\]</span></p>
+<p>Thus we get the mean value estimator <span class="math display">\[\hat{I}_2=\dfrac{b-a}{N}\sum\limits_{i=1}^Nh(U_i)\]</span></p>
+<p>To estimate the variance (or precision), we use the Central Limit Theorem and get <span class="math display">\[\begin{align*}
+\dfrac{\hat{I}_2-I}{\sqrt{\frac{1}{N}}}&amp;\xrightarrow{D}N(0,(b-a)^2Var[h(U)])\\
+\hat{I}_2&amp;\xrightarrow{D}N(I,\dfrac{(b-a)^2}{N}Var[h(U)])
+\end{align*}\]</span> where <span class="math display">\[Var[h(U)]=\int_a^b\{h(u)-\mathbb{E}[h(U)]\}^2\dfrac{1}{b-a}\mathrm{d}u\]</span></p>
+<p>Since it can be estiamted by sample variance <span class="math display">\[Var[h(U)]\approx \dfrac{1}{N}\sum\limits_{i=1}^N(Y_i-\overline{Y})^2\]</span> we can estimate the variance of <span class="math inline">\(\hat{I}_2\)</span> by <span class="math display">\[Var(\hat{I}_2)\approx \dfrac{(b-a)^2}{N^2}\sum\limits_{i=1}^N(Y_i-\overline{Y})^2\]</span></p>
+<p>For <span class="math inline">\(m\)</span>-dimension function on <span class="math inline">\([a_1,b_1]\times \cdots \times[a_m,b_m]\)</span>, we also have <span class="math display">\[\begin{align*}
+\hat{I}_2&amp;=\dfrac{1}{N}\prod\limits_{i=1}^m(b_i-a_i)\sum\limits_{i=1}^Nh(U_i)\\
+Var(\hat{I}_2)&amp;\approx \dfrac{1}{N}\left[\prod\limits_{i=1}^m(b_i-a_i)\right]^2\sum\limits_{i=1}^N(Y_i-\overline{Y})^2
+\end{align*}\]</span></p>
+<p>In <strong>SI</strong> package, use the following code to carry out mean value method.</p>
+<pre><code>## To integrate exp(x) from -1 to 1
+set.seed(0)
+h &lt;- function(x){
+    exp(x)
+}
+N &lt;- 100000
+MVMresult &lt;- SI.MVM(h,-1,1,N)
+I2 &lt;- MVMresult[[1]]
+VarI2 &lt;- MVMresult[[2]]</code></pre>
+</div>
+<div id="important-sampling-method" class="section level2">
+<h2>Important Sampling Method</h2>
+<p>Suppose <span class="math inline">\(g(x)\)</span> is a density having similar shape with <span class="math inline">\(|h(x)|\)</span>, <span class="math inline">\(h(x)=0\)</span> when <span class="math inline">\(g(x)=0\)</span> and <span class="math inline">\(h(x)=o(g(x))\)</span> as <span class="math inline">\(x\rightarrow\infty\)</span>.</p>
+<p>Suppose that <span class="math inline">\(X_i\overset{i.i.d.}{\sim}g(x),\ i=1,2,\cdots,N\)</span> and let <span class="math display">\[\eta_i=\dfrac{h(X_i)}{g(X_i)}\]</span> then <span class="math display">\[\mathrm{E}\eta_i=\int_C\dfrac{h(x)}{g(x)}g(x)\mathrm{d}x=I\]</span></p>
+<p>Therefore, the important sampling estimator is given by <span class="math display">\[\hat{I}_3=\overline{\eta}=\dfrac{1}{N}\sum\limits_{i=1}^N\dfrac{h(X_i)}{g(X_i)}\]</span></p>
+<p>The variance can be estimated by <span class="math display">\[\begin{align*}
+Var(\hat{I}_3)&amp;=Var(\overline{\eta})\\
+&amp;=\dfrac{1}{N}Var\left(\dfrac{h(X)}{g(X)}\right)\\
+&amp;\approx \dfrac{1}{N^2}\sum\limits_{i=1}^N \left[\dfrac{h(X_i)}{g(X_i)}-\hat{I}_3\right]^2
+\end{align*}\]</span></p>
+<p>In <strong>SI</strong> package, use the following code to carry out mean value method.</p>
+<pre><code>## To integrate exp(x) from -1 to 1
+## Use the sampling density (3/2+x)/3
+set.seed(0)
+h &lt;- function(x){
+    exp(x)
+}
+N &lt;- 100000    
+g &lt;- function(x){return((3/2+x)/3)}
+G_inv &lt;- function(y){return(sqrt(6*y+1/4)-3/2)}
+ISMresult &lt;- SI.ISM(h,g,G_inv,N)
+I3 &lt;- ISMresult[[1]]
+VarI3 &lt;- ISMresult[[2]]</code></pre>
+</div>
+<div id="stratified-sampling-method" class="section level2">
+<h2>Stratified Sampling Method</h2>
+<p>Suppose that <span class="math inline">\(C=\bigcup\limits_{j=1}^m C_j\)</span> and <span class="math inline">\(C_i\cap C_j=\varnothing\)</span>. For every <span class="math inline">\(C_j\)</span>, use mean value method to approximate <span class="math display">\[\hat{I}_{C_j}=\int_{C_j}h(x)\mathrm{d}x\]</span></p>
+<p>And get <span class="math display">\[\hat{I}_4=\sum\limits_{j=1}^m\hat{I}_{C_j}\]</span></p>
+<p>It can be shown that the varaince of <span class="math inline">\(\hat{I}_4\)</span> is smaller than <span class="math inline">\(\hat{I}_2\)</span>.</p>
+<p>In <strong>SI</strong> package, use the following code to carry out mean value method.</p>
+<pre><code>## To integrate exp(x) from -1 to 1
+set.seed(0)
+h &lt;- function(x){
+    exp(x)
+}
+N &lt;- 100000
+SSMresult &lt;- SI.SSM(h,-1,1,10,N)
+I4 &lt;- SSMresult[[1]]
+VarI4 &lt;- SSMresult[[2]]</code></pre>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

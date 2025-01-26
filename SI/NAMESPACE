@@ -1,0 +1,6 @@
+exportPattern("^[[:alpha:]]+")
+export(SI.SPM)
+export(SI.ISM)
+export(SI.SSM)
+export(SI.MVM)
+importFrom("stats", "runif")

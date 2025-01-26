@@ -1,0 +1,13 @@
+6dd0bac9c8fa9490b4a67917a2ad0021 *DESCRIPTION
+fd2a5c33dbde773ae22158dad0c50aea *NAMESPACE
+6fc080f24ee63604c85a5e233f156e41 *NEWS.md
+f682406c61d16ccbba293cfd9df723ce *R/SI.R
+db4f66d9058aca8c13350da3603ca2d9 *build/vignette.rds
+bbc07ec72cddb8d28f1c2a7ab322f031 *inst/doc/my-vignette.R
+926a0aa1a3ff943704ba11054068a90a *inst/doc/my-vignette.Rmd
+92bc253cf99cc6595844decc7868b9ae *inst/doc/my-vignette.html
+40ee954877b6f6fb5b5e3c5e27bb8237 *man/SI.ISM.Rd
+a89bfe684b53976ec2a69722433346b8 *man/SI.MVM.Rd
+cea61f5d8c5099d194bf5b78b4f34c87 *man/SI.SPM.Rd
+0aedfa7574209196df5f912ea7728f8d *man/SI.SSM.Rd
+926a0aa1a3ff943704ba11054068a90a *vignettes/my-vignette.Rmd
