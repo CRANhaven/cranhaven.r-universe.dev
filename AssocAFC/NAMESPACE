@@ -1,0 +1,4 @@
+exportPattern("^[[:alpha:]]+")
+import("CompQuadForm")
+importFrom("utils", "read.table")
+importFrom("stats", "pchisq")
