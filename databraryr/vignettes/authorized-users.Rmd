@@ -1,0 +1,107 @@
+---
+title: "Authorized Users"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Authorized Users}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(databraryr)
+```
+
+## Requesting authorization
+
+Access to restricted data requires registration and formal approval by an institution.
+The registration process involves the creation of an (email-account-based) user account and secure password.
+Once institutional authorization has been granted, a user may gain access to shared video, audio, and other data.
+See <https://databrary.org/about.html> for more information about gaining access to restricted data.
+
+Many commands in the `databraryr` package return meaningful results *without* or *prior to* formal authorization.
+
+## Once you are authorized
+
+Congratulations!
+Your institution has approved your access to Databrary's identifiable data.
+Now, it's time to set-up `databraryr` so you can access these materials.
+
+Once you are authorized, you will gain access to a much wider range of materials on Databrary.
+When that happens, you'll load the package with `library(databraryr)` and then run `login_db(email = "<YOUR_EMAIL@PROVIDER.COM>")`, substituting your actual Databrary account for `<YOUR_EMAIL@PROVIDER.COM>`, of course.
+I prefer to give the package name when I do this, so the following is how I do the same thing.
+
+As of 0.6.0, the package supports http request using the `httr2` package.
+This produces far more transparent responses, but requires a small bit of preparation on the user's part.
+First, we generate and store in a variable a default http request.
+
+```{r make_default_request, eval=FALSE}
+drq <- make_default_request()
+```
+
+Then we give that request to other functions, as needed.
+For example, to call `login_db()`, we do so as follows:
+
+```{r login, eval=FALSE}
+databraryr::login_db(email = "<YOUR_EMAIL@PROVIDER.COM>", rq = drq)
+```
+
+If this is the first time you've logged in, you will be asked to enter your Databrary password in a separate window.
+If everything works out, you should see the function return `TRUE`.
+Congratulations, you are ready to access Databrary's restricted shared information along with any private, but unshared information you have access to.
+
+**NOTE**: You can save yourself some time if you store your Databrary login (email) as an environment variable:
+
+1. Install the `usethis` package via `install.packages('usethis')`.
+2. Run `usethis::edit_r_environ()`. This will open your `.Renviron` file in a new window.
+3. Edit the `.Renviron` file by adding a line with `DATABRARY_LOGIN="youremail@yourinstitution.edu"`, substituting your actual Databrary login email.
+4. Save the file, and restart R.
+
+Now, you can run `Sys.getenv("DATABRARY_LOGIN")`, and it will return your Databrary login.
+
+And going forward, you can use `Sys.getenv("DATABRARY_LOGIN")` wherever you would enter your Databrary login:
+
+```{r login-w-env-var, eval=FALSE}
+databraryr::login_db(email = Sys.getenv("DATABRARY_LOGIN"), rq = drq)
+```
+
+**NOTE**: You can also save yourself even more time by storing your Databrary user account (email) and password in your computer's secure credentials database using the `keyring` package.
+The `keyring` package uses the encrypted file that your computer's operating system uses for storing other passwords.
+There are alternative ways of storing user credentials, but this is the recommended one.
+
+To do this for the first time, use the `store` and `overwrite` parameters in `login_db()`:
+
+```{r, eval=FALSE}
+databraryr::login_db(email = "<YOUR_EMAIL@PROVIDER.COM>", store = TRUE,
+                     overwrite = TRUE, rq = drq)
+```
+
+This overwrites and securely stores your credentials, so that the next time you log in, you need only use this command:
+
+```{r, eval=FALSE}
+databraryr::login_db(email = "<YOUR_EMAIL@PROVIDER.COM>", store = TRUE, rq = drq)
+```
+
+or if you've stored your email as an environment variable:
+
+```{r, eval=FALSE}
+databraryr::login_db(email = Sys.getenv("DATABRARY_LOGIN"), store = TRUE, rq = drq)
+```
+
+### Logging out
+
+The package also has a log out command.
+
+```{r eval=FALSE}
+databraryr::logout_db(rq = drq)
+```
+
+**NOTE**: Most `databraryr` functions have a verbose (`vb`) parameter. If you set this to `TRUE`, you will get more information about what's going on behind the scenes.
+I use this to debug workflows.
+

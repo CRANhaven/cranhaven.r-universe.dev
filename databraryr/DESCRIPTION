@@ -1,0 +1,37 @@
+Type: Package
+Package: databraryr
+Title: Interact with the 'Databrary.org' API
+Version: 0.6.6
+Authors@R: c( person("Rick", "O. Gilmore", , "rog1@psu.edu", role =
+        c("aut", "cre", "cph")), person("Jeffrey", "Spies", ,
+        "cran@jeffspies.com", role = "aut"), person("National Science
+        Foundation OAC-2032713", role = "fnd"), person("National
+        Institutes of Health R01HD094830", role = "fnd") )
+Maintainer: Rick O. Gilmore <rog1@psu.edu>
+Description: 'Databrary.org' is a restricted access repository for
+        research data, especially video and audio.  This package
+        provides commands to interact with the data stored on
+        'Databrary.org'.
+License: MIT + file LICENSE
+URL: https://databrary.github.io/databraryr/,
+        https://github.com/databrary/databraryr
+BugReports: https://github.com/databrary/databraryr/issues
+Imports: assertthat (>= 0.2.1), dplyr (>= 1.1.4), getPass (>= 0.2.4),
+        httr2 (>= 1.0.0), keyring (>= 1.3.2), lifecycle (>= 1.0.4),
+        magick (>= 2.8.2), magrittr, methods (>= 4.3.2), options (>=
+        0.2.0), purrr (>= 1.0.2), stringr (>= 1.5.1), tibble (>=
+        3.2.1), xfun (>= 0.41)
+Suggests: av (>= 0.9.0), ggplot2, knitr, openssl, readr, rmarkdown (>=
+        2.26), testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+RoxygenNote: 7.3.1
+NeedsCompilation: no
+Packaged: 2024-07-09 15:01:58 UTC; rog1
+Author: Rick O. Gilmore [aut, cre, cph], Jeffrey Spies [aut], National
+        Science Foundation OAC-2032713 [fnd], National Institutes of
+        Health R01HD094830 [fnd]
+Repository: CRAN
+Date/Publication: 2024-07-15 18:40:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

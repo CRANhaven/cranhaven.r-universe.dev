@@ -1,0 +1,112 @@
+---
+title: "About Databrary"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{About Databrary}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Databrary is a powerful tool for storing and sharing video data and documentation with other researchers.
+With the `databraryr` package, it becomes even more powerful.
+Rather than interact with Databrary through a web browser, users can write their own code to download participant data or even specific files.
+
+I wrote `databraryr` so that I could better understand how the site works under the hood, and so that I could streamline my own analysis and data sharing workflows.
+
+Let's get started.
+
+## Registering
+
+Access to most of the material on Databrary requires prior registration and [authorization](https://databrary.org/about/agreement.html) from an institution.
+The authorization process requires formal agreement by an institution.
+But you'll create an account ID (email) and secure password when you register.
+Then, when you log in with your new credentials, you'll select an existing institution (if yours is on the list), a new institution (if yours isn't), or an existing authorized investigator (if you are a student, postdoc, or collaborator) to request authorization from.
+
+## Installation
+
+### Official CRAN release
+
+- Install the package from CRAN via install.packages("databraryr").
+
+### Development release
+
+- Install the devtools package from CRAN: `install.packages("devtools")` if you have not already done so.
+- Load `devtools` into your local environment: `library(devtools)`.
+- Install the databraryr package via `install_github("databrary/databraryr")`. Required dependencies will be installed at this time.
+
+### v0.6.5
+
+- The latest version of the code is v0.6.5.
+The v0.6.x code uses the `httr2` package under the hood, and it runs much faster than v0.5.x.
+
+## First steps (while you await authorization)
+
+But even before formal authorization is complete, a user can access the public materials on Databrary.
+For this vignette, we'll assume you fall into this category.
+
+Once you've installed the package following one of the above routes, it's a good idea to check that your installation worked by loading it into your local workspace.
+
+```{r eval=FALSE}
+library(databraryr)
+```
+
+Then, try this command to pull data about one of Databrary's founders:
+
+```{r get_party_by_id}
+# The default parameter settings return a very detailed set of information about 
+# a party that we do not need for this example.
+party_6 <- databraryr::get_party_by_id(parents_children_access = FALSE)
+
+party_6 |>
+  as.data.frame()
+```
+
+Note that this command returns a data frame with columns that include the first name (`prename`), last name (`sortname`), affiliation, lab or personal website, and ORCID ID if available.
+
+Databrary assigns a unique integer for each person and institution on the system called a 'party id'.
+We can create a simple helper function to collect information about a larger group of people.
+
+```{r list-people-5-7}
+# Helper function
+get_party_as_df <- function(party_id) {
+  this_party <- databraryr::get_party_by_id(party_id, 
+                                            parents_children_access = FALSE)
+  if (!is.null(this_party)) {
+    as.data.frame(this_party)
+  } else {
+    NULL
+  }
+}
+
+# Party's 5, 6, and 7 are Databrary's founders
+purrr::map(5:7, get_party_as_df, .progress = TRUE) |>
+  purrr::list_rbind()
+```
+
+You should see information about Databrary's three founders.
+
+You can also try seeing what's new on Databrary.
+The `get_db_stats()` command gives you information about the newly authorized people, institutions, and newly uploaded datasets.
+Try this:
+
+```{r get-db-stats}
+databraryr::get_db_stats("stats")
+databraryr::get_db_stats("people")
+databraryr::get_db_stats("institutions")
+databraryr::get_db_stats("datasets")
+```
+
+Depending on when you run this command and how often, there may or may not be new items.
+
+## Next steps
+
+To see more about how to access data on Databrary using `databraryr` visit the [accessing data](accessing-data.Rmd) vignette.
+
+To see how to log in and log out once you have authorization, see the vignette for [authorized users](authorized-users.Rmd).
