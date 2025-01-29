@@ -1,0 +1,3 @@
+useDynLib(CRM, .registration = TRUE)
+importFrom("stats", "rexp", "runif")
+export(crm,crmsim,crmsiminc1,crmsiminc2)

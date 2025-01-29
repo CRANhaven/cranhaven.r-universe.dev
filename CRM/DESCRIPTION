@@ -1,0 +1,16 @@
+Package: CRM
+Title: Continual Reassessment Method (CRM) for Phase I Clinical Trials
+Version: 1.2.4
+Date: 2018-9-25
+Depends: R (>= 2.10.0)
+Author: Qianxing Mo
+Maintainer: Qianxing Mo <qianxing.mo@moffitt.org>
+Description: Functions for phase I clinical trials using the continual
+        reassessment method.
+LazyData: no
+License: GPL (>= 2)
+NeedsCompilation: yes
+Packaged: 2018-09-26 14:01:24 UTC; 4468133
+Repository: CRAN
+Date/Publication: 2018-09-26 16:10:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
