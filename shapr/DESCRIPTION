@@ -1,0 +1,62 @@
+Package: shapr
+Version: 1.0.1
+Title: Prediction Explanation with Dependence-Aware Shapley Values
+Description: Complex machine learning models are often hard to
+        interpret. However, in many situations it is crucial to
+        understand and explain why a model made a specific prediction.
+        Shapley values is the only method for such prediction
+        explanation framework with a solid theoretical foundation.
+        Previously known methods for estimating the Shapley values do,
+        however, assume feature independence. This package implements
+        methods which accounts for any feature dependence, and thereby
+        produces more accurate estimates of the true Shapley values. An
+        accompanying 'Python' wrapper ('shaprpy') is available through
+        the GitHub repository.
+Authors@R: c( person("Martin", "Jullum", email = "Martin.Jullum@nr.no",
+        role = c("cre", "aut"), comment = c(ORCID =
+        "0000-0003-3908-5155")), person("Lars Henry Berge", "Olsen",
+        email = "lhbolsen@nr.no", role = "aut", comment = c(ORCID =
+        "0009-0006-9360-6993")), person("Annabelle", "Redelmeier",
+        email = "ardelmeier@gmail.com", role = "aut"), person("Jon",
+        "Lachmann", email = "Jon@lachmann.nu", role = "aut", comment =
+        c(ORCID = "0000-0001-8396-5673")), person("Nikolai",
+        "Sellereite", email = "nikolaisellereite@gmail.com", role =
+        "aut", comment = c(ORCID = "0000-0002-4671-0337")),
+        person("Anders", "Løland", email = "Anders.Loland@nr.no", role
+        = "ctb"), person("Jens Christian", "Wahl", email =
+        "jens.c.wahl@gmail.com", role = "ctb"), person("Camilla",
+        "Lingjærde", role = "ctb"), person("Norsk Regnesentral", role =
+        c("cph", "fnd")) )
+URL: https://norskregnesentral.github.io/shapr/,
+        https://github.com/NorskRegnesentral/shapr/
+BugReports: https://github.com/NorskRegnesentral/shapr/issues
+License: MIT + file LICENSE
+Encoding: UTF-8
+ByteCompile: true
+Language: en-US
+RoxygenNote: 7.3.2
+Depends: R (>= 3.5.0)
+Imports: stats, data.table, Rcpp (>= 0.12.15), Matrix, future.apply,
+        methods
+Suggests: ranger, xgboost, mgcv, testthat (>= 3.0.0), knitr, rmarkdown,
+        roxygen2, ggplot2, gbm, party, partykit, waldo, progressr,
+        future, ggbeeswarm, vdiffr, forecast, torch, GGally, progress,
+        coro, parsnip, recipes, workflows, tune, dials, yardstick,
+        hardhat, rsample, rlang, cli
+LinkingTo: RcppArmadillo, Rcpp
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+NeedsCompilation: yes
+Packaged: 2025-01-16 09:45:53 UTC; jullum
+Author: Martin Jullum [cre, aut]
+        (<https://orcid.org/0000-0003-3908-5155>), Lars Henry Berge
+        Olsen [aut] (<https://orcid.org/0009-0006-9360-6993>),
+        Annabelle Redelmeier [aut], Jon Lachmann [aut]
+        (<https://orcid.org/0000-0001-8396-5673>), Nikolai Sellereite
+        [aut] (<https://orcid.org/0000-0002-4671-0337>), Anders Løland
+        [ctb], Jens Christian Wahl [ctb], Camilla Lingjærde [ctb],
+        Norsk Regnesentral [cph, fnd]
+Maintainer: Martin Jullum <Martin.Jullum@nr.no>
+Repository: CRAN
+Date/Publication: 2025-01-16 13:00:05 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
