@@ -1,0 +1,52 @@
+Package: PPtreeregViz
+Title: Projection Pursuit Regression Tree Visualization
+Version: 2.0.5
+Authors@R: c( person("Eun-Kyung", "Lee", email = "lee.eunk@gmail.com",
+        role = c("aut", "ctb")), person("HyunSun", "Cho", email =
+        "sunsmiling@naver.com", role = c("aut", "cre")),
+        person("Nikolai", "Sellereite", email =
+        "nikolaisellereite@gmail.com", role = c("ctb","cph"), comment =
+        "Author of included shapr fragments"), person("Martin",
+        "Jullum", email = "Martin.Jullum@nr.no", role = c("ctb","cph"),
+        comment = "Author of included shapr fragments"),
+        person("Annabelle", "Redelmeier", email =
+        "Annabelle.Redelmeier@nr.no", role = c("ctb","cph"), comment =
+        "Author of included shapr fragments"), person("Norsk
+        Regnesentral", role = c("cph")) )
+Maintainer: HyunSun Cho <sunsmiling@naver.com>
+Description: It was developed as a tool for exploring 'PPTreereg'
+        (Projection Pursuit TREE of REGression). It uses various
+        projection pursuit indexes and 'XAI' (eXplainable Artificial
+        Intelligence) methods to help understand the model by finding
+        connections between the input variables and prediction values
+        of the model. The 'KernelSHAP' (Aas, Jullum and Løland (2019)
+        <arXiv:1903.10464>) algorithm was modified to fit ‘PPTreereg’,
+        and some codes were modified from the 'shapr' package
+        (Sellereite, Nikolai, and Martin Jullum (2020)
+        <doi:10.21105/joss.02027>). The implemented methods help to
+        explore the model at the single instance level as well as at
+        the whole dataset level. Users can compare with other machine
+        learning models by applying it to the 'DALEX' package of 'R'.
+License: GPL-3
+Encoding: UTF-8
+RoxygenNote: 7.2.1
+Depends: R (>= 4.0.0)
+NeedsCompilation: yes
+Repository: CRAN
+Date: 2022-12-19
+Imports: Rcpp, data.table, DALEX, shapr, ggplot2, dplyr, tidyr, tibble,
+        PPtreeViz, reshape2, magrittr, utils
+Suggests: testthat (>= 3.0.0), gridExtra, grid, ggExtra, partykit,
+        ggparty, progress, tidyselect, ggforce, waterfalls, forcats,
+        RColorBrewer, gtable, knitr, rmarkdown, MASS, covr
+LinkingTo: Rcpp, RcppArmadillo
+VignetteBuilder: knitr
+URL: https://github.com/sunsmiling/PPtreeregViz
+Packaged: 2022-12-23 06:45:16 UTC; sunny
+Author: Eun-Kyung Lee [aut, ctb], HyunSun Cho [aut, cre], Nikolai
+        Sellereite [ctb, cph] (Author of included shapr fragments),
+        Martin Jullum [ctb, cph] (Author of included shapr fragments),
+        Annabelle Redelmeier [ctb, cph] (Author of included shapr
+        fragments), Norsk Regnesentral [cph]
+Date/Publication: 2022-12-23 19:20:05 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

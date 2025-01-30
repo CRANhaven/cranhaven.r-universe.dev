@@ -1,0 +1,194 @@
+---
+title: "Get started with `PPtreeregViz`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started with `PPtreeregViz`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "80%"
+)
+```
+
+```{r setup}
+knitr::opts_chunk$set(include = FALSE)
+library(PPtreeregViz)
+library(ggplot2)
+library(dplyr)
+```
+
+## Introduction of PPtreeregViz
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+This package was developed to visualize the Projection Pursuit Regression Tree model <a href="https://www.mdpi.com/2076-3417/11/21/9885/pdf"></a> and add explanatory possibilities of the model using \code{XAI (eXplainable AI)} techniques. Since projection pursuit regression tree is based on tree method and grows using projection of input features, the model has excellent interpretability itself. By visualizing each node of this model, global analysis of the model is possible.  (This method is model-specific because it can only be used in the \code{PPTreereg} model.) Global interpretation using this method is possible, but it is difficult to interpret one observation because it goes through several projections. To overcome this, the developed \code{XAI} techniques were slightly modified to fit the structure of \code{PPTreereg} model. Using these visualization methods, it is possible to figure out how and what features have affected the model’s prediction. Through these processes, we can determine whether the model is trustworthy or not.
+
+
+## Installation
+<a href='https://github.com/sunsmiling/PPtreeregViz'><img src="figures/logo.png" align="right" height="138.5"/></a>
+
+
+You can install the released version of  \code{PPtreeregViz} from CRAN with:
+``` r
+devtools::install_github("PPtreeregViz")
+```
+And the development version from GitHub with:
+``` r
+# install.packages("devtools")
+devtools::install_github("sunsmiling/PPtreeregViz")
+```
+
+## Example Data
+
+As an example, Boston house price data from the MASS library was used. In the first part, we will talk about visualizing model itself. Next, we will see an example of explaining model by applying \code{XAI} techniques.
+
+
+### Boston Data
+
+The Boston data were divided into a train data set and a test data set at a ratio of 7:3. In particular, the first observation in the test data set was specifically selected as “sample_one”.
+
+```{r}
+library(MASS)
+data("Boston")
+
+set.seed(1234)
+proportion = 0.7
+idx_train = sample(1:nrow(Boston), size = round(proportion * nrow(Boston)))
+sample_train = Boston[idx_train, ]
+sample_test =  Boston[-idx_train, ]
+sample_one <- sample_test[sample(1:nrow(sample_test),1),-14]
+```
+
+## Build Model & Plot Model itself
+
+Create a \code{PPTreereg} model with Depth as 2 for ease of visualization and interpretation.
+```{r}
+library(PPtreeregViz)
+Model <- PPtreeregViz::PPTreereg(medv ~., data = sample_train, DEPTH = 2)
+```
+
+```{r fig.height=5, fig.width=7}
+plot(Model)
+```
+
+Through `pp_ggparty`, marginal predicted values and actual values are drawn according to independent variables for each final node. In the group with the lower 25% of house prices, \code{lstat}(lower status of the population (percent)) had a wide range from 10 to 30, but in the group with the top 25%, \code{lstat} had only values less than 15.
+
+```{r fig.height=5, fig.width=7}
+pp_ggparty(Model, "lstat", final.rule = 1)
+```
+
+```{r fig.height=5, fig.width=7}
+pp_ggparty(Model, "lstat", final.rule = 4)
+```
+
+```{r fig.height=5, fig.width=7}
+pp_ggparty(Model, "lstat", final.rule = 5)
+```
+
+### variable importance plot
+
+By using the combination of the regression coefficient values of the projection values at each split node, the importance of the variables for which the model was built can be calculated. `PPimportance` calculate split node's coefficients and can be drawn for each final leaf. The blue bar represents the positive slope (effect), and the red bar represents the negative slope.
+
+Variables are sorted according to the overall size of each bar, so you can know the variables that are considered important for each final node sequentially.
+
+```{r}
+Tree.Imp <- PPimportance(Model) 
+plot(Tree.Imp)
+```
+
+If you use some arguments such as `marginal = TRUE` and `num_var`, you can see the desired number of marginal variable importance of the whole rather than each final leaf.
+
+```{r}
+plot(Tree.Imp, marginal = TRUE, num_var = 5)
+```
+
+### Node visualization
+
+`PPregNodeViz` can visualize how train data is fitted for each node. When the node.id is 4 (i.e. first final node), the result of fitted data is displayed in black color. In order to improve accuracy, \code{PPTreereg} can choose the final rule from 1 to 5, whether to use a single value or a linear combination of independent variables.
+
+
+
+```{r  fig.height=4, fig.width=8}
+PPregNodeViz(Model, node.id = 1)
+```
+
+
+```{r  fig.height=4, fig.width=8}
+PPregNodeViz(Model, node.id = 4)
+```
+
+4th final leaf's node id is 7.
+
+
+```{r  fig.height=4, fig.width=8}
+PPregNodeViz(Model,node.id = 7)
+```
+
+
+### Variable visualization
+
+Using `PPregvarViz` shows results similar to partial dependent plots of how independent variable affects the prediction of Y in actual data. If the argument `Indiv=TRUE`, the picture is drawn by dividing the grid for each final node.
+
+
+```{r  fig.height=5, fig.width=5}
+PPregVarViz(Model,"lstat")
+```
+
+```{r  fig.height=5, fig.width=5}
+PPregVarViz(Model,"lstat",indiv = TRUE)
+```
+
+```{r  fig.height=5, fig.width=5}
+PPregVarViz(Model,"chas",var.factor = TRUE)
+```
+
+```{r  fig.height=5, fig.width=5}
+PPregVarViz(Model,"chas",indiv = TRUE, var.factor = TRUE)
+```
+
+
+## Using \code{XAI} method
+
+### Calculate SHAP for \code{PPTreereg} method
+
+So far, we have only seen the global movement of the model itself. From now on, we will proceed with model analysis using SHAP values. Using the SHAP value, you can see locally how one sample data moves in the model. In order to calculate the SHAP value more faster, the method for calculating the kernel shap of the \code{NorskRegnesentral/shapr} \url{https://github.com/NorskRegnesentral/shapr} package was slightly modified and used.
+
+```{r}
+sample_one
+```
+
+Since the `empirical` method, which is a more accurate calculation method, takes more time to calculate, a `simple` calculation method, which is an estimate of this value, was used.
+
+```{r}
+ppshapr.simple(PPTreeregOBJ = Model, testObs = sample_one, final.rule = 5)$dt
+```
+
+
+
+Although the difference in calculation speed between \code{ppshapr.simple} and \code{ppshapr.empirical} is quite large, it can be seen that the results are similar.
+
+
+### Decision plot 
+
+\code{PPTreereg} creates a tree based on the range of y values. Therefore, when calculating the contributions of features of one observation, it is natural that different values are calculated for each final leaf.
+Compared with the data with y value in the lower 25% (first final leaf), the effect of \code{lstat} of [`sample_one`] was very large. On the other hand, it can be seen that the influence of rm (average number of rooms per dwelling) is very large in data with upper 25% large y value (4th final leaf).
+How each feature affects y hat in one observation can be drawn in two ways. `decisionplot` and `waterfallplot`.
+
+```{r}
+decisionplot(Model, testObs = sample_one, method="simple",varImp = "shapImp",final.rule=5)
+```
+
+
+```{r warning=FALSE}
+waterfallplot(Model, testObs = sample_one, method="simple", final.rule=5)
+```
+
+
+
+
