@@ -1,0 +1,30 @@
+Package: BigDataPE
+Title: Secure and Intuitive Access to 'BigDataPE' 'API' Datasets
+Version: 0.0.9
+Date: 2024-12-01
+Authors@R: c( person("Andre", "Leite", email = "leite@castlab.org",
+        role = c("aut", "cre")), person("Hugo", "Vaconcelos", email =
+        "hugo.vasconcelos@ufpe.br", role = "aut"), person("Diogo",
+        "Bezerra", email = "diogo.bezerra@ufpe.br", role = "aut"))
+Description: Designed to simplify the process of retrieving datasets
+        from the 'BigDataPE' platform using secure token-based
+        authentication. It provides functions for securely storing,
+        retrieving, and managing tokens associated with specific
+        datasets, as well as fetching and processing data using the
+        'httr2' package. The integration with 'keyring' ensures that
+        tokens are stored securely within the system’s credential
+        manager.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Imports: dplyr, tibble, httr2, keyring
+URL: <https://github.com/StrategicProjects/bigdatape>
+Config/Needs/website: tidyverse/tidytemplate
+NeedsCompilation: no
+Packaged: 2024-12-14 19:49:15 UTC; leite
+Author: Andre Leite [aut, cre], Hugo Vaconcelos [aut], Diogo Bezerra
+        [aut]
+Maintainer: Andre Leite <leite@castlab.org>
+Repository: CRAN
+Date/Publication: 2024-12-16 18:00:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

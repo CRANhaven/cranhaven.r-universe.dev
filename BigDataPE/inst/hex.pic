@@ -1,0 +1,33 @@
+define half_hex_down {
+    A:line down $1*(sqrt(3)/2) right $1/2 \
+        then left 2*$1 \
+        then up $1*(sqrt(3)/2) right $1/2 \
+        close color $3 fill $4
+    text $2 at last .c color $5
+}
+
+define half_hex_up {
+    A:line  down $1*(sqrt(3)/2) left  $1/2 \
+        then left $1 \
+        then up $1*(sqrt(3)/2) left $1/2 \
+        close color $3 fill $4
+    text $2 at last .c color $5
+}
+
+len = .3
+
+HD: [half_hex_down(len*2 ,  "BIGDATA" big big bold, 0x1A2A65, white, 0x139DEA)]
+
+HU: [half_hex_up(len*2 ,  "", 0x1A2A65, 0x1A2A65, white)] \
+  with .n at .025 below HD.s
+
+LOGO: [
+  B1: box color 0xececec ht 1.1*len wid len rad .02
+  B2: box fill 0x339E39 color 0x1A2A65 thick with .c at B1.nw  - (.01,.01) wid .6*len ht .6*len rad .02
+  B3: box fill 0xF8AF13 color -1 with .nw at B1.ne + (.08, .04) wid .8*len/2 ht .8*len/2  rad .02
+  B4: box fill 0xD1001E color -1 with .ne at B1.ne - (.04, .04) wid .5*len/2 ht .5*len/2  rad .02
+  B5: box fill 0x139DEA color 0x1A2A65 thick with .c at B1.se - (.04, -len/5) wid .7*len ht .7*len rad .02
+  "PE" bold big  at B5.c color 0x1A2A65
+
+] with .c at HU.c - (0, .015)
+

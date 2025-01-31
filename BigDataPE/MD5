@@ -1,0 +1,17 @@
+3e9c7e1a07bd0f807dc06d3c33462ac3 *DESCRIPTION
+c54e7df80a62ad794f4c54f514d3f8e2 *LICENSE
+61358b8e711e2ed3db7c4c3f2a66ece6 *NAMESPACE
+18a8b6f0df9c2bebf3d77d36f9fa204d *R/BigDataPE.R
+7ea92a988e58fc812c2dfcbc5f30b6a1 *README.md
+7804548d2efa8a3be14ac2345d5e0390 *inst/hex.pic
+78f57bc3b391767d66d731fb78ad6331 *inst/hexBigDataPE.png
+f4d978c7525be8e39874adaed2a20300 *inst/hexBigDataPE.svg
+5e1cf388491e3425dc381b4181f5ffb2 *man/bdpe_fetch_chunks.Rd
+302301783b507e034d3c1b06efd16cce *man/bdpe_fetch_data.Rd
+ca35f5ab43039d73a6c7c98bf8918da0 *man/bdpe_get_token.Rd
+89d53b5ab994d8e9a1f16edc4bc350a2 *man/bdpe_list_tokens.Rd
+81e48a7e45c64ff1826b0ebe5e0fc5c2 *man/bdpe_remove_token.Rd
+c16f9277caef4cdcc242094662953da7 *man/bdpe_store_token.Rd
+f4d978c7525be8e39874adaed2a20300 *man/figures/hexBigDataPE.svg
+f0dcf6bc405bb68335fe5c02e09a9039 *man/figures/logo.png
+9f60f54062ed0c5e63afbaf131ae14d1 *man/parse_queries.Rd
