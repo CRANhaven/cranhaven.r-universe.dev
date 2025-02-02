@@ -1,0 +1,52 @@
+legion v0.1.2 (Release data: 2023-01-30)
+=======
+
+Changes:
+* The order in which in plot.legion() now matters.
+* Allow estimating seasonal vets() on the short data (one season of data).
+* auto.vets() now does not check for common initial level and common level component. This is not practical.
+
+Bugfixes:
+* Fixed a bug in dimnames for some vets() models.
+* ves() and vets() would produce an error in case of h=1 due to drop of one of the dimensions by R, when extracting the holdout.
+* Fix in auto.vets() for level models with no checks for initials and components.
+* measures() was not imported from greybox for some reason. Now it is.
+* Different initialisation of persistence matrix in ves(), so that it does not get stuck in the violation of stability condition.
+
+
+legion v0.1.1 (Release data: 2022-02-14)
+=======
+
+Changes:
+* Usual bounds are now available in vets. This will make all parameters lie between 0 and 1.
+* Custom loss function for both ves() and vets().
+* We now import forecast from generics package, not from greybox.
+* Correct names of states that include original names of time series in vets().
+
+Bugfixes:
+* forecast.legion would not work correctly if variables did not have names.
+
+
+legion v0.1.0 (Release data: 2021-05-15)
+=======
+
+Changes:
+* Imported ves() and vets() functions from smooth package.
+* We now have explicit lags parameter in ves() and vets().
+* First working version of vets().
+* architectorVETS in vets() - internal function needed for selector.
+* vets() and ves() now support model selection.
+* vets() now has a proper likelihood estimation and implementation of multiplicative error model.
+* ves() now also has a proper MLE.
+* Parameter "silent" can now only be TRUE or FALSE.
+* auto.vets() function, selecting PIC elements via I->P->C.
+* plot() method for ves() and vets(). Currently only produces plots 1 and 4-7.
+* Fixed BICc and AICc for multivariate models.
+* loss="diagonal" now refers to likelihood maximisation, assuming that the series are independent.
+* auto.vets() now starts with the model with loss="diagonal", implying that covariances are all zero.
+* Substituted the parameters "y" with "data".
+* A brief vignette for vets().
+* plot.legion() method now supports all plots.
+* forecast.legion() and related methods is now available.
+* ves() and vets() now work with zoo classes of data.
+* on.exit() restore par for plot functions.
