@@ -1,0 +1,43 @@
+
+
+
+test_that("A long sequence is framed and translated properly", {
+  #can the program pull off the folmer primers?
+  f_front = 'GGTCAACAAATCATAAAGATATTGG'
+  ex_seq = "ctctacttgatttttggtgcatgagcaggaatagttggaatagctttaagtttactaattcgcgctgaactaggtcaacccggatctcttttaggggatgatcagatttataatgtgatcgtaaccgcccatgcctttgtaataatcttttttatggttatacctgtaataattggtggctttggcaattgacttgttcctttaataattggtgcaccagatatagcattccctcgaataaataatataagtttctggcttcttcctccttcgttcttacttctcctggcctccgcaggagtagaagctggagcaggaaccggatgaactgtatatcctcctttagcaggtaatttagcacatgctggcccctctgttgatttagccatcttttcccttcatttggccggtatctcatcaattttagcctctattaattttattacaactattattaatataaaacccccaactatttctcaatatcaaacaccattatttgtttgatctattcttatcaccactgttcttctactccttgctctccctgttcttgcagccggaattacaatattattaacagaccgcaacctcaacactacattctttgaccccgcagggggaggggacccaattctctatcaacactta"
+  f_rear = 'TAAACTTCAGGGTGACCAAAAAATCA'
+
+  folmer_test = coi5p_pipe(paste0(f_front,ex_seq, f_rear ), name = 'primer_test')
+
+  #26th bp is bp 1, the 25 primer bp are removed - removes 24/25 primer bases
+  expect_equal(folmer_test$data$raw_start, 25)
+  expect_equal(nchar(folmer_test$framed)-3, nchar(ex_seq))
+
+  sequence = 'aaccgctgattattttcaaccaaccacaaagatatcggcaaactttatattttatttttggagcttgagctggaatagttggaacatctttaagaattttaattcgagctgaattaggacatcctggagcattaattggagatgatcaaatttataatgtaattgtaactgcacatgcttttattataattttttttatggttatacctattataattggtggatttggaaattgattagtgcctttaatattaggtgctcctgatatagcattcccacgaataaataatataagattttgactactacctcctgctctttctttactattagtaagtagaatagttgaaaatggagctggaacaggatgaactgtttatccacctttatccgctggaattgctcatggtggagcttcagttgatttagctattttttctctacatttagcagggatttcttcaattttaggagctctaaattttattacaactgtaattaatatacgatcaacaggaatttcattagatcgtatacctttatttgtttgatcagtagttattactgctttattattgttattatcacttccagtactagcaggagctattactatattattaacagatcgaaatttaaatacatcattttttgacccagcgggaggaggagatcctattttatatcaacatttattatttattta'
+  sequence_framed = 'actttatattttatttttggagcttgagctggaatagttggaacatctttaagaattttaattcgagctgaattaggacatcctggagcattaattggagatgatcaaatttataatgtaattgtaactgcacatgcttttattataattttttttatggttatacctattataattggtggatttggaaattgattagtgcctttaatattaggtgctcctgatatagcattcccacgaataaataatataagattttgactactacctcctgctctttctttactattagtaagtagaatagttgaaaatggagctggaacaggatgaactgtttatccacctttatccgctggaattgctcatggtggagcttcagttgatttagctattttttctctacatttagcagggatttcttcaattttaggagctctaaattttattacaactgtaattaatatacgatcaacaggaatttcattagatcgtatacctttatttgtttgatcagtagttattactgctttattattgttattatcacttccagtactagcaggagctattactatattattaacagatcgaaatttaaatacatcattttttgacccagcgggaggaggagatcctattttatatcaacattta'
+
+  sequence_AAcensored = "TLYFIFGAWAG?VGTSL?ILIRAELGHPGALIGDDQIYNVIVTAHAFI?IFFMV?PI?IGGFGNWLVPL?LGAPD?AFPR?NN??FWLLPPALSLLLVS??VENGAGTGWTVYPPLSAGIAHGGASVDLAIFSLHLAGISSILGALNFITTVIN?RSTGISLDR?PLFVWSVVITALLLLLSLPVLAGAIT?LLTDRNLNTSFFDPAGGGDPILYQHL"
+  sequence_AA5 = "TLYFIFGAWAGMVGTSLSILIRAELGHPGALIGDDQIYNVIVTAHAFIMIFFMVMPIMIGGFGNWLVPLMLGAPDMAFPRMNNMSFWLLPPALSLLLVSSMVENGAGTGWTVYPPLSAGIAHGGASVDLAIFSLHLAGISSILGALNFITTVINMRSTGISLDRMPLFVWSVVITALLLLLSLPVLAGAITMLLTDRNLNTSFFDPAGGGDPILYQHL"
+
+  dat = coi5p(sequence)
+  expect_equal(dat$raw, sequence)
+  expect_identical(dat$name, character(0))
+
+  dat = frame(dat)
+  expect_equal(dat$framed, sequence_framed)
+
+  dat = translate(dat)
+  expect_equal(dat$aaSeq, sequence_AAcensored)
+
+  dat = indel_check(dat)
+  expect_equal(dat$indel_likely, FALSE)
+  expect_equal(dat$stop_codons, FALSE)
+
+  dat = translate(dat, trans_table = 5)
+  expect_equal(dat$aaSeq, sequence_AA5)
+
+  dat = indel_check(dat)
+  expect_equal(dat$indel_likely, FALSE)
+  expect_equal(dat$stop_codons, FALSE)
+
+})

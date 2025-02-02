@@ -1,0 +1,32 @@
+Package: coil
+Type: Package
+Title: Contextualization and Evaluation of COI-5P Barcode Data
+Version: 1.2.4
+Author: Cameron M. Nugent
+Maintainer: Cameron M. Nugent <camnugent@gmail.com>
+Description: Designed for the cleaning, contextualization and
+        assessment of cytochrome c oxidase I DNA barcode data (COI-5P,
+        or the five prime portion of COI). It contains functions for
+        placing COI-5P barcode sequences into a common reading frame,
+        translating DNA sequences to amino acids and for assessing the
+        likelihood that a given barcode sequence includes an insertion
+        or deletion error. The error assessment relies on the
+        comparison of input sequences against nucleotide and amino acid
+        profile hidden Markov models (PHMMs) (for details see Durbin et
+        al. 1998, ISBN: 9780521629713) trained on a taxonomically
+        diverse set of reference sequences. The functions are provided
+        as a complete pipeline and are also available individually for
+        efficient and targeted analysis of barcode data.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R(>= 3.0.0)
+Imports: ape, aphid, seqinr
+Suggests: knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1
+NeedsCompilation: no
+Packaged: 2024-01-11 11:13:16 UTC; cnuge
+Repository: CRAN
+Date/Publication: 2024-01-11 11:30:15 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

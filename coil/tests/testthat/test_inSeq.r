@@ -1,0 +1,31 @@
+
+test_that("A sequence with an insertion is framed and translated properly", {
+
+  sequence = 'ctttatttaatttttggtgcatgagcaggaatagttggaacggctttaagtcttctaatccgagctgaactaggaccaacctgggtctctcctagggggatgatcaaatttataatgtaattgtaaccgcccatgcttttgtaataattttctttatagtaatacctgtcataattggtggttttggaaattaactaattccattaataattggtgcacctgacatagccttcccacgaataaataacataagctcctgacttcttccaccatcatttctccttctcctcgcctccgctggggttgaagccggagcaggtaccggttgaacagtttaccccccactggcaagcaaccttgctcatgccggaccatctgttgatttagctatcttctccctccatttagctggtatttcatcaattttagcctcaatccaacttcatcacaactattattaatataaaacccccagccatttctcaatatcaaacaccactatttgtttgatctatccttgtaactactattcttctcctcctttccctcccagttcttgcagcaggaattacaatcttacttacagaccgcaaccttaatactacattctttgatcctgcaggtggaggagacccaatcctttaccaacaccta'
+  sequence_framed = '---ctttatttaatttttggtgcatgagcaggaatagttggaacggctttaagtcttctaatccgagctgaactaggaccaacctgggtctctcctagggggatgatcaaatttataatgtaattgtaaccgcccatgcttttgtaataattttctttatagtaatacctgtcataattggtggttttggaaattaactaattccattaataattggtgcacctgacatagccttcccacgaataaataacataagctcctgacttcttccaccatcatttctccttctcctcgcctccgctggggttgaagccggagcaggtaccggttgaacagtttaccccccactggcaagcaaccttgctcatgccggaccatctgttgatttagctatcttctccctccatttagctggtatttcatcaattttagcctcaatccaacttcatcacaactattattaatataaaacccccagccatttctcaatatcaaacaccactatttgtttgatctatccttgtaactactattcttctcctcctttccctcccagttcttgcagcaggaattacaatcttacttacagaccgcaaccttaatactacattctttgatcctgcaggtggaggagacccaatcctttaccaacaccta'
+
+  sequence_AAcensored = "-LYLIFGAWAG?VGTALSLLIRAELGPTWVSP?GMI?F?M?L?PPMLL??FSL*?YLS?LVVLEIN?FH??LVHLT*PSHE??T?APDFFHHHFSFSSPPLGLKPEQVPVEQFTPHWQATLLMPDHLLI*LSSPSI*LVFHQF*PQSNFITTIIN??PPAISQYQTPLFVWSILVTTILLLLSLPVLAAGITILLTDRNLNTTFFDPAGGGDPILYQHL"
+  sequence_AA5 = "-LYLIFGAWAGMVGTALSLLIRAELGPTWVSPSGMIKFMM*L*PPMLL**FSL**YLS*LVVLEIN*FH**LVHLT*PSHE*MT*APDFFHHHFSFSSPPLGLKPEQVPVEQFTPHWQATLLMPDHLLI*LSSPSI*LVFHQF*PQSNFITTIINMKPPAISQYQTPLFVWSILVTTILLLLSLPVLAAGITILLTDRNLNTTFFDPAGGGDPILYQHL"
+
+  dat = coi5p(sequence)
+  expect_equal(dat$raw, sequence)
+  expect_identical(dat$name, character(0))
+
+  dat = frame(dat)
+  expect_equal(dat$framed, sequence_framed)
+
+  dat = translate(dat)
+  expect_equal(dat$aaSeq, sequence_AAcensored)
+
+  dat = indel_check(dat)
+  expect_equal(dat$indel_likely, TRUE)
+  expect_equal(dat$stop_codons, TRUE)
+
+  dat = translate(dat, trans_table = 5)
+  expect_equal(dat$aaSeq, sequence_AA5)
+
+  dat = indel_check(dat)
+  expect_equal(dat$indel_likely, TRUE)
+  expect_equal(dat$stop_codons, TRUE)
+
+})

@@ -1,0 +1,5 @@
+exportPattern("^[[:alpha:]]+")
+S3method(print, coi5p)
+S3method(frame, coi5p)
+S3method(translate, coi5p)
+S3method(indel_check, coi5p)

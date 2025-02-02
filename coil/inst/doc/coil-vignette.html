@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Cameron M. Nugent" />
+
+<meta name="date" content="2019-11-01" />
+
+<title>The coil package for DNA barcode data cleaning and error assessment</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">The coil package for DNA barcode data cleaning and error assessment</h1>
+<h4 class="author">Cameron M. Nugent</h4>
+<h4 class="date">2019-11-01</h4>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;coil&#39;)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(coil)</span></code></pre></div>
+<div id="abstract" class="section level2">
+<h2>Abstract</h2>
+<p><strong>coil</strong> is an R package designed for the cleaning, contextualization, and assessment of cytochrome c oxidase I DNA barcode data (<a href="https://en.wikipedia.org/wiki/Cytochrome_c_oxidase_subunit_I">COI-5P, or the five prime portion of COI</a>). It contains functions for placing COI-5P barcode sequences into a common reading frame, translating DNA sequences to amino acids, and for assessing the likelihood that a given barcode sequence includes an insertion or deletion error. These functions are provided as a single function analysis pipeline and are also available individually for efficient and targeted analysis of barcode data.</p>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The backbone of the <code>coil</code> package is a pair of profile hidden Markov models (PHMMs) that have been trained using a representative sample of the COI-5P sequences available on <a href="http://www.boldsystems.org/index.php">the BOLD database</a>. A 657 nucleotide PHMM receives raw sequences from the user and uses the Viterbi algorithm (implemented via <a href="https://CRAN.R-project.org/package=aphid">the R package aphid</a>) to match the input sequence against the COI-5P nucleotide profile. The second PHMM receives an amino acid sequence that is matched against the COI-5P amino acids profile. The model provides two Boolean output metrics to the user: (a) the sequence contains stop codons (T/F), (b) is the sequence likely to contain an insertion or deletion error (T/F). The insertion or deletion Boolean is based on the log likelihood of the amino acid sequence compared to the PHMM. A default indel likelihood threshold of -358.88 is set, but this can be changed by the user. Sequences with likelihood values less than this threshold indicate the sequence is likely to contain an indel error, as the amino acid sequence is improbable and therefore indicative of a possible frame shift.</p>
+<p>The nucleotide and amino acid PHMMs are interfaced through the translate function, which takes the in-frame nucleotide sequence and translates it to amino acids. This function uses <a href="https://cran.r-project.org/package=seqinr">the sequinr package</a> to conduct translation in all instances where <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi">the genetic code associated with the sample</a> is known. For samples without taxonomic IDs or known genetic codes, an additional genetic code is provided. This genetic code is used to conduct censored translation, meaning that translation is conducted normally for codons that do not vary in the amino acid they code for across all known animal mitochondrial genetic codes. The codons that are known to vary in the amino acid they code for across taxa are not translated; rather a placeholder (<code>?</code>) is output to indicate that the amino acid at this location in the sequence cannot be stated with certainty. This functionality allows the <code>indel_check</code> function to assess the likelihood of sequences of unknown taxonomy without being overly stringent in its characterization of sequences as indels due to the appropriation of the wrong translation table.</p>
+<pre><code> Censored translation table:
+            FFLLSSSSYY?*CCWWLLLLPPPPHHQQRRRRII?MTTTTNN?KSS??VVVVAAAADDEEGGGG
+   Base1  = TTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGG
+   Base2  = TTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGG
+   Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG</code></pre>
+<p>The translation table employed in censored translation - five codons are translated to placeholder question marks, due to their ambiguity across different mitochondrial translation tables.</p>
+</div>
+<div id="the-coil-package" class="section level2">
+<h2>The coil package</h2>
+<div id="dependencies" class="section level3">
+<h3>Dependencies</h3>
+<p>The <code>coil</code> package is dependent on <a href="https://CRAN.R-project.org/package=aphid">the <code>aphid</code> package</a> for comparison of sequences against the COI-5P PHMMs. The <a href="https://CRAN.R-project.org/package=ape"><code>ape</code></a> package is a requirement as well because <code>coil</code> internally converts all DNA and amino acid sequences to the ape “DNAbin” and “AAbin” object types to increase computational efficiency. As previously stated, <code>coil</code> is also dependent on <a href="https://cran.r-project.org/package=seqinr">the sequinr package</a> for translation of sequences when <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi">the genetic code associated with the sample</a> is known.</p>
+</div>
+<div id="using-the-package" class="section level3">
+<h3>Using the package</h3>
+<div id="full-analysis-pipeline-for-a-single-sequence" class="section level4">
+<h4>Full analysis pipeline for a single sequence</h4>
+<p>An example execution of the complete coil analysis pipeline with default options is demonstrated below using an example COI-5P barcode DNA sequence.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">coi5p_pipe</span>(example_nt_string)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>output</span></code></pre></div>
+<pre><code>## coi5p barcode sequence
+## raw sequence:
+## ctctacttgatttttggtgcatgag...ggacccaattctctatcaacactta
+## framed sequence:
+## ---ctctacttgatttttggtgcat...ggacccaattctctatcaacactta
+## Amino acid sequence:
+## -LYLIFGAWAG?VG?ALSLLIRAEL...LTDRNLNTTFFDPAGGGDPILYQHL
+## Raw sequence was trimmed: FALSE
+## Stop codon present: FALSE, Amino acid PHMM score:-206.22045
+## The sequence likely does not contain an insertion or deletion.
+## Base pair 1 of the raw sequence is base pair 4 of the COI-5P region.</code></pre>
+<p>Executing the entire pipeline yields a coi5p object. Calling the variable name prints the coi5p object’s summary and shows important information about the sequence.</p>
+<p>Individual components can be obtained from the object using the dollar sign notation.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#see the available components</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(output)</span></code></pre></div>
+<pre><code>##  [1] &quot;name&quot;         &quot;raw&quot;          &quot;data&quot;         &quot;framed&quot;       &quot;was_trimmed&quot; 
+##  [6] &quot;align_report&quot; &quot;aaSeq&quot;        &quot;aaScore&quot;      &quot;indel_likely&quot; &quot;stop_codons&quot;</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#retrieve only the amino acid sequence from the object</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>output<span class="sc">$</span>aaScore</span></code></pre></div>
+<pre><code>## [1] -206.2204</code></pre>
+<p>By default the pipeline conducts censored translation, avoiding translation of the codons that are known to <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi">code for different amino acids among different species</a>. If taxonomic information is available for the sample (available ranks: family, order, class, phylum), in most cases you can use the helper function <code>which_trans_table</code> to determine the proper genetic code to use. If the taxonomic group contains species that have different genetic codes, a 0 is returned to indicate that it is a good idea to use censored translation.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ex_table_to_use <span class="ot">=</span> <span class="fu">which_trans_table</span>(<span class="st">&quot;Scyliorhinidae&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>ex_table_to_use</span></code></pre></div>
+<pre><code>## [1] 2</code></pre>
+<p>The analysis can then be run with a non-censored translation step. Note below that the amino acid sequence is now devoid of question marks and the PHMM score is lower.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">coi5p_pipe</span>(example_nt_string, <span class="at">trans_table =</span> ex_table_to_use)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>output</span></code></pre></div>
+<pre><code>## coi5p barcode sequence
+## raw sequence:
+## ctctacttgatttttggtgcatgag...ggacccaattctctatcaacactta
+## framed sequence:
+## ---ctctacttgatttttggtgcat...ggacccaattctctatcaacactta
+## Amino acid sequence:
+## -LYLIFGAWAGMVGMALSLLIRAEL...LTDRNLNTTFFDPAGGGDPILYQHL
+## Raw sequence was trimmed: FALSE
+## Stop codon present: FALSE, Amino acid PHMM score:-103.65363
+## The sequence likely does not contain an insertion or deletion.
+## Base pair 1 of the raw sequence is base pair 4 of the COI-5P region.</code></pre>
+</div>
+<div id="calling-functions-individually" class="section level4">
+<h4>Calling functions individually</h4>
+<p>There are four functions that constitute the coi5p analysis pipeline: <code>coi5p</code>, <code>frame</code>, <code>translate</code> and <code>indel_check</code>. These are available to the user individually, for instances where only part of the analysis pipeline is needed (i.e. if you wish to frame sequences but not waste resources translating them, you could run only <code>coi5p</code> and <code>frame</code>).</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#build the coi5p object</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">=</span> <span class="fu">coi5p</span>(example_nt_string, <span class="at">name =</span> <span class="st">&quot;example_sequence_1&quot;</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#frame the sequence</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">=</span> <span class="fu">frame</span>(dat)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#since we determined the genetic code above, we can use</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#the proper translation table as opposed to conducting </span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#the default censored translation</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">=</span> <span class="fu">translate</span>(dat, <span class="at">trans_table =</span> <span class="dv">2</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#check to see if an insertion or deletion is likely</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">=</span> <span class="fu">indel_check</span>(dat)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  dat</span></code></pre></div>
+<pre><code>## coi5p barcode sequence: example_sequence_1
+## raw sequence:
+## ctctacttgatttttggtgcatgag...ggacccaattctctatcaacactta
+## framed sequence:
+## ---ctctacttgatttttggtgcat...ggacccaattctctatcaacactta
+## Amino acid sequence:
+## -LYLIFGAWAGMVGMALSLLIRAEL...LTDRNLNTTFFDPAGGGDPILYQHL
+## Raw sequence was trimmed: FALSE
+## Stop codon present: FALSE, Amino acid PHMM score:-103.65363
+## The sequence likely does not contain an insertion or deletion.
+## Base pair 1 of the raw sequence is base pair 4 of the COI-5P region.</code></pre>
+</div>
+<div id="example-of-a-batch-analysis-of-barcode-sequences" class="section level4">
+<h4>Example of a batch analysis of barcode sequences</h4>
+<p>Here we will be working with the example dataframe: <code>example_barcode_data</code>. Although loading and outputting DNA sequence data in R is outside of the scope of the <code>coil</code> package, the supplementary section at the end of this vignette includes an example of how one can load a fasta file into a dataframe with a structure matching that of <code>example_barcode_data</code>.</p>
+<p><code>example_barcode_data</code> contains 9 barcode sequences that demonstrate the different abilities of the <code>coil</code> package. Some sequences are longer than the barcode COI-5P barcode region, some are shorter, and some have insertion or deletion errors.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#this is the example data set</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(example_barcode_data)</span></code></pre></div>
+<pre><code>## [1] 9 5</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(example_barcode_data)</span></code></pre></div>
+<pre><code>## [1] &quot;id&quot;           &quot;genetic_code&quot; &quot;taxa&quot;         &quot;sequence&quot;     &quot;notes&quot;</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># to look at the full dataframe:</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># example_barcode_data</span></span></code></pre></div>
+<p>The coi5p analysis pipeline can be applied to a dataframe in a iterative fashion. Here the pipeline is implemented through the use of the <code>lapply</code> function, which lets the unique sequence, id, and genetic code of each row in the dataframe be passed into the <code>coi5p_pipe</code> function.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>example_barcode_data<span class="sc">$</span>coi_output <span class="ot">=</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(example_barcode_data<span class="sc">$</span>id), <span class="cf">function</span>(i){</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coi5p_pipe</span>(example_barcode_data<span class="sc">$</span>sequence[i], </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">name =</span> example_barcode_data<span class="sc">$</span>id[i], </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">trans_table =</span> example_barcode_data<span class="sc">$</span>genetic_code[i])</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>example_barcode_data<span class="sc">$</span>coi_output[[<span class="dv">1</span>]] <span class="co">#example of the first output</span></span></code></pre></div>
+<pre><code>## coi5p barcode sequence: ex_1_clean
+## raw sequence:
+## acgctttactttatttttggcatgt...taaccctattctttaccagcatttg
+## framed sequence:
+## acgctttactttatttttggcatgt...taaccctattctttaccagcatttg
+## Amino acid sequence:
+## TLYFIFGMWAGFIGLSMSLLIRMEL...LTDRNFNTSFFDPSGGGNPILYQHL
+## Raw sequence was trimmed: FALSE
+## Stop codon present: FALSE, Amino acid PHMM score:-184.28122
+## The sequence likely does not contain an insertion or deletion.
+## Base pair 1 of the raw sequence is base pair 1 of the COI-5P region.</code></pre>
+<p>Tip: to increase speed, use <a href="https://www.rdocumentation.org/packages/parallel"><code>mclapply</code> from the base R <code>parallel</code> package</a> as opposed to <code>lapply</code>.</p>
+<p>The coi5p objects are nested within the dataframe. Individual components can be extracted from the object as needed using the dollar sign notation. Below <code>lapply</code> is used to extract the framed sequence from each coi5p object and turn it into its own column in the dataframe. As we can see from the output below, dashes have been added to the front of the short sequence, if we compare the framed sequences from the long inputs (rows 5 and 6) to their original sequence, we see that coi5p has trimmed the sequence outside of the barcode region.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>example_barcode_data<span class="sc">$</span>framed_seq <span class="ot">=</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(example_barcode_data<span class="sc">$</span>coi_output, </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(x){</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    x<span class="sc">$</span>framed</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">#has coi5p trimmed characters?</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="fu">nchar</span>(example_barcode_data<span class="sc">$</span>framed_seq[[<span class="dv">5</span>]]) <span class="sc">&lt;</span> <span class="fu">nchar</span>(example_barcode_data<span class="sc">$</span>sequence[[<span class="dv">5</span>]])</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>The <code>lapply</code> notation used above is rather clunky, so the coi5p package contains a helper function to aid the user in flattening a list of coi5p objects into a dataframe. By default, all of the available object components will be output to the dataframe, but the user can choose a subset of components they wish to extract from the object. Note: this function assumes that the coi5p objects in the list have been put through the same workflow and therefore have a matching set of components. As an example of how you could break it, if you’ve applied the <code>translate</code> function to only one member of the list and not the others then the coi5p objects will have non-matching sets of components and <code>flatten_coi5p</code> will not work properly.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#extract only a single column</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>col_df <span class="ot">=</span> <span class="fu">flatten_coi5p</span>(example_barcode_data<span class="sc">$</span>coi_output, <span class="at">keep_cols =</span> <span class="st">&#39;aaSeq&#39;</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co">#extract multiple columns</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>multi_df <span class="ot">=</span> <span class="fu">flatten_coi5p</span>(example_barcode_data<span class="sc">$</span>coi_output, <span class="at">keep_cols =</span> <span class="fu">c</span>(<span class="st">&#39;framed&#39;</span>,<span class="st">&#39;aaSeq&#39;</span>))</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co">#extract all columns</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>full_coi5p_df <span class="ot">=</span> <span class="fu">flatten_coi5p</span>(example_barcode_data<span class="sc">$</span>coi_output)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#full_coi5p_df</span></span></code></pre></div>
+<p>The memory requirements of the method demonstrated above are trivial because the example dataframe has only nine rows. If millions of sequences are being processed, then keeping all of the coi5p objects in memory at once may become prohibitive (this is likely not an issue for most users). This will depend on the amount of RAM available on your machine. The average <code>coi5p_pipe</code> output is ~6KB in size, so processing 1 million sequences at once would occupy ~6GB of RAM. If you are trying to limit RAM usage, the following workflow can help keep RAM requirements modest by instantiating only one coi5p object at a time, but as a trade-off may take slightly more time to execute.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>full_coi5p_df <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="fu">matrix</span>(<span class="at">ncol =</span> <span class="dv">9</span>, <span class="at">nrow =</span> <span class="dv">0</span>),<span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span> )</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(full_coi5p_df) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;raw&quot;</span>, <span class="st">&quot;framed&quot;</span>, <span class="st">&quot;was_trimmed&quot;</span>, <span class="st">&quot;align_report&quot;</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&quot;aaSeq&quot;</span>, <span class="st">&quot;aaScore&quot;</span>, <span class="st">&quot;indel_likely&quot;</span>, <span class="st">&quot;stop_codons&quot;</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(example_barcode_data<span class="sc">$</span>id)){</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    out_data <span class="ot">=</span> <span class="fu">coi5p_pipe</span>(example_barcode_data<span class="sc">$</span>sequence[i], </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">name =</span> example_barcode_data<span class="sc">$</span>id[i], </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>                            <span class="at">trans_table =</span> example_barcode_data<span class="sc">$</span>genetic_code[i])</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#for extreme memory conservation - could write each line of output to a .csv</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#instead of binding it to an output dataframe.</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    full_coi5p_df <span class="ot">=</span> <span class="fu">rbind</span>(full_coi5p_df, <span class="fu">flatten_coi5p</span>(<span class="fu">list</span>(out_data)))</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>As demonstrated here, the <code>coil</code> package allows for robust cleaning, contextualization and error assessment of novel COI-5P barcode data. The package’s analysis pipeline is designed in a modular fashion, allowing the user to run only the functions required for their given use case. The pipeline is designed with scalability in mind; each sequence is processed individually, allowing for parallelization to optimize analysis speed (i.e. via R’s <code>mclapply</code> function) when computational resources are abundant or for the sequential analysis of sequences when limited memory is available.</p>
+</div>
+<div id="analysis-of-metabarcode-data---sub-setting-the-phmm" class="section level4">
+<h4>Analysis of metabarcode data - Sub-setting the PHMM</h4>
+<p>The <code>coil</code> package’s performance is sub-optimal when the length of the sequence being processed is shorter than the length of the PHMM it is being compared against (Nugent et al. 2019 doi: <a href="https://doi.org/10.1101/2019.12.12.865014" class="uri">https://doi.org/10.1101/2019.12.12.865014</a>). When sequences are shorter than the PHMM profile length, the inferred reading frame can be incorrect in up to 5% of sequences. This error occurs when the <code>frame</code> function matches the leading nucleotides of the given query to an incorrect position in the PHMM (a consequence of sequence similarity between different parts of the barcode region). This is especially problematic in the processing of metabarcoding data (i.e. using coil to error check consensus sequences of operational taxonomic units) because metabarcoding often targets shorter, standardized sections of the full barcode region.</p>
+<p>To optimize performance for metabarcode data, <code>coil</code> contains a function, <code>subsetPHMM</code>, that allows for input sequences to be compared against a subset of the full COI-5P barcode region. This allows for <code>coil</code> to be effectively employed in the processing and error evaluation of metabarcode data, if the user knows which part of the COI-5P barcode region has been targeted.</p>
+<p>To demonstrate this process, we will consider the following two ~300bp barcode fragments. These are derived from <code>coil</code>’s <code>example_nt_string</code> below. <code>dna_336_subset</code> is an error-free 300bp fragment, and <code>dna_336_subset_indel</code> is the same fragment with an deletion error introduced.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>dna_vector <span class="ot">=</span> <span class="fu">strsplit</span>(example_nt_string, <span class="st">&quot;&quot;</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co">#three dashes added to the sequence because the example_nt_string starts at codon 2</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>dna_vector <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;-&quot;</span>, <span class="st">&quot;-&quot;</span>, <span class="st">&quot;-&quot;</span>, dna_vector) </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>dna_336_subset <span class="ot">=</span> <span class="fu">paste</span>(dna_vector[<span class="dv">336</span><span class="sc">:</span><span class="dv">635</span>], <span class="at">collapse=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">#deleted a base pair from the sequence, simulating an indel error</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>dna_336_subset_indel <span class="ot">=</span> <span class="fu">paste</span>(<span class="fu">c</span>(dna_vector[<span class="dv">336</span><span class="sc">:</span><span class="dv">358</span>]  ,dna_vector[<span class="dv">360</span><span class="sc">:</span><span class="dv">635</span>]), <span class="at">collapse=</span><span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<p>Since <code>dna_336_subset</code> is much shorter than the full nucleotide PHMM (included in coil as the variable: <code>nt_coi_PHMM</code>), when the sequence is analyzed with the <code>coi5p_pipe</code> function, a false match occurs and the reading frame is incorrectly established. The sequence is reported to contain stop codons, when it is in fact a true 300bp barcode fragment. This is an example of why false positives are sometimes produced for shorter sequences.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>false_pos <span class="ot">=</span> <span class="fu">coi5p_pipe</span>(dna_336_subset)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>false_pos<span class="sc">$</span>stop_codons</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>If we know the region of barcode that are barcode sequence fragment corresponds to, we can subset the nucleotide and amino acid PHMMs. Passing the subset models to the <code>coi5p_pipe</code> function along with the query sequence allows us to compare the sequence to only the region of interest.</p>
+<p>To default PHMMs are <code>nt_coi_PHMM</code> and <code>aa_coi_PHMM</code>, which respectively are trained on nucleotide and amino acid sequences of the COI-5P region. To subset each PHMM, we pass the PHMM and the start and end positions of the sub-region of interest to the <code>subsetPHMM</code> function. This produces new models which we can compare smaller sequences against.</p>
+<p><em>IMPORTANT NOTE:</em> When sub-setting <code>nt_coi_PHMM</code> with <code>subsetPHMM</code> it is strongly advised that your <code>start</code> position is the first base pair of a codon (codon 1 starts at position 1, so the <code>start</code> argument should be part of the sequence 1,4,7,10,13,16,etc). The cell below contains a small function (<code>first_bp_of_codon</code>) to verify this. If you do not heed this advice, you will need to pass a <code>frame_offset</code> argument to the <code>coi5p_pipe</code> function (i.e. if your start value is <code>bad_start = 5</code>, the corresponding needs to be included in the <code>coi5p_pipe</code> function call <code>frame_offset = (bad_start-1)%%3</code>), and this makes things complicated.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">#want to start at position 337 and cover 300bp</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>nt_start <span class="ot">=</span> <span class="dv">337</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>nt_end <span class="ot">=</span> <span class="dv">636</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Get the corresponding amino acid start and end points</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co">#the start and end positions are different than the nucleotide numbers, </span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#because 3bp make one amino acid</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ceiling is used because 337/3 = 112.333, i.e. the first base pair of amino acid 113</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>aa_start <span class="ot">=</span> <span class="fu">ceiling</span>(nt_start<span class="sc">/</span><span class="dv">3</span>) </span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>aa_end <span class="ot">=</span> <span class="fu">ceiling</span>(nt_end<span class="sc">/</span><span class="dv">3</span>)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>meta_nt_phmm <span class="ot">=</span> <span class="fu">subsetPHMM</span>(nt_coi_PHMM, <span class="at">start =</span> nt_start, <span class="at">end =</span> nt_end)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>meta_aa_phmm <span class="ot">=</span> <span class="fu">subsetPHMM</span>(aa_coi_PHMM, <span class="at">start =</span> aa_start, <span class="at">end =</span> aa_end)</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="co">#Addendum to note IMPORTANT </span><span class="al">NOTE</span><span class="co">:</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="co">#This function can be used to check your start is the first bp of a codon:</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>first_bp_of_codon <span class="ot">=</span> <span class="cf">function</span>(x){</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span>(((x<span class="dv">-1</span>)<span class="sc">%%</span><span class="dv">3</span>) <span class="sc">==</span> <span class="dv">0</span>){</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>   <span class="fu">return</span>(<span class="cn">TRUE</span>)</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a> }</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a> <span class="fu">return</span>(<span class="cn">FALSE</span>)</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a><span class="fu">first_bp_of_codon</span>(nt_start)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>Now that we have our nucleotide and amino acid PHMMs representing the 300bp subset of the full barcode region, we can run the <code>coi5p_pipe</code> function, this time passing the query sequence along with our non-default PHMMs.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#pass the dna sequence fragment with no error, and also subset the nt and aa PHMMs</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>subset_no_error_output <span class="ot">=</span> <span class="fu">coi5p_pipe</span>(dna_336_subset, </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">nt_PHMM =</span> meta_nt_phmm, </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">aa_PHMM =</span> meta_aa_phmm)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">#see the full output</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>subset_no_error_output</span></code></pre></div>
+<pre><code>## coi5p barcode sequence
+## raw sequence:
+## atatcctcctttagcaggtaattta...ttgaccccgcagggggaggggaccc
+## framed sequence:
+## tatcctcctttagcaggtaatttag...ctttgaccccgcagggggaggggac
+## Amino acid sequence:
+## YPPLAGNLAHAGPSVDLAIFSLHLA...AAGIT?LLTDRNLNTTFFDPAGGGD
+## Raw sequence was trimmed: TRUE
+## Stop codon present: FALSE, Amino acid PHMM score:-87.41969
+## The sequence likely does not contain an insertion or deletion.
+## Base pair 1 of the raw sequence is base pair 1 of the COI-5P region.</code></pre>
+<p>As we can see the error-free barcode sequence fragment has this time been framed properly, and as a result there is no evidence of a stop codon and the amino acid PHMM score is high. Below the same subset PHMMs are used to assess the barcode fragment with an indel error, it effectively identifies the presence of stop codons in the sequence (There the amino acid PHMM score is also low). Therefore using the <code>subsetPHMM</code> function allows us to effectively extend the functionality of <code>coil</code> to barcode sequence fragments by constraining the PHMMS. The frequency of false positives can be reduced and we can effectively separate barcode sequence fragments with indels from error-free sequences.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>subset_has_error_outpt <span class="ot">=</span> <span class="fu">coi5p_pipe</span>(dna_336_subset_indel, </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">nt_PHMM =</span> meta_nt_phmm, </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">aa_PHMM =</span> meta_aa_phmm)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>subset_has_error_outpt<span class="sc">$</span>stop_codons</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>subset_has_error_outpt</span></code></pre></div>
+<pre><code>## coi5p barcode sequence
+## raw sequence:
+## atatcctcctttagcaggtaattag...ttgaccccgcagggggaggggaccc
+## framed sequence:
+## tatcctcctttagcaggtaattagc...ctttgaccccgcagggggaggggac
+## Amino acid sequence:
+## YPPLAGN*HMLAPLLI*PSFPFIWP...QPELQYY?QTATSTLHSLTPQGEG-
+## Raw sequence was trimmed: TRUE
+## Stop codon present: TRUE, Amino acid PHMM score:-491.58798
+## The sequence likely contains an insertion or deletion.
+## Base pair 1 of the raw sequence is base pair 1 of the COI-5P region.</code></pre>
+</div>
+</div>
+<div id="supplementary-information" class="section level3">
+<h3>Supplementary Information</h3>
+<div id="loading-and-manipulating-a-fasta-file" class="section level4">
+<h4>Loading and manipulating a fasta file</h4>
+<p>The example of processing batch DNA barcode data above begins with the data in a clean dataframe. Since barcode data is not always obtained in a tidy format, some preprocessing by the user will likely be required. The following is provided to aid the user in developing a workflow for loading their barcode sequence data into R and constructing a tidy dataframe before beginning sequence analysis.</p>
+<p>The example presented below shows how one can load a fasta file containing DNA sequences into R and then convert the sequence and header data into a tidy dataframe object. More information on the <code>read.fasta</code> function can be found in <a href="https://cran.r-project.org/package=seqinr">the seqinr documentation</a>.</p>
+<p>Information found in the header lines of fasta files varies, so the reader will likely need to alter this code for novel data sources. In this example, the header contains four fields (id, genetic code, taxa and notes) separated by a pipe character (<code>|</code>). The code below turns this fasta file into a dataframe that matches the <code>example_barcode_data</code> file used above.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(seqinr)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;seqinr&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:coil&#39;:
+## 
+##     translate</code></pre>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the example fasta file included with coil</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># included in the file&#39;s header line:</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="co"># the name of the sample, its genetic code, taxonomic designation and some notes</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>ex_fasta_file <span class="ot">=</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/example_barcode_data.fasta&quot;</span>, <span class="at">package =</span> <span class="st">&quot;coil&quot;</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co">#read in the example fasta file using seqinr</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>ex_data <span class="ot">=</span> seqinr<span class="sc">::</span><span class="fu">read.fasta</span>(ex_fasta_file, <span class="at">as.string =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="co">#here is what the output from read.fasta looks like</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="co">#head(ex_data)</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="co">#parse the data in the header line by splitting the name on the | character</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>parsed_names_data <span class="ot">=</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(ex_data), <span class="cf">function</span>(i){</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unlist</span>(<span class="fu">strsplit</span>(<span class="fu">names</span>(ex_data)[[i]],<span class="st">&quot;</span><span class="sc">\\</span><span class="st">|&quot;</span>))</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="co"># subset the components of the header line and build these and the sequence </span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="co"># into a dataframe matching the style used in the coi5p batch example</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>example_barcode_data_from_scratch <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">sapply</span>(parsed_names_data, <span class="cf">function</span>(x) x[[<span class="dv">1</span>]]),</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">genetic_code =</span> <span class="fu">sapply</span>(parsed_names_data, <span class="cf">function</span>(x) x[[<span class="dv">2</span>]]),</span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">taxa =</span> <span class="fu">sapply</span>(parsed_names_data, <span class="cf">function</span>(x) x[[<span class="dv">3</span>]]),</span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">sequence =</span> <span class="fu">unname</span>(<span class="fu">unlist</span>(ex_data)),</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">notes =</span> <span class="fu">sapply</span>(parsed_names_data, <span class="cf">function</span>(x) x[[<span class="dv">4</span>]])</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a><span class="co">#uncomment the following line to see result</span></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a><span class="co">#head(example_barcode_data_from_scratch)</span></span></code></pre></div>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
