@@ -1,0 +1,17 @@
+citHeader("In published work that uses or mentions nimbleAPT, please cite the R package, including the DOI, as follows.")
+
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("{R} package version %s", meta$Version)
+noteManual <- sprintf("{R} package manual version %s", meta$Version)
+
+
+bibentry(
+  bibtype = "Manual",
+  author  = person("David R.J.", "Pleydell"),
+  title        = "{nimbleAPT}: Adaptive Parallel Tempering with NIMBLE",
+  year         = year,
+  publisher    = "Zenodo",
+  note         = note,
+  doi          = "10.5281/zenodo.5013688",
+  url          = "https://github.com/DRJP/nimbleAPT"
+)

@@ -1,0 +1,47 @@
+Package: nimbleAPT
+Type: Package
+Title: Adaptive Parallel Tempering for 'NIMBLE'
+Version: 1.0.6
+Encoding: UTF-8
+Date: 2024-04-19
+Maintainer: David Pleydell <david.pleydell@inrae.fr>
+Authors@R: c( person("David", "Pleydell",
+        email="david.pleydell@inrae.fr", role=c("aut","cre","cph"),
+        comment = c("Package developer", ORCID =
+        "0000-0002-6450-1475")), person("Daniel", "Turek", role =
+        c("cph"), comment = c("Member of the NIMBLE Developent Team")),
+        person("Perry", "de Valpine", role = "cph", comment = c("Member
+        of the NIMBLE Developent Team")), person("Christopher",
+        "Paciorek", role = "cph", comment = c("Member of the NIMBLE
+        Developent Team")), person("Nick", "Michaud", role = "cph",
+        comment = c("Member of the NIMBLE Developent Team")))
+URL: https://github.com/DRJP/nimbleAPT
+Description: Functions for adaptive parallel tempering (APT) with
+        NIMBLE models. Adapted from 'Lacki' & 'Miasojedow' (2016)
+        <DOI:10.1007/s11222-015-9579-0> and 'Miasojedow, Moulines and
+        Vihola' (2013) <DOI:10.1080/10618600.2013.778779>.
+License: BSD_3_clause + file LICENSE
+Copyright: See COPYRIGHTS file.
+RoxygenNote: 7.3.1
+Depends: R (>= 3.1.2), nimble
+Imports: methods
+Suggests: knitr, rmarkdown, coda
+VignetteBuilder: knitr
+Note: The APT samplers within this package were adapted from MCMC
+        samplers provided in the NIMBLE package
+        (https://github.com/nimble-dev/nimble) and developed by the
+        cited members of the NIMBLE Development Team. The adaptations
+        for APT included in this package were the work of the package
+        developer. Many thanks to the NIMBLE Development Team for their
+        support during the development of this package.
+NeedsCompilation: no
+Packaged: 2024-04-24 12:40:00 UTC; pleydell
+Author: David Pleydell [aut, cre, cph] (Package developer,
+        <https://orcid.org/0000-0002-6450-1475>), Daniel Turek [cph]
+        (Member of the NIMBLE Developent Team), Perry de Valpine [cph]
+        (Member of the NIMBLE Developent Team), Christopher Paciorek
+        [cph] (Member of the NIMBLE Developent Team), Nick Michaud
+        [cph] (Member of the NIMBLE Developent Team)
+Repository: CRAN
+Date/Publication: 2024-04-24 15:30:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev

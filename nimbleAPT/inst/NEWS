@@ -1,0 +1,63 @@
+                            CHANGES IN VERSION 1.0.6 (April 2024)
+USER LEVEL CHANGES
+-- printTemps == TRUE now disables progress bar.
+-- printTemps == TRUE now reports: iteration of current MCMC run; total (over all MCMC runs) iterations used in temperature ladder adaptation; current sizes of mvSamples and mvSamples2; the temperature ladder.
+
+BUG FIXES
+-- thinPrintTemps now functions independantly of thin.
+
+
+                            CHANGES IN VERSION 1.0.5 (April 2024)
+
+USER LEVEL CHANGES
+
+-- Added resetMV to the run functon of buildAPT.
+
+
+                            CHANGES IN VERSION 1.0.4 (November 2021)
+
+USER LEVEL CHANGES
+
+-- Added method calculateWAIC to buildAPT.
+
+
+                            CHANGES IN VERSION 1.0.3 (September 2020)
+
+USER LEVEL CHANGES
+
+-- Changed name to nimbleAPT (from nimble-snippets).
+
+-- Added vignette.
+
+-- Added resizeVector.
+
+-- Added logProbsVec as a means to track logProbs at temperature==1.
+
+BUG FIXES
+
+-- Updates for compatibility with changes in NIMBLE.
+
+
+                            CHANGES IN VERSION 1.0.2 (July 2020)
+
+USER LEVEL CHANGES
+
+-- Edits to documentation.
+
+BUG FIXES
+
+-- Various bug fixes.
+
+
+                            CHANGES IN VERSION 1.0.1 (November 2017)
+
+USER LEVEL CHANGES
+
+-- Added demo.
+
+
+                            CHANGES IN VERSION 1.0.0 (October 2017)
+
+USER LEVEL CHANGES
+
+-- Initial release of nimble-snippets (previous name of nimbleAPT).

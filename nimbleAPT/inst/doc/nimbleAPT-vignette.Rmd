@@ -1,0 +1,162 @@
+---
+title: "Getting started with nimbleAPT"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with nimbleAPT}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+<!-- Add this vignette to the documentation via roxygen2::roxygenise() and  R CMD build -->
+
+<!-- setwd("/home/pleydell/nimbleProject/nimble-snippets/nimbleAPT"); roxygen2::roxygenise() -->
+
+# Introduction
+
+This vignette assumes the reader is already familiar with using [nimble](https://r-nimble.org/) to perform Markov chain Monte Carlo (MCMC).
+
+The principal motivation of this package is that, when target posterior distributions are multimodal standard MCMC algorithms often perform badly.
+In these situations, standard algorithms often propose few, if any, jumps between modes, and can thus provide very poor approximations to target posterior distributions.
+The nimbleAPT package permits nimble users to perform adaptive parallel tempering (APT) as a potential solution for sampling multimodal posterior distributions.
+
+Parallel tempering is an MCMC technique
+where the posterior likelihood (of a Bayesian model) is 'heated', 'or tempered' to various degrees.
+As temperature is increased, likelihoods become flatter and this can increase the probability and frequency of between-mode jumps.
+In practice, a "temperature ladder" (a ranked set of temperatures) is established,
+MCMC is performed within each rung of the temperature ladder,
+and a special between-rung MCMC step is introduced so that parameter sets can move up and down the temperature ladder.
+Bayesian inference is made on the posterior samples of the unheated rung only.
+Adaptive parallel tempering algorithms automatically tune the temperatures of the temperature ladder
+so that target acceptance rates for proposed between-rung jumps are achieved.
+
+The nimbleAPT package provides the following...
+
+1. A buildAPT function: adapted from nimble's buildMCMC, this function sets up the APT algorithm, including between-rung steps and temperature ladder adaptation.
+2. A set of samplers, adapted from nimble's standard MCMC samplers, that include heating of the posterior likelihood.
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Toy example
+
+The following toy problem illustrates how classic MCMC algorithms can struggle to approximate multimodal posteriors. The true posterior distribution for centroids should have four modes, but as we will see, classic samplers can struggle to explore such a posterior distribution.
+
+First, we create a nimble model with a multimodal posterior. For this model there is no information in the data to remove uncertainty about the sign of the elements of centroids.
+
+```{r model, fig.width=7, fig.height=7}
+library(nimbleAPT) # Also loads nimble
+
+bugsCode <- nimbleCode({
+    for (ii in 1:nObs) {
+        y[ii,1:2] ~ dmnorm(mean=absCentroids[1:2], cholesky=cholCov[1:2,1:2], prec_param=0)
+    }
+    absCentroids[1:2] <- abs(centroids[1:2])
+    for (ii in 1:2) {
+        centroids[ii] ~ dnorm(0, sd=1E3)
+    }
+})
+
+nObs      <- 100
+centroids <- rep(-3, 2)
+covChol   <- chol(diag(2))
+
+rModel <- nimbleModel(bugsCode,
+                      constants=list(nObs=nObs, cholCov=covChol),
+                      inits=list(centroids=centroids))
+```
+
+Now use the model to simulate some data and initialise/specify the model's data nodes.
+
+```{r sim, fig.width=7, fig.height=7}
+simulate(rModel, "y") ## Use model to simulate data
+
+rModel <- nimbleModel(bugsCode,
+                      constants=list(nObs=nObs, cholCov=covChol),
+                      data=list(y=rModel$y),
+                      inits=list(centroids=centroids))
+
+cModel <- compileNimble(rModel)
+
+plot(cModel$y, typ="p", xlab="", ylab="", xlim=c(-1,1)*max(cModel$y), ylim=c(-1,1)*max(cModel$y), pch=4)
+points(x=cModel$centroids[1], y=cModel$centroids[1], col="red", pch=4, cex=3)
+points(x=-cModel$centroids[1], y=cModel$centroids[1], col="red", pch=4, cex=3)
+points(x=cModel$centroids[1], y=-cModel$centroids[1], col="red", pch=4, cex=3)
+points(x=-cModel$centroids[1], y=-cModel$centroids[1], col="red", pch=4, cex=3)
+legend("topleft", c("posterior modes", "data"), col=c("red","black"), pch=4, cex=2)
+
+```
+
+
+Now for some standard MCMC using nimble's default choice of samplers.
+
+```{r fitting1, fig.width=7, fig.height=7}
+
+simulate(cModel, "centroids")
+mcmcR <- buildMCMC(configureMCMC(cModel, nodes="centroids", monitors="centroids"), print=TRUE)
+
+mcmcC <- compileNimble(mcmcR)
+
+mcmcC$run(niter=15000)
+
+samples <- tail(as.matrix(mcmcC$mvSamples), 10000)
+summary(samples)
+
+plot(samples, xlab="", ylab="", typ="l", xlim=c(-1,1)*max(cModel$y), ylim=c(-1,1)*max(cModel$y))
+points(x=cModel$centroids[1], y=cModel$centroids[1], col="red", pch=4, cex=3)
+points(x=-cModel$centroids[1], y=cModel$centroids[1], col="red", pch=4, cex=3)
+points(x=cModel$centroids[1], y=-cModel$centroids[1], col="red", pch=4, cex=3)
+points(x=-cModel$centroids[1], y=-cModel$centroids[1], col="red", pch=4, cex=3)
+legend("topleft", legend=c("posterior modes","jumps"), col=c("red","black"), pch=c("X","_"), bg="white")
+
+library(coda)      # Loads coda
+plot(as.mcmc(samples))
+```
+
+As we can see, the default MCMC scheme makes few, if any, jumps between the four potential modes.
+
+So let's try with adaptive parallel tempering (APT).
+
+
+```{r fitting2, fig.width=7, fig.height=7}
+
+conf <- configureMCMC(cModel, nodes="centroids", monitors="centroids", enableWAIC = TRUE)
+conf$removeSamplers()
+conf$addSampler("centroids[1]", type="sampler_RW_tempered", control=list(temperPriors=TRUE))
+conf$addSampler("centroids[2]", type="sampler_RW_tempered", control=list(temperPriors=TRUE))
+conf
+
+aptR <- buildAPT(conf, Temps=1:5, ULT= 1000, print=TRUE)
+
+aptC <- compileNimble(aptR)
+
+aptC$run(niter=15000)
+
+samples <- tail(as.matrix(aptC$mvSamples), 10000)
+summary(samples)
+
+plot(samples, xlab="", ylab="", typ="l", xlim=c(-1,1)*max(cModel$y), ylim=c(-1,1)*max(cModel$y))
+points(samples, col="red", pch=19, cex=0.1)
+legend("topleft", legend=c("jumps", "samples"), col=c("black","red"), pch=c("_","X"), bg="white")
+
+plot(as.mcmc(samples))
+
+plot(as.mcmc(aptC$logProbs))
+
+aptC$calculateWAIC()
+
+
+```
+
+We can see that jumps between nodes (black lines) are frequent and that each node has been sampled (red points).
+The precision with which the weight of each posterior mode is estimated can be increased by increasing
+1. the number of rungs in the temperature ladder, and moreover
+2. the number of iterations (niter).
+
+Finally, note that WAIC can be computed in exactly the same way as in nimble. See the section 'calculating WAIC' in the nimble manual for further details.
