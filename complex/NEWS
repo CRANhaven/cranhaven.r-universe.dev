@@ -1,0 +1,32 @@
+complex v1.0.0 (Release data: 2024-04-09)
+
+Changes:
+* Added pseudo- (or "direct") variance, covariance and correlation, cvar, ccov and ccor functions respectively.
+* Implemented direct (pseudo) ACF via cacf() and partial CACF via pcacf().
+* clm() - complex linear model for complex regression models.
+* complex2mat() and complex2vec() functions for switching between complex variables and matrices/vectors.
+* mat2complex() and vec2complex() functions to reverse what the previous two do.
+* vcov(), confint() and summary() for clm class.
+* covar() function to produce covariance matrix from a random complex variable.
+* predict.clm() with proper prediction and confidence intervals and plot.predict.clm().
+* Likelihood estimation in clm().
+* direct/conjugate moments in cvar() et al.
+* cplot() to produce scatterplots of complex variables.
+* cplot() with which=2, which now produces scatterplot for variables based on MDS.
+* ccor() now also does MDS if needed.
+* cacf() with MDS and Pearson's correlation.
+* Complex Normal distribution as a wrapper of a bivariate Normal one, using mvtnorm package.
+* sigma() now returns an object based on the provided type. This includes direct, conjugate and covariance matrix.
+* vcov() now returns direct or conjugate covariance matrices, or the proper covariance matrix (based on covariance matrix of the error term).
+* cacf() and pacf() now also return critical values of correlations (non-rejection region), the width of which is regulated via level parameter. These are based on the Student's t distribution.
+* clm() now supports log() etc in the formula. Interraction effects are still wrong.
+* orders in clm(), allowing to specify ARIMA(p,d,q) orders. Curently only ARIMA(p,d,0) is supported.
+* cARIMA(p,d,q) is now available.
+* cscale() and cdescale() functions to scale real and imaginary parts of a complex variable.
+* clog() and cexp() functions to take logarithms and power of separate real and imaginary parts of a complex variable and then merge the result in another complex variable.
+
+
+complex v0.0.1 (Release data: 2019-07-01)
+==============
+
+This is the initial release of the package. At the moment, we only have CAR function.

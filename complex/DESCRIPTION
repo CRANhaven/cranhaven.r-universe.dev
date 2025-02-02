@@ -1,0 +1,32 @@
+Package: complex
+Type: Package
+Title: Time Series Analysis and Forecasting Using Complex Variables
+Version: 1.0.0
+Date: 2024-04-09
+Authors@R: person("Ivan", "Svetunkov", email = "ivan@svetunkov.com",
+        role = c("aut", "cre"), comment="Lecturer at Centre for
+        Marketing Analytics and Forecasting, Lancaster University, UK")
+URL: https://github.com/config-i1/complex
+BugReports: https://github.com/config-i1/complex/issues
+Language: en-GB
+Description: Set of function implementing the instruments for
+        complex-valued modelling, including time series analysis and
+        forecasting. This is based on the monograph by Svetunkov Sergey
+        and Svetunkov Ivan "Complex-valued Econometrics with Examples
+        in R" which is in press by Springer (expected to be published
+        in 2024).
+License: LGPL-2.1
+Depends: R (>= 3.5.0), greybox (>= 0.5.0), legion
+Imports: stats, graphics, nloptr, mvtnorm, pracma
+LinkingTo: Rcpp, RcppArmadillo
+Suggests: testthat, knitr, rmarkdown
+RoxygenNote: 7.3.1
+Encoding: UTF-8
+NeedsCompilation: yes
+Packaged: 2024-04-09 11:29:51 UTC; config
+Author: Ivan Svetunkov [aut, cre] (Lecturer at Centre for Marketing
+        Analytics and Forecasting, Lancaster University, UK)
+Maintainer: Ivan Svetunkov <ivan@svetunkov.com>
+Repository: CRAN
+Date/Publication: 2024-04-09 16:50:05 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
