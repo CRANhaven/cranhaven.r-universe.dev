@@ -1,0 +1,63 @@
+#' Gather graph edge from data frame
+#' Please note that this function is from the 'ggraph' package and has not been altered in functionality,
+#' but it has been optimized and iterated.
+#' It is not original content of 'TransProR'.
+#' However, since 'ggraph' caused frequent GitHub Action errors during the creation of 'TransProR',
+#' the author directly referenced the involved functions in 'TransProR'.
+#' This is not the author's original creation. All users please be aware!
+#' @param df A data frame
+#' @param index A vector of column names to group by
+#' @param root Root name for the root node connections, optional
+#' @return A tibble of graph edges
+#' @export
+#' @examples
+#' # Example taxonomic hierarchy data frame
+#' OTU <- tibble::tibble(
+#'   p = c("Firmicutes", "Firmicutes", "Bacteroidetes", "Bacteroidetes", "Proteobacteria"),
+#'   c = c("Bacilli", "Clostridia", "Bacteroidia", "Bacteroidia", "Gammaproteobacteria"),
+#'   o = c("Lactobacillales", "Clostridiales", "Bacteroidales", "Bacteroidales", "Enterobacterales"),
+#'   abundance = c(100, 150, 200, 50, 300) # Abundance or some other metric
+#' )
+#'
+#' # Gathering graph edges by specifying hierarchical taxonomic levels
+#' edges <- gather_graph_edge(OTU, index = c("p", "c", "o"))
+#'
+#' # Adding a root node to the graph
+#' edges_with_root <- gather_graph_edge(OTU, index = c("p", "c", "o"), root = "Root")
+#'
+#' @importFrom dplyr mutate select group_by summarise bind_rows all_of across
+#' @importFrom tidyr unite
+#' @importFrom tibble as_tibble
+#' @name gather_graph_edge
+gather_graph_edge <- function(df, index = NULL, root = NULL) {
+  if (length(index) < 2) {
+    stop("Please specify at least two index columns.")
+  }
+
+  prepare_edge <- function(data, from, to, sep = "/") {
+    data %>%
+      tidyr::unite("from", dplyr::all_of(from), sep = sep, remove = FALSE) %>%
+      tidyr::unite("to", dplyr::all_of(to), sep = sep) %>%
+      dplyr::select(.data$from, .data$to) %>%
+      dplyr::mutate(dplyr::across(c("from", "to"), as.character))
+  }
+
+  edges <- lapply(seq_along(index)[-1], function(i) {
+    prepare_edge(df, index[1:(i - 1)], index[1:i])
+  })
+
+  edges <- dplyr::bind_rows(edges)
+  edges <- tibble::as_tibble(edges)
+
+  if (!is.null(root)) {
+    root_edges <- df %>%
+      dplyr::group_by(.data[[index[1]]]) %>%
+      dplyr::summarise(count = dplyr::n(), .groups = 'drop') %>%
+      dplyr::mutate(from = root, to = as.character(.data[[index[1]]])) %>%
+      dplyr::select(.data$from, .data$to)
+
+    edges <- dplyr::bind_rows(root_edges, edges)
+  }
+
+  return(edges)
+}
