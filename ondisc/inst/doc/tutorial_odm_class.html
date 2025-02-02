@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Tutorial 1: Using the ondisc_matrix class</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Tutorial 1: Using the <code>ondisc_matrix</code> class</h1>
+
+
+
+<p>This tutorial shows how to use <code>ondisc_matrix</code>, the core class implemented by <code>ondisc</code>. An <code>ondisc_matrix</code> is an R object that represents an expression matrix stored on-disk rather than in-memory. We cover the topics of initialization, querying basic information, subsetting, and pulling submatrices into memory. We begin by loading the <code>ondisc</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ondisc)</span></code></pre></div>
+<div id="initialization" class="section level1">
+<h1>Initialization</h1>
+<p><code>ondisc</code> ships with several example datasets, stored in the “extdata” subdirectory of the package.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>raw_data_dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package =</span> <span class="st">&quot;ondisc&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(raw_data_dir)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cell_barcodes.tsv&quot;   &quot;gene_expression.mtx&quot; &quot;genes.tsv&quot;          </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;guides.tsv&quot;          &quot;perturbation.mtx&quot;</span></span></code></pre></div>
+<p>The files “gene_expression.mtx”, “cell_barcodes.tsv,” and “genes.tsv” together define a gene-by-cell expression matrix. We save the full paths to these files in the variables <code>mtx_fp</code>, <code>barcodes_fp</code>, and <code>features_fp</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mtx_fp <span class="ot">&lt;-</span> <span class="fu">paste0</span>(raw_data_dir, <span class="st">&quot;/gene_expression.mtx&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>barcodes_fp <span class="ot">&lt;-</span> <span class="fu">paste0</span>(raw_data_dir, <span class="st">&quot;/cell_barcodes.tsv&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>features_fp <span class="ot">&lt;-</span> <span class="fu">paste0</span>(raw_data_dir, <span class="st">&quot;/genes.tsv&quot;</span>)</span></code></pre></div>
+<p>An <code>ondisc_matrix</code> consists of two parts: an HDF5 (i.e., .h5) file that stores the expression data on-disk in a novel format, and an in-memory object that allows us to interact with the expression data from within R. The easiest way to initialize an <code>ondisc_matrix</code> is by calling the function <code>create_ondisc_matrix_from_mtx</code>. We pass to this function (i) a file path to the .mtx file storing the expression data, (ii) a file path to the .tsv file storing the cell barcodes, and (iii) a file path to the .tsv file storing the feature IDs and human-readable feature names. We optionally can specify the directory in which to store the initialized .h5 file, which in this tutorial we will take to be the temporary directory.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>temp_dir <span class="ot">&lt;-</span> <span class="fu">tempdir</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>exp_mat_list <span class="ot">&lt;-</span> <span class="fu">create_ondisc_matrix_from_mtx</span>(<span class="at">mtx_fp =</span> mtx_fp,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">barcodes_fp =</span> barcodes_fp,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">features_fp =</span> features_fp,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">on_disk_dir =</span> temp_dir)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">========</span>                                                                 <span class="er">|</span> <span class="dv">11</span>%</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=================</span>                                                        <span class="er">|</span> <span class="dv">23</span>%</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">==========================</span>                                               <span class="er">|</span> <span class="dv">36</span>%</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">====================================</span>                                     <span class="er">|</span> <span class="dv">48</span>%</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=============================================</span>                            <span class="er">|</span> <span class="dv">61</span>%</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">======================================================</span>                   <span class="er">|</span> <span class="dv">73</span>%</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">===============================================================</span>          <span class="er">|</span> <span class="dv">86</span>%</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=========================================================================|</span> <span class="dv">98</span>%</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=========================================================================|</span> <span class="dv">100</span>%</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">========</span>                                                                 <span class="er">|</span> <span class="dv">11</span>%</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=================</span>                                                        <span class="er">|</span> <span class="dv">23</span>%</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">==========================</span>                                               <span class="er">|</span> <span class="dv">36</span>%</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">====================================</span>                                     <span class="er">|</span> <span class="dv">48</span>%</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=============================================</span>                            <span class="er">|</span> <span class="dv">61</span>%</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">======================================================</span>                   <span class="er">|</span> <span class="dv">73</span>%</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">===============================================================</span>          <span class="er">|</span> <span class="dv">86</span>%</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=========================================================================|</span> <span class="dv">98</span>%</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span><span class="er">=========================================================================|</span> <span class="dv">100</span>%</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Writing CSC data.</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Writing CSR data.</span></span></code></pre></div>
+<p>By default, <code>create_ondisc_matrix_from_mtx</code> returns a list of three elements: (i) an <code>ondisc_matrix</code> representing the expression data, (ii) a cell-wise covariate matrix, and (iii) a feature-wise covariate matrix. The exact cell-wise and feature-wise covariate matrices that are computed depend on the inputs to <code>create_ondisc_matrix_from_mtx</code> (see documentation via ?create_ondisc_matrix_from_mtx for full details). The advantage to computing the cell-wise and feature-wise covariates at initialization is that it obviates the need to load the entire dataset into memory a second time.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>expression_mat <span class="ot">&lt;-</span> exp_mat_list<span class="sc">$</span>ondisc_matrix</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(expression_mat)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Showing 5 of 300 featuress and 6 of 900 cells:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading required package: Matrix</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6]</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,]    3    0    0    0    0    5</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,]    0    2    0    0    0    0</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,]    0    8    0    0    0    0</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,]    0    0    0    0    0    0</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5,]    0    0    0    0    0    0</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>cell_covariates <span class="ot">&lt;-</span> exp_mat_list<span class="sc">$</span>cell_covariates</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cell_covariates)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   n_nonzero n_umis     p_mito</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1        43    214 0.04672897</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2        26    169 0.00000000</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3        22    116 0.05172414</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4        37    258 0.08139535</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5        36    224 0.08035714</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6        31    147 0.07482993</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>feature_covariates <span class="ot">&lt;-</span> exp_mat_list<span class="sc">$</span>feature_covariates</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feature_covariates)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   mean_expression coef_of_variation n_nonzero</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0.7577778          2.981871       114</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0.5977778          3.302883        96</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0.5788889          3.539932        85</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0.6533333          3.341677        91</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0.5522222          3.578487        82</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0.5455556          3.541223        84</span></span></code></pre></div>
+<p>The initialized HDF5 file is named <code>ondisc_matrix_1.h5</code> and is located in the temporary directory.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;ondisc_matrix_1.h5&quot;</span> <span class="sc">%in%</span> <span class="fu">list.files</span>(temp_dir)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>A strength of <code>create_ondisc_matrix_from_mtx</code> is that it does <em>not</em> assume that entire expression matrix fits into memory. The optional argument <code>n_lines_per_chunk</code> can be used to specify the number of lines to read from the .mtx file at a time. Additionally, <code>create_ondisc_matrix_from_mtx</code> is fast: the novel algorithm that underlies this function is highly efficient and implemented in C++ for maximum speed. Typically, <code>create_ondisc_matrix_from_mtx</code> takes aboout 4-8 minutes/GB to run. Finally, for a given dataset, <code>create_ondisc_matrix_from_mtx</code> only needs to be run once, even after closing and opening new R sessions.</p>
+</div>
+<div id="querying-basic-information" class="section level1">
+<h1>Querying basic information</h1>
+<p>We can use the functions <code>get_feature_ids</code>, <code>get_feature_names</code>, and <code>get_cell_barcodes</code> to obtain the feature IDs, feature names (if applicable), and cell barcodes, respectively, of an <code>ondisc_matrix</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>feature_ids <span class="ot">&lt;-</span> <span class="fu">get_feature_ids</span>(expression_mat)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>feature_names <span class="ot">&lt;-</span> <span class="fu">get_feature_names</span>(expression_mat)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>cell_barcodes <span class="ot">&lt;-</span> <span class="fu">get_cell_barcodes</span>(expression_mat)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feature_ids)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;ENSG00000198060&quot; &quot;ENSG00000237832&quot; &quot;ENSG00000267543&quot; &quot;ENSG00000103460&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5] &quot;ENSG00000229637&quot; &quot;ENSG00000174990&quot;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feature_names)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;MARCH5&quot;     &quot;AL138808.1&quot; &quot;AC015802.3&quot; &quot;TOX3&quot;       &quot;PRAC2&quot;     </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6] &quot;CA5A&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cell_barcodes)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;GCTTTCGTCTAGACCA-1&quot; &quot;ACGGTCGTCGTTAGAC-1&quot; &quot;TTTACGTTCACCTCGT-1&quot;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4] &quot;TGGATCATCCTTCAGC-1&quot; &quot;ACAGGGAAGACGCCCT-1&quot; &quot;ACCTACCAGTGTTCCA-1&quot;</span></span></code></pre></div>
+<p>Additionally, we can use <code>dim</code>, <code>nrow</code>, and <code>ncol</code> to obtain the dimension, number of rows (i.e., number of features), and number of columns (i.e., number of cells) of an <code>ondisc_matrix</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(expression_mat)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 300 900</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(expression_mat)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 300</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(expression_mat)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 900</span></span></code></pre></div>
+</div>
+<div id="subsetting" class="section level1">
+<h1>Subsetting</h1>
+<p>We can subset an <code>ondisc_matrix</code> to obtain a new <code>ondisc_matrix</code> that is a submatrix of the original. To subset an <code>ondisc_matrix</code>, apply the <code>[</code> operator and pass a numeric, logical, or character vector indicating the cells or features to keep. Character vectors are assumed to refer to feature IDs (for rows) and cell barcodes (for columns).</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># numeric vector examples</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># keep genes 100-110</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> expression_mat[<span class="dv">100</span><span class="sc">:</span><span class="dv">110</span>,]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># keep all cells except 10 and 20</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> expression_mat[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">20</span>)]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># keep genes 50-100 and 200-250 and cells 300-500</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> expression_mat[<span class="fu">c</span>(<span class="dv">50</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">200</span><span class="sc">:</span><span class="dv">250</span>), <span class="dv">300</span><span class="sc">:</span><span class="dv">500</span>]</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># character vector examples</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># keep genes ENSG00000107581, ENSG00000286857, and ENSG00000266371</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> expression_mat[<span class="fu">c</span>(<span class="st">&quot;ENSG00000107581&quot;</span>, <span class="st">&quot;ENSG00000286857&quot;</span>, <span class="st">&quot;ENSG00000266371&quot;</span>),]</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># keep cells CGTTGGGCATGGCTGC-1 and GTAACCAGTACAGTTC-1 </span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> expression_mat[,<span class="fu">c</span>(<span class="st">&quot;CGTTGGGCATGGCTGC-1&quot;</span>, <span class="st">&quot;GTAACCAGTACAGTTC-1&quot;</span>)]</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># logical vector example</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co"># keep all genes except ENSG00000237832 and ENSG00000229637</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> expression_mat[<span class="sc">!</span>(<span class="fu">get_feature_ids</span>(expression_mat) </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;ENSG00000237832&quot;</span>, <span class="st">&quot;ENSG00000229637&quot;</span>)),]</span></code></pre></div>
+<p>Subsetting an <code>ondisc_matrix</code> leaves the original object unchanged.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>expression_mat</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; An ondisc_matrix with 300 features and 900 cells.</span></span></code></pre></div>
+<p>This important property, called <em>object persistence</em>, makes programming with <code>ondisc_matrices</code> intuitive. The underlying HDF5 file is not copied upon subset; instead, information is shared across <code>ondisc_matrix</code> objects, making subsets fast.</p>
+</div>
+<div id="pulling-a-submatrix-into-memory" class="section level1">
+<h1>Pulling a submatrix into memory</h1>
+<p>We can pull a submatrix of an <code>ondisc_matrix</code> into memory, allowing us to perform computations on a subset of the data. To pull a submatrix into memory, use the <code>[[</code> operator, passing a numeric, character, or logical vector indicating the cells or features to access. The data structure that underlies an <code>ondisc_matrix</code> enables fast access to both rows and columns of the matrix.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># numeric vector examples</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pull gene 6</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> expression_mat[[<span class="dv">6</span>,]]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># pull cells 200 - 250</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> expression_mat[[,<span class="dv">200</span><span class="sc">:</span><span class="dv">250</span>]]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># pull genes 50 - 100 and cells 200 - 250</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> expression_mat[[<span class="dv">50</span><span class="sc">:</span><span class="dv">100</span>, <span class="dv">200</span><span class="sc">:</span><span class="dv">250</span>]]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># character vector examples</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># pull genes ENSG00000107581 and ENSG00000286857</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> expression_mat[[<span class="fu">c</span>(<span class="st">&quot;ENSG00000107581&quot;</span>, <span class="st">&quot;ENSG00000286857&quot;</span>),]]</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># pull cells CGTTGGGCATGGCTGC-1 and GTAACCAGTACAGTTC-1</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> expression_mat[[,<span class="fu">c</span>(<span class="st">&quot;CGTTGGGCATGGCTGC-1&quot;</span>, <span class="st">&quot;GTAACCAGTACAGTTC-1&quot;</span>)]]</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co"># logical vector examples</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co"># subset the matrix, keeping genes ENSG00000107581, ENSG00000286857, and ENSG00000266371</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> expression_mat[<span class="fu">c</span>(<span class="st">&quot;ENSG00000107581&quot;</span>, <span class="st">&quot;ENSG00000286857&quot;</span>, <span class="st">&quot;ENSG00000266371&quot;</span>),]</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co"># pull all genes except ENSG00000107581</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> x[[<span class="fu">get_feature_ids</span>(x) <span class="sc">!=</span> <span class="st">&quot;ENSG00000107581&quot;</span>,]]</span></code></pre></div>
+<p>The last example demonstrates that we can pull a submatrix of an <code>ondisc_matrix</code> into memory after having subset the matrix.</p>
+<p>One can remember the difference between <code>[</code> and <code>[[</code> by recalling R lists: <code>[</code> is used to subset a list, and <code>[[</code> is used to access elements stored within a list. Similarly, <code>[</code> is used to subset an <code>ondisc_matrix</code>, and <code>[[</code> is used to access a submatrix stored within an <code>ondisc_matrix</code>.</p>
+</div>
+<div id="saving-and-loading-an-ondisc_matrix" class="section level1">
+<h1>Saving and loading an <code>ondisc_matrix</code></h1>
+<p>As discussed previously, there are two components to an <code>ondisc_matrix</code>: the HDF5 file stored on-disk, and the R object stored in memory. The latter contains a file path to the former, allowing us to interact with the expression data from within R.</p>
+<p>To save an <code>ondisc_matrix</code>, simply call <code>saveRDS</code> on the <code>ondisc_matrix</code> R object to create an .rds file.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> expression_mat, <span class="at">file =</span> <span class="fu">paste0</span>(temp_dir, <span class="st">&quot;/expression_matrix.rds&quot;</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(expression_mat)</span></code></pre></div>
+<p>We then can load the <code>ondisc_matrix</code> by calling <code>readRDS</code> on the .rds file.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>expression_mat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(temp_dir, <span class="st">&quot;/expression_matrix.rds&quot;</span>))</span></code></pre></div>
+<p>We also can use the constructor of the <code>ondisc_matrix</code> class to create an <code>ondisc_matrix</code> from an already-initialized HDF5 file.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>h5_file <span class="ot">&lt;-</span> <span class="fu">paste0</span>(temp_dir, <span class="st">&quot;/ondisc_matrix_1.h5&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>expression_mat <span class="ot">&lt;-</span> <span class="fu">ondisc_matrix</span>(h5_file)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

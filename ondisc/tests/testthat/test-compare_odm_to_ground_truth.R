@@ -1,0 +1,21 @@
+test_that("Compare ground truth matrix to on_disc_matrix", {
+  for (i in seq(1, n_datasets)) {
+    m1 <- r_mats[[i]]
+    on_disc_mat <- cov_odms[[i]]@ondisc_matrix
+    m2 <- on_disc_mat[[,1:ncol(on_disc_mat)]]
+    m3 <- on_disc_mat[[1:nrow(on_disc_mat),]]
+    m4 <- on_disc_mat[[1:nrow(on_disc_mat),1:ncol(on_disc_mat)]]
+    expect_true(all(m1 == m2))
+    expect_true(all(m2 == m3))
+    expect_true(all(m3 == m4))
+  }
+})
+
+
+test_that("Test odm constructor", {
+  for (i in seq(1, n_datasets)) {
+    h5_file <- paste0(temp_test_dir, "/ondisc_matrix_", i, ".h5")
+    x <- ondisc_matrix(h5_file)
+    expect_equal(x, cov_odms[[i]]@ondisc_matrix)
+  }
+})

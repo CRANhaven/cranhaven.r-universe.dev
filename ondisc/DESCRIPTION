@@ -1,0 +1,38 @@
+Package: ondisc
+Title: Fast, Universal, and Intuitive Computing on Large-Scale
+        Single-Cell Data
+Version: 1.0.0
+Authors@R: c(person(given = "Timothy", family = "Barry", role =
+        c("aut", "cre"), email = "tbarry2@andrew.cmu.edu", comment =
+        c(ORCID = "0000-0002-4356-627X")), person(given = "Eugene",
+        family = "Katsevich", role = "ths", comment = c(ORCID =
+        "0000-0003-0598-2050")), person(given = "Kathryn", family =
+        "Roeder", role = "ths"))
+Description: Single-cell datasets are growing in size, posing
+        challenges as well as opportunities for biology researchers.
+        'ondisc' (short for "on-disk single cell") enables users to
+        easily and efficiently analyze large-scale single-cell data.
+        'ondisc' makes computing on large-scale single-cell data FUN:
+        Fast, Universal, and iNtuitive.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+URL: https://timothy-barry.github.io/ondisc/
+Suggests: testthat, knitr, rmarkdown, covr
+Imports: readr, methods, magrittr, rhdf5, data.table, Matrix, Rcpp,
+        crayon, dplyr
+Depends: R (>= 3.5.0)
+VignetteBuilder: knitr
+LinkingTo: Rcpp, Rhdf5lib
+SystemRequirements: GNU make
+NeedsCompilation: yes
+Packaged: 2021-03-04 03:57:43 UTC; timbarry
+Author: Timothy Barry [aut, cre]
+        (<https://orcid.org/0000-0002-4356-627X>), Eugene Katsevich
+        [ths] (<https://orcid.org/0000-0003-0598-2050>), Kathryn Roeder
+        [ths]
+Maintainer: Timothy Barry <tbarry2@andrew.cmu.edu>
+Repository: CRAN
+Date/Publication: 2021-03-05 09:10:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
