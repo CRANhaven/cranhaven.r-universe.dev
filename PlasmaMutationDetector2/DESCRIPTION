@@ -1,0 +1,33 @@
+Package: PlasmaMutationDetector2
+Type: Package
+Title: Tumor Mutation Detection in Plasma using Barcoding
+Version: 1.1.11
+Date: 2022-04-07
+Author: Yves Rozenholc [cre, aut] Oddmund Nordgård [con, aut] Nicolas
+        Pécuchet [con] Pierre-Laurent Puig [con]
+Maintainer: Rozenholc <yves.rozenholc@u-paris.fr>
+Description: Aims at detecting single nucleotide variation (SNV) and
+        insertion/deletion (INDEL) in circulating tumor DNA (ctDNA),
+        used as a surrogate marker for tumor, at each base position of
+        an Next Generation Sequencing (NGS) analysis using barcoding.
+        Mutations are assessed by comparing the minor-allele frequency
+        at each position to the measured PER in control samples. This
+        package has been used for Kjersti Tjensvoll, Morten Lapin,
+        Bjørnar Gilje, Herish Garresori, Satu Oltedal, Rakel Brendsdal
+        Forthun, Anders Molven, Yves Rozenholc and Oddmund
+        N\o{o}rdgaard (2022)
+        <https://www.nature.com/articles/s41598-022-09698-5>.
+License: MIT + file LICENSE
+Imports: S4Vectors (>= 0.16.0), Rsamtools (>= 1.30.0), rtracklayer (>=
+        1.38.0), robustbase (>= 0.92-8), SummarizedExperiment (>=
+        1.8.0)
+Depends: R (>= 3.5.0), ggplot2 (>= 2.2.0), grid (>= 3.4.0),
+        GenomicRanges (>= 1.30.0), VariantAnnotation (>= 1.24.0)
+Encoding: UTF-8
+RoxygenNote: 7.1.2
+LazyData: true
+NeedsCompilation: no
+Packaged: 2022-04-29 11:04:34 UTC; rozen
+Repository: CRAN
+Date/Publication: 2022-05-03 10:00:08 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
