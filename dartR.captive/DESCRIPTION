@@ -1,0 +1,46 @@
+Package: dartR.captive
+Type: Package
+Title: Analysing 'SNP' Data to Support Captive Breeding
+Version: 0.75
+Date: 2023-11-27
+Authors@R: c( person("Bernd", "Gruber",
+        email="bernd.gruber@canberra.edu.au", role=c("aut","cre")),
+        person("Arthur", "Georges", email="georges@aerg.edu.au",
+        role="aut"), person("Jose L.", "Mijangos",
+        email="Luis.MijangosAraujo@canberra.edu.au", role="aut"),
+        person("Carlo",
+        "Pacioni",email="carlo.pacioni@delwp.vic.gov.au",role="aut"),
+        person("Peter J.", "Unmack", email="peter.mail2@unmack.net",
+        role="ctb"), person("Oliver", "Berry",
+        email="oliver.berry@csiro.au", role="ctb" ), person("Lindsay
+        V.", "Clark", email="lvclark@illinois.edu", role="ctb"),
+        person("Floriaan",
+        "Devloo-Delva",email="Floriaan.Devloo-Delva@csiro.au",
+        role="ctb"), person("Eric","Archer",
+        email="eric.archer@noaa.gov", role="ctb") )
+Description: Functions are provided that facilitate the analysis of SNP
+        (single nucleotide polymorphism) data to answer questions
+        regarding captive breeding and relatedness between individuals.
+        'dartR.captive' is part of the 'dartRverse' suit of packages.
+        Gruber et al. (2018) <doi:10.1111/1755-0998.12745>. Mijangos et
+        al. (2022) <doi:10.1111/2041-210X.13918>.
+Encoding: UTF-8
+Depends: R (>= 3.5), adegenet (>= 2.0.0), dartR.base, dartR.data
+Imports: methods, utils, crayon, ggplot2, patchwork, stringr
+Suggests: SIBER, gplots, fields, igraph, reshape2, rrBLUP, scales,
+        spelling
+License: GPL (>= 3)
+RoxygenNote: 7.2.3
+NeedsCompilation: no
+Packaged: 2023-11-27 01:11:27 UTC; s425824
+Author: Bernd Gruber [aut, cre], Arthur Georges [aut], Jose L. Mijangos
+        [aut], Carlo Pacioni [aut], Peter J. Unmack [ctb], Oliver Berry
+        [ctb], Lindsay V. Clark [ctb], Floriaan Devloo-Delva [ctb],
+        Eric Archer [ctb]
+URL: https://green-striped-gecko.github.io/dartR/
+BugReports: https://groups.google.com/g/dartr?pli=1
+Language: en-US
+Maintainer: Bernd Gruber <bernd.gruber@canberra.edu.au>
+Repository: CRAN
+Date/Publication: 2023-11-27 17:10:09 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
