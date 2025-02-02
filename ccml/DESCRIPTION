@@ -1,0 +1,35 @@
+Package: ccml
+Type: Package
+Title: Consensus Clustering for Different Sample Coverage Data
+Version: 1.4.0
+Authors@R: c( person(given = "Chuanxing", family = "Li", email =
+        "chuan-xing.li@ki.se", role = c("aut", "cre")), person(given =
+        "Meng", family = "Zhou", email="zhoumeng@wmu.edu.cn",
+        role="aut"))
+Description: Consensus clustering, also called meta-clustering or
+        cluster ensembles, has been increasingly used in clinical data.
+        Current consensus clustering methods tend to ensemble a number
+        of different clusters from mathematical replicates with similar
+        sample coverage. As the fact of common variety of sample
+        coverage in the real-world data, a new consensus clustering
+        strategy dealing with such biological replicates is required.
+        This is a two-step consensus clustering package, which is used
+        to input multiple predictive labels with different sample
+        coverage (missing labels).
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.1
+Depends: R (>= 3.5.0)
+Imports: ggplot2, diceR, parallel, tidyr, SNFtool, plyr,
+        ConsensusClusterPlus (>= 1.56.0)
+Suggests: spelling, testthat (>= 3.0.0)
+Language: en-US
+Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2023-08-30 02:20:32 UTC; Lenovo
+Author: Chuanxing Li [aut, cre], Meng Zhou [aut]
+Maintainer: Chuanxing Li <chuan-xing.li@ki.se>
+Repository: CRAN
+Date/Publication: 2023-08-30 06:10:02 UTC
+Additional_repositories: https://cranhaven.r-universe.dev
